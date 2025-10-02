@@ -3,7 +3,7 @@ import { cva, VariantProps } from 'class-variance-authority'
 import React, { FC, HTMLAttributes } from 'react'
 
 const textVariants = cva(
-    "px-5 py-3 shrink-0 rounded-lg flex items-center justify-center",
+    "",
     {
         variants: {
             variant: {
