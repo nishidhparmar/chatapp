@@ -37,7 +37,7 @@ const NewPasswordPage = () => {
           <div>
             <Button
               variant="primaryDefault"
-              className="w-full font-semibold text-[14px] cursor-pointer"
+              className="w-full font-semibold text-sm cursor-pointer"
               disabled
             >
               Reset Password
