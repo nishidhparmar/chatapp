@@ -2,7 +2,7 @@
 
 import InvoiceView from '../common/invoice-view';
 import { PiThumbsUp } from 'react-icons/pi';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { Message } from '../icons';
 import DashboardLayout from '../layout/dashboard-layout';
 import { SearchTab } from '../common';
@@ -12,7 +12,13 @@ import ProvideFeedbackModal from './provice-feedback-modal';
 
 const InvoiceSearchedByCustomer = () => {
   const router = useRouter();
-  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState(false);
+  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState<{
+    visible: boolean;
+    type: 'POSITIVE' | 'NAGETIVE';
+  }>({
+    visible: false,
+    type: 'POSITIVE',
+  });
   return (
     <DashboardLayout>
       <div className='bg-transparent'>
@@ -60,11 +66,21 @@ const InvoiceSearchedByCustomer = () => {
                 </span>
                 <PiThumbsUp
                   className='text-neutral-ct-secondary'
-                  onClick={() => setOpenProvideFeedbackModal(true)}
+                  onClick={() =>
+                    setOpenProvideFeedbackModal({
+                      type: 'POSITIVE',
+                      visible: true,
+                    })
+                  }
                 />
                 <PiThumbsUp
                   className='rotate-180 text-neutral-ct-secondary'
-                  onClick={() => setOpenProvideFeedbackModal(true)}
+                  onClick={() =>
+                    setOpenProvideFeedbackModal({
+                      type: 'NAGETIVE',
+                      visible: true,
+                    })
+                  }
                 />
               </div>
               <Button
@@ -79,7 +95,9 @@ const InvoiceSearchedByCustomer = () => {
       </div>
       <ProvideFeedbackModal
         open={provideFeedbackModal}
-        onOpenChange={() => setOpenProvideFeedbackModal(false)}
+        onOpenChange={() =>
+          setOpenProvideFeedbackModal({ type: 'POSITIVE', visible: false })
+        }
       />
     </DashboardLayout>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { GoShareAndroid } from 'react-icons/go';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '../../lib/utils';
@@ -17,8 +17,8 @@ import DeleteChat from './delete-chat';
 import ShareChatModal from './share-chat';
 import { FiCheck, FiX } from 'react-icons/fi';
 import Edit from '../icons/Edit';
-import { Input } from '../ui/input';
 import FolderOpen from '../icons/FolderOpen';
+import Input from '../ui/input';
 
 interface ChatHeaderProps {
   title?: string;

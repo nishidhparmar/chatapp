@@ -15,7 +15,19 @@ import { default as ChevronUp } from './ChevronUp';
 import { default as Share } from './Share';
 import { default as MoreVertical } from './MoreVertical';
 import { default as Folder } from './Folder';
+import { default as FolderOpen } from './FolderOpen';
 import { default as Trash } from './Trash';
+import { default as Edit } from './Edit';
+import { default as BarChartIcon } from './BarChartIcon';
+import { default as TableIcon } from './TableIcon';
+import { default as PieChartIcon } from './PieChartIcon';
+import { default as ChartLineIcon } from './ChartLineIcon';
+import { default as Pdf } from './Pdf';
+import { default as Jpeg } from './Jpeg';
+import { default as Png } from './Png';
+import { default as Svg } from './Svg';
+import { default as Play } from './Play';
+import { default as Stop } from './Stop';
 
 export {
   Chat,
@@ -35,5 +47,17 @@ export {
   Share,
   MoreVertical,
   Folder,
+  FolderOpen,
   Trash,
+  Edit,
+  BarChartIcon,
+  TableIcon,
+  PieChartIcon,
+  ChartLineIcon,
+  Pdf,
+  Jpeg,
+  Png,
+  Svg,
+  Play,
+  Stop,
 };

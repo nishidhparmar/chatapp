@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -14,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Lock, Link2, X } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
+import Input from '../ui/input';
 
 interface ShareChatModalProps {
   open: boolean;

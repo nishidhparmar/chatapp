@@ -7,9 +7,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { LoginSchema } from '@/lib/validation';
-import ILink from '../ui/Link';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
+import ILink from '../ui/link';
 
 const LoginPage = () => {
   const router = useRouter();

@@ -2,7 +2,7 @@
 
 import InvoiceView from '../common/invoice-view';
 import DashboardLayout from '../layout/dashboard-layout';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { GoMail } from 'react-icons/go';
 import { Aichat, Document, People } from '../icons';
 import ChatBubble from '../common/message/chat-Bubble';
