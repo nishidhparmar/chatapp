@@ -91,15 +91,14 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
             <DialogFooter className='mt-4'>
               <Button
                 variant='secondary'
-                className='px-4 py-2'
                 onClick={handleBackToGroups}
+                size={'xs'}
               >
-                <ArrowLeft className='text-neutral-ct-primary -ml-1 mr-1' />{' '}
-                Back
+                <ArrowLeft className='text-neutral-ct-primary' /> Back
               </Button>
               <Button
                 type='submit'
-                className='px-4 py-2'
+                size={'xs'}
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
               >
@@ -167,12 +166,12 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
             <div className='flex justify-between mt-4'>
               <Button
                 variant='secondary'
-                className='px-4 py-2'
+                size={'xs'}
                 onClick={() => setIsCreatingGroup(true)}
               >
                 <Plus className='text-neutral-ct-primary -mr-1' /> New Group
               </Button>
-              <Button type='submit' className='px-4 py-2 font-semibold'>
+              <Button type='submit' size={'xs'}>
                 Done
               </Button>
             </div>

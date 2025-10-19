@@ -50,14 +50,17 @@ const InvoiceConversation = () => {
                 </div>
 
                 <div className='flex flex-row flex-wrap gap-3 mt-6'>
-                  <Button variant={'secondary'} className='text-sm'>
+                  <Button variant={'secondary'} className='text-sm font-normal'>
                     <GoMail className='!h-4 !w-4 text-neutral-ct-secondary' />{' '}
                     Send reminders to customers
                   </Button>
-                  <Button variant={'secondary'} className='text-sm'>
+                  <Button variant={'secondary'} className='text-sm font-normal'>
                     <Document /> See individual invoices for Acme Corp
                   </Button>
-                  <Button variant={'secondary'} className='text-sm'>
+                  <Button
+                    variant={'secondary'}
+                    className='text-sm font-normal  md:flex hidden'
+                  >
                     <People /> Highlight customers with highest late-payment
                     risk
                   </Button>
@@ -70,6 +73,18 @@ const InvoiceConversation = () => {
         {/* Send input - Fixed at bottom */}
         <div className='flex-shrink-0'>
           <div className='max-w-[758px] mx-auto w-full px-4 py-4'>
+            <div className='bg-brand-subtle px-3 py-2 flex items-center border border-blue-100 rounded-[4px] justify-between'>
+              <p className='text-brand-ct-brand text-xs'>
+                Your chat history is not stored automatically. Save this chat to
+                access it later.
+              </p>
+              <Button
+                className='text-xs py-2 px-4'
+                onClick={() => setOpenChatModal(true)}
+              >
+                Save chat
+              </Button>
+            </div>
             <SendInput />
           </div>
         </div>

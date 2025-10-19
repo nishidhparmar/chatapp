@@ -6,7 +6,7 @@ import DashboardLayout from '../layout/dashboard-layout';
 const HomePage = () => {
   return (
     <DashboardLayout>
-      <div className='flex items-center justify-center px-8 bg-transparent py-12 h-[calc(100vh-56px)]'>
+      <div className='flex items-center justify-center lg:px-8 px-4 bg-transparent py-12 h-[calc(100vh-56px)]'>
         <div className='max-w-[806px] w-full'>
           {/* Title */}
           <div className='text-center mb-8'>

@@ -25,7 +25,7 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className='flex flex-col bg-secondary justify-center items-center min-h-screen p-8'>
+    <div className='flex flex-col bg-secondary justify-center items-center min-h-screen lg:p-8 p-4'>
       <div className='p-6 border border-neutral-br-primary bg-white rounded-lg max-w-[422px] w-full'>
         <h1 className='text-neutral-ct-primary text-[28px] font-semibold'>
           Forgot Password?

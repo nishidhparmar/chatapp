@@ -27,8 +27,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className='grid grid-cols-3'>
-      <div className='col-span-2 bg-secondary relative h-screen'>
+    <div className='grid lg:grid-cols-3 grid-cols-1'>
+      <div className='lg:col-span-2 col-span-1 lg:block hidden bg-secondary relative h-screen'>
         <Image
           alt=''
           src={'/images/landing-page-image.svg'}
@@ -36,7 +36,7 @@ const LoginPage = () => {
           className='object-contain'
         />
       </div>
-      <div className='flex flex-col justify-center items-center p-8'>
+      <div className='flex flex-col justify-center h-screen items-center lg:p-8 p-4'>
         <div className='p-6 border border-neutral-br-primary rounded-lg max-w-[422px] w-full'>
           <h1 className='text-neutral-ct-primary text-[28px] font-semibold'>
             Login

@@ -6,13 +6,13 @@ import {
   Area,
   XAxis,
   YAxis,
-  CartesianGrid,
 } from 'recharts';
+import { useIsMobile } from '../../../hooks/use-mobile';
 
 const multiLineData = [
   {
     date: '05',
-    month: 'Mar',
+    month: '',
     searchEngine: 35,
     paidAds: 45,
     emailMarketing: 15,
@@ -52,15 +52,16 @@ const multiLineData = [
   },
 ];
 
-const CustomLegend = () => {
+const CustomLegend = ({ isMobile }: { isMobile: boolean }) => {
+  const legendFontSize = isMobile ? 12 : 14;
+  const gap = isMobile ? '16px' : '32px';
+
   return (
     <div
       style={{
         display: 'flex',
-        justifyContent: 'center',
-        gap: '32px',
-        paddingTop: '20px',
-        paddingBottom: '10px',
+        gap: gap,
+        flexWrap: isMobile ? 'wrap' : 'nowrap',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -72,7 +73,7 @@ const CustomLegend = () => {
             backgroundColor: '#3b82f6',
           }}
         ></div>
-        <span style={{ color: '#6b7280', fontSize: '14px' }}>
+        <span style={{ color: '#6b7280', fontSize: legendFontSize }}>
           Search Engine
         </span>
       </div>
@@ -85,7 +86,9 @@ const CustomLegend = () => {
             backgroundColor: '#a855f7',
           }}
         ></div>
-        <span style={{ color: '#6b7280', fontSize: '14px' }}>Paid Ads</span>
+        <span style={{ color: '#6b7280', fontSize: legendFontSize }}>
+          Paid Ads
+        </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div
@@ -96,7 +99,7 @@ const CustomLegend = () => {
             backgroundColor: '#ec4899',
           }}
         ></div>
-        <span style={{ color: '#6b7280', fontSize: '14px' }}>
+        <span style={{ color: '#6b7280', fontSize: legendFontSize }}>
           Email Marketing
         </span>
       </div>
@@ -105,13 +108,21 @@ const CustomLegend = () => {
 };
 
 const MultiLineChartComp = () => {
+  const isMobile = useIsMobile();
+
+  // Responsive dimensions
+  const chartHeight = isMobile ? 350 : 400;
+  const margins = { top: 16, right: 16, left: 16, bottom: 16 };
+  const fontSize = isMobile ? 11 : 14;
+  const strokeWidth = isMobile ? 2 : 2.5;
+  const activeDotRadius = isMobile ? 4 : 5;
+  const xAxisHeight = isMobile ? 40 : 60;
+  const yAxisWidth = isMobile ? 40 : 60;
+
   return (
-    <div className='w-full h-full bg-white p-4'>
-      <ResponsiveContainer width='100%' height={500}>
-        <ComposedChart
-          data={multiLineData}
-          margin={{ top: 20, right: 30, left: 0, bottom: 40 }}
-        >
+    <div className='w-full h-full bg-white '>
+      <ResponsiveContainer width='100%' height={chartHeight}>
+        <ComposedChart data={multiLineData} margin={margins}>
           <defs>
             <linearGradient id='colorSearchEngine' x1='0' y1='0' x2='0' y2='1'>
               <stop offset='5%' stopColor='#3b82f6' stopOpacity={0.15} />
@@ -132,18 +143,23 @@ const MultiLineChartComp = () => {
               <stop offset='95%' stopColor='#ec4899' stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid
+          {/* <CartesianGrid
             strokeDasharray='0'
             stroke='#e5e7eb'
             vertical={false}
-          />
+            strokeWidth={1}
+          /> */}
           <XAxis
             dataKey='date'
-            axisLine={false}
             tickLine={false}
-            tick={{ fill: '#9ca3af', fontSize: 14 }}
-            interval={1}
-            height={60}
+            axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+            tick={{
+              fill: '#9ca3af',
+              fontSize: fontSize,
+              fontWeight: 500,
+            }}
+            interval={isMobile ? 'preserveStartEnd' : 1}
+            height={xAxisHeight}
             tickFormatter={(value, index) => {
               const item = multiLineData[index];
               if (item.month) {
@@ -153,70 +169,74 @@ const MultiLineChartComp = () => {
             }}
           />
           <YAxis
-            axisLine={false}
+            axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
             tickLine={false}
-            tick={{ fill: '#9ca3af', fontSize: 14 }}
+            tick={{
+              fill: '#9ca3af',
+              fontSize: fontSize,
+              fontWeight: 500,
+            }}
             ticks={[0, 125]}
             domain={[0, 125]}
-            width={60}
+            width={yAxisWidth}
             label={{
               value: 'Number of Leads',
               angle: -90,
-              position: 'insideLeft',
+              position: 'end',
               style: {
                 textAnchor: 'middle',
                 fill: '#6b7280',
-                fontSize: 14,
+                fontSize: fontSize,
                 fontWeight: 400,
               },
               offset: 10,
             }}
           />
           <Area
-            type='monotone'
+            type='linear'
             dataKey='searchEngine'
             fill='url(#colorSearchEngine)'
             stroke='none'
           />
           <Area
-            type='monotone'
+            type='linear'
             dataKey='paidAds'
             fill='url(#colorPaidAds)'
             stroke='none'
           />
           <Area
-            type='monotone'
+            type='linear'
             dataKey='emailMarketing'
             fill='url(#colorEmailMarketing)'
             stroke='none'
           />
           <Line
-            type='monotone'
+            type='linear'
             dataKey='searchEngine'
             stroke='#3b82f6'
-            strokeWidth={2.5}
+            strokeWidth={strokeWidth}
             dot={false}
-            activeDot={{ r: 5 }}
+            activeDot={{ r: activeDotRadius }}
           />
           <Line
-            type='monotone'
+            type='linear'
             dataKey='paidAds'
             stroke='#a855f7'
-            strokeWidth={2.5}
+            strokeWidth={strokeWidth}
             dot={false}
-            activeDot={{ r: 5 }}
+            activeDot={{ r: activeDotRadius }}
           />
           <Line
-            type='monotone'
+            type='linear'
             dataKey='emailMarketing'
             stroke='#ec4899'
-            strokeWidth={2.5}
+            strokeWidth={strokeWidth}
             dot={false}
-            activeDot={{ r: 5 }}
+            activeDot={{ r: activeDotRadius }}
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <CustomLegend />
+      <CustomLegend isMobile={isMobile} />
     </div>
   );
 };

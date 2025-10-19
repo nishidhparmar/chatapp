@@ -36,7 +36,7 @@ const Settings = () => {
         <h1 className='font-semibold text-neutral-ct-primary text-2xl'>
           Personal Information{' '}
         </h1>
-        <div className='mt-8 flex items-center gap-6'>
+        <div className='mt-8 flex md:flex-row flex-col items-center gap-6'>
           <div className='relative'>
             <Image
               className='rounded-full h-24 w-24 object-cover'

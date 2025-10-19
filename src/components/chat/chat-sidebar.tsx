@@ -51,7 +51,7 @@ const ChatSidebar = () => {
       items: [
         {
           id: 'sales-trends',
-          title: 'Sales trends by Produ...',
+          title: 'Sales trends by Budgeting',
           isActive: true,
           groupId: 'forecasting',
         },
@@ -239,7 +239,7 @@ const ChatSidebar = () => {
             autoFocus
           />
         ) : (
-          <span className='truncate'>{item.title}</span>
+          <span className='truncate max-w-[90%]'>{item.title}</span>
         )}
 
         {/* Context Menu Button with Popover */}
@@ -296,7 +296,7 @@ const ChatSidebar = () => {
   };
 
   return (
-    <div className='w-80 bg-white border-r border-neutral-br-secondary flex flex-col h-full'>
+    <div className='w-80 md:flex  bg-white border-r border-neutral-br-secondary hidden flex-col h-full'>
       {/* Header */}
       <div className='p-4'>
         <h2 className='text font-semibold text-neutral-ct-primary mb-3'>

@@ -21,17 +21,17 @@ const InvoiceSearchedByCustomer = () => {
   });
   return (
     <DashboardLayout>
-      <div className='bg-transparent'>
+      <div className='bg-transparent '>
         <div className='bg-white pb-4 pt-2.5'>
           <div className='max-w-[758px] mx-auto w-full'>
             <SearchTab className='!mt-0' />
           </div>
         </div>
-        <div className='max-w-[758px] mx-auto w-full pb-6 '>
+        <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
           {/* Results Section */}
           <div className='mt-8 space-y-6'>
             {/* Title */}
-            <h2 className='text-2xl font-semibold text-balck'>
+            <h2 className='lg:text-2xl text-xl font-semibold text-balck'>
               Open Invoices by Customer
             </h2>
             {/* Summary Cards */}
@@ -59,7 +59,7 @@ const InvoiceSearchedByCustomer = () => {
             </div>
             {/* Invoice View */}
             <InvoiceView />
-            <div className='flex items-center justify-between'>
+            <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between'>
               <div className='flex items-center gap-3'>
                 <span className='text-sm text-neutral-ct-tertiary'>
                   Was this answer helpful?
@@ -86,6 +86,7 @@ const InvoiceSearchedByCustomer = () => {
               <Button
                 variant={'secondary'}
                 onClick={() => router.push('/invoice/conversations')}
+                className='w-max'
               >
                 <Message /> Switch to Conversation Mode
               </Button>

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import SearchSuggestions from './search-suggestions';
 import { useRouter } from 'next/navigation';
+import { Button } from '../../ui/button';
 
 interface SearchTabProps {
   placeholder?: string;
@@ -58,20 +59,16 @@ const SearchTab = ({
           placeholder={placeholder}
           className='h-16 !px-4'
           rightIcon={
-            <button
-              className={cn(
-                'h-8 w-8 flex items-center justify-center rounded-lg bg-neutral-disabled',
-                searchQuery
-                  ? 'bg-brand-default text-white cursor-pointer'
-                  : 'bg-neutral-disabled'
-              )}
+            <Button
+              size={'icon'}
+              variant={searchQuery.length > 0 ? 'default' : 'secondary'}
             >
               {searchQuery.length > 0 ? (
                 <IoSearchOutline className='h-4 w-4' />
               ) : (
                 <GoArrowUp className='w-4 h-4 text-neutral-ct-disabled' />
               )}
-            </button>
+            </Button>
           }
         />
         {showSuggestions && (

@@ -40,14 +40,23 @@ const Chat = () => {
                   </div>
 
                   <div className='flex flex-row flex-wrap gap-3 mt-6'>
-                    <Button variant={'secondary'} className='text-sm'>
+                    <Button
+                      variant={'secondary'}
+                      className='text-sm font-normal'
+                    >
                       <GoMail className='!h-4 !w-4 text-neutral-ct-secondary' />{' '}
                       Send reminders to customers
                     </Button>
-                    <Button variant={'secondary'} className='text-sm'>
+                    <Button
+                      variant={'secondary'}
+                      className='text-sm font-normal'
+                    >
                       <Document /> See individual invoices for Acme Corp
                     </Button>
-                    <Button variant={'secondary'} className='text-sm'>
+                    <Button
+                      variant={'secondary'}
+                      className='text-sm font-normal md:flex hidden'
+                    >
                       <People /> Highlight customers with highest late-payment
                       risk
                     </Button>

@@ -7,8 +7,8 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Label,
 } from 'recharts';
+import { useIsMobile } from '../../../hooks/use-mobile';
 
 const lineData = [
   { date: '05', leads: 95 },
@@ -38,18 +38,26 @@ const lineData = [
   { date: '29', leads: 78 },
   { date: '30', leads: 75 },
   { date: '31', leads: 95 },
-  { date: '01\nApr', leads: 100 },
+  { date: '01', leads: 100 },
 ];
 
 const LineChartComp = () => {
+  const isMobile = useIsMobile();
+
+  // Responsive dimensions
+  const chartHeight = isMobile ? 300 : 400;
+  const margins = { top: 16, right: 16, left: 0, bottom: 16 };
+  const fontSize = isMobile ? 10 : 12;
+  const yAxisFontSize = isMobile ? 12 : 14;
+  const yAxisWidth = isMobile ? 40 : 60;
+  const strokeWidth = isMobile ? 1.5 : 2;
+  const activeDotRadius = isMobile ? 4 : 6;
+
   return (
-    <div>
-      <div style={{ width: '100%', height: 400 }}>
-        <ResponsiveContainer>
-          <AreaChart
-            data={lineData}
-            margin={{ top: 8, right: 24, left: 40, bottom: 24 }}
-          >
+    <div className='w-full'>
+      <div className='w-full' style={{ height: chartHeight }}>
+        <ResponsiveContainer width='100%' height='100%'>
+          <AreaChart data={lineData} margin={margins}>
             <defs>
               <linearGradient id='colorLeads' x1='0' y1='0' x2='0' y2='1'>
                 <stop offset='5%' stopColor='#EF4444' stopOpacity={0.3} />
@@ -60,42 +68,52 @@ const LineChartComp = () => {
               strokeDasharray='0'
               stroke='#F3F4F6'
               vertical={false}
+              strokeWidth={1}
             />
             <XAxis
               dataKey='date'
-              axisLine={{ stroke: '#E5E7EB' }}
+              axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
               tickLine={false}
-              tick={{ fill: '#6B7280', fontSize: 12 }}
-              interval={1}
+              tick={{
+                fill: '#6B7280',
+                fontSize: fontSize,
+                fontWeight: 500,
+              }}
+              interval={isMobile ? 2 : 1}
+              height={isMobile ? 30 : 40}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#6b7280', fontSize: 14 }}
+              tick={{
+                fill: '#6b7280',
+                fontSize: yAxisFontSize,
+                fontWeight: 500,
+              }}
               ticks={[0, 125]}
               domain={[0, 125]}
-              width={60}
+              width={yAxisWidth}
               label={{
                 value: 'Number of Leads',
                 angle: -90,
-                position: 'insideLeft',
+                position: 'end',
                 style: {
                   textAnchor: 'middle',
                   fill: '#6b7280',
-                  fontSize: 14,
+                  fontSize: yAxisFontSize,
                   fontWeight: 400,
                 },
                 offset: 10,
               }}
             />
             <Area
-              type='monotone'
+              type='linear'
               dataKey='leads'
               stroke='#EF4444'
-              strokeWidth={2}
+              strokeWidth={strokeWidth}
               fill='url(#colorLeads)'
               dot={false}
-              activeDot={{ r: 6, fill: '#EF4444' }}
+              activeDot={{ r: activeDotRadius, fill: '#EF4444' }}
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -74,11 +74,11 @@ const ProvideFeedbackModal = ({
 
         <DialogFooter className='mt-4'>
           <DialogClose asChild>
-            <Button variant='secondary' className='px-4 py-2'>
+            <Button variant='secondary' size={'xs'} className='px-4 py-2'>
               Cancel
             </Button>
           </DialogClose>
-          <Button type='submit' className='px-4 py-2'>
+          <Button type='submit' size={'xs'}>
             Submit feedback
           </Button>
         </DialogFooter>
