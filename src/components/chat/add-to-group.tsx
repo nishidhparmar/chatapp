@@ -9,11 +9,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
 import Folder from '../icons/Folder';
-import { Search } from '../icons';
 import { Plus, ArrowLeft } from 'lucide-react';
+import { IoSearchOutline } from 'react-icons/io5';
 
 interface AddToGroupProps {
   open: boolean;
@@ -91,15 +91,14 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
             <DialogFooter className='mt-4'>
               <Button
                 variant='secondary'
-                className='px-4 py-2'
                 onClick={handleBackToGroups}
+                size={'xs'}
               >
-                <ArrowLeft className='text-neutral-ct-primary -ml-1 mr-1' />{' '}
-                Back
+                <ArrowLeft className='text-neutral-ct-primary' /> Back
               </Button>
               <Button
                 type='submit'
-                className='px-4 py-2'
+                size={'xs'}
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
               >
@@ -117,9 +116,9 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
             <div className='space-y-3'>
               <div className='relative'>
                 <AuthInput
-                  icon={Search}
-                  iconClassName='text-neutral-ct-primary -mt-0.5  text-neutral-ct-tertiary !h-4 !w-4'
-                  className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5'
+                  icon={IoSearchOutline}
+                  iconClassName='text-neutral-ct-primary -mt-[1.5px]  text-neutral-ct-tertiary !h-4 !w-4'
+                  className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
                   label=''
                   placeholder='Search groups...'
                   value={searchTerm}
@@ -167,12 +166,12 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
             <div className='flex justify-between mt-4'>
               <Button
                 variant='secondary'
-                className='px-4 py-2'
+                size={'xs'}
                 onClick={() => setIsCreatingGroup(true)}
               >
                 <Plus className='text-neutral-ct-primary -mr-1' /> New Group
               </Button>
-              <Button type='submit' className='px-4 py-2 font-semibold'>
+              <Button type='submit' size={'xs'}>
                 Done
               </Button>
             </div>

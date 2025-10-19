@@ -23,8 +23,10 @@ const SearchSuggestions = ({
             onClick={() => onSuggestionClick(suggestion)}
             className='px-4 py-3 hover:bg-neutral-disabled cursor-pointer text-sm flex items-center gap-4'
           >
-            <PiClockClockwise className='w-4 h-4 text-neutral-ct-secondary' />
-            <p className='text-neutral-ct-secondary text-sm'>{suggestion}</p>
+            <PiClockClockwise className='w-4 h-4 shrink-0 text-neutral-ct-secondary' />
+            <p className='text-neutral-ct-secondary lg:text-sm text-xs'>
+              {suggestion}
+            </p>
           </div>
         ))}
       </div>

@@ -1,25 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Search,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-  Folder,
-  Share,
-  Trash,
-} from '../icons';
+import { Filter, ChevronDown, ChevronUp, Folder, Trash } from '../icons';
 import { AuthInput } from '../auth/common/auth-input';
 import { BsThreeDots } from 'react-icons/bs';
 import Edit from '../icons/Edit';
 import FolderOpen from '../icons/FolderOpen';
-import { MdKeyboardArrowRight } from 'react-icons/md';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import TurnArrow from './TurnArrow';
 import { GoShareAndroid } from 'react-icons/go';
 import DeleteChat from './delete-chat';
 import AddToGroup from './add-to-group';
+import { IoSearchOutline } from 'react-icons/io5';
 
 interface ChatItem {
   id: string;
@@ -41,6 +33,16 @@ const ChatSidebar = () => {
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [deleteChatModal, setDeleteChatModal] = useState(false);
   const [openAddToGroupModal, setOpenAddToGroupModal] = useState(false);
+  const [renamingItem, setRenamingItem] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
+  const [chats, setChats] = useState<ChatItem[]>([
+    { id: 'sales-trends-3mo', title: 'Sales trends over the past 3 mo' },
+    { id: 'top-growing', title: 'Top-Growing Product Categor...' },
+    { id: 'north-america', title: 'North America Revenue' },
+    { id: 'churn-pricing', title: 'Churn Before vs After Pricing...' },
+    { id: 'customer-segments', title: 'Customer Segments with High...' },
+  ]);
 
   const groups: Group[] = [
     {
@@ -49,7 +51,7 @@ const ChatSidebar = () => {
       items: [
         {
           id: 'sales-trends',
-          title: 'Sales trends by Produ...',
+          title: 'Sales trends by Budgeting',
           isActive: true,
           groupId: 'forecasting',
         },
@@ -104,13 +106,41 @@ const ChatSidebar = () => {
     },
   ];
 
-  const chats: ChatItem[] = [
-    { id: 'sales-trends-3mo', title: 'Sales trends over the past 3 mo' },
-    { id: 'top-growing', title: 'Top-Growing Product Categor...' },
-    { id: 'north-america', title: 'North America Revenue' },
-    { id: 'churn-pricing', title: 'Churn Before vs After Pricing...' },
-    { id: 'customer-segments', title: 'Customer Segments with High...' },
-  ];
+  const handleRename = (itemId: string) => {
+    const item = chats.find(chat => chat.id === itemId);
+    if (item) {
+      setRenameValue(item.title);
+      setRenamingItem(itemId);
+      setOpenPopover(null);
+    }
+  };
+
+  const handleRenameSave = () => {
+    if (renamingItem && renameValue.trim()) {
+      setChats(prevChats =>
+        prevChats.map(chat =>
+          chat.id === renamingItem
+            ? { ...chat, title: renameValue.trim() }
+            : chat
+        )
+      );
+      setRenamingItem(null);
+      setRenameValue('');
+    }
+  };
+
+  const handleRenameCancel = () => {
+    setRenamingItem(null);
+    setRenameValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleRenameSave();
+    } else if (e.key === 'Escape') {
+      handleRenameCancel();
+    }
+  };
 
   const getMenuForItem = (item: ChatItem) => {
     if (item.groupId) {
@@ -154,8 +184,7 @@ const ChatSidebar = () => {
           title: 'Rename',
           icon: <Edit />,
           onClick: () => {
-            console.log('Rename', item.id);
-            setOpenPopover(null);
+            handleRename(item.id);
           },
         },
         {
@@ -190,7 +219,8 @@ const ChatSidebar = () => {
         className={`relative h-10 group flex items-center text-neutral-ct-primary justify-between py-2 ${isInGroup ? 'px-3' : 'px-3'} rounded-lg text-sm cursor-pointer transition-colors ${
           item.isActive
             ? 'bg-neutral-disabled'
-            : 'hover:bg-neutral-disabled bg-transparent'
+            : renamingItem !== item.id &&
+              'hover:bg-neutral-disabled bg-transparent'
         }`}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}
@@ -198,21 +228,33 @@ const ChatSidebar = () => {
         {isInGroup && (
           <div className='absolute h-[1px] -left-1.5 w-3 bg-neutral-br-primary' />
         )}
-        <span className='truncate'>{item.title}</span>
+        {renamingItem === item.id && !isInGroup ? (
+          <input
+            type='text'
+            value={renameValue}
+            onChange={e => setRenameValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleRenameSave}
+            className='w-full h-10 px-2 text-neutral-ct-primary border border-neutral-br-primary rounded bg-transparent  outline-none text-sm '
+            autoFocus
+          />
+        ) : (
+          <span className='truncate max-w-[90%]'>{item.title}</span>
+        )}
 
         {/* Context Menu Button with Popover */}
-        {hoveredItem === item.id && (
+        {hoveredItem === item.id && renamingItem !== item.id && (
           <Popover
             open={openPopover === item.id}
             onOpenChange={open => setOpenPopover(open ? item.id : null)}
           >
             <PopoverTrigger asChild>
               <button
-                className='opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded'
+                className='opacity-0 hover:text-neutral-ct-secondary hover:bg-neutral-active cursor-pointer group-hover:opacity-100 transition-opacity p-1 rounded'
                 onClick={e => e.stopPropagation()}
                 type='button'
               >
-                <BsThreeDots size={14} className='text-neutral-ct-tertiary' />
+                <BsThreeDots size={14} />
               </button>
             </PopoverTrigger>
             <PopoverContent
@@ -254,7 +296,7 @@ const ChatSidebar = () => {
   };
 
   return (
-    <div className='w-80 bg-white border-r border-neutral-br-secondary flex flex-col h-full'>
+    <div className='w-80 md:flex  bg-white border-r border-neutral-br-secondary hidden flex-col h-full'>
       {/* Header */}
       <div className='p-4'>
         <h2 className='text font-semibold text-neutral-ct-primary mb-3'>
@@ -265,9 +307,9 @@ const ChatSidebar = () => {
         <div className='flex gap-3 w-full items-center'>
           <div className='flex-1'>
             <AuthInput
-              icon={Search}
-              iconClassName='text-neutral-ct-tertiary -mt-0.5 !h-4 !w-4'
-              className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 '
+              icon={IoSearchOutline}
+              iconClassName='text-neutral-ct-tertiary -mt-[1.5px] !h-4 !w-4'
+              className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
               label=''
               placeholder='Search'
             />

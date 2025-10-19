@@ -5,6 +5,7 @@ import { GoArrowUp } from 'react-icons/go';
 import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import { useRouter } from 'next/navigation';
+import { Button } from '../../ui/button';
 
 interface ConversationTabProps {
   placeholder?: string;
@@ -33,14 +34,12 @@ const ConversationTab = ({
           placeholder={placeholder}
           className='h-16 !px-4'
           rightIcon={
-            <button
+            <Button
+              size={'icon'}
               onClick={() => router.push('/invoice/conversations')}
-              className={cn(
-                'h-8 w-8 flex items-center justify-center rounded-lg bg-neutral-disabled',
-                searchConversationQuery
-                  ? 'bg-brand-default text-white cursor-pointer'
-                  : 'bg-neutral-disabled'
-              )}
+              variant={
+                searchConversationQuery.length > 0 ? 'default' : 'secondary'
+              }
             >
               <GoArrowUp
                 className={cn(
@@ -50,7 +49,7 @@ const ConversationTab = ({
                     : 'text-neutral-ct-disabled'
                 )}
               />
-            </button>
+            </Button>
           }
         />
       </div>

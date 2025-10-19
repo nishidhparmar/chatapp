@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { GoShareAndroid } from 'react-icons/go';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '../../lib/utils';
@@ -17,8 +17,9 @@ import DeleteChat from './delete-chat';
 import ShareChatModal from './share-chat';
 import { FiCheck, FiX } from 'react-icons/fi';
 import Edit from '../icons/Edit';
-import { Input } from '../ui/input';
 import FolderOpen from '../icons/FolderOpen';
+import Input from '../ui/input';
+import AddToGroup from './add-to-group';
 
 interface ChatHeaderProps {
   title?: string;
@@ -35,6 +36,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 }) => {
   const [deleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [shareChatModal, setOpenShareChatModal] = useState(false);
+  const [addToGroupModal, setAddToGroupModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const [isHovered, setIsHovered] = useState(false);
@@ -43,7 +45,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
-      inputRef.current.select();
     }
   }, [isEditing]);
 
@@ -75,7 +76,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className='bg-white px-4 border-b border-neutral-br-secondary pt-4'>
       {/* Main Title */}
-      <div className='flex items-center justify-between'>
+      <div className='flex lg:flex-row flex-col gap-2 lg:items-center justify-between'>
         {isEditing ? (
           <div className='flex items-center gap-2 flex-1 mr-4'>
             <Input
@@ -104,12 +105,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         ) : (
           <div className='w-full'>
             <div
-              className='flex items-center gap-1 cursor-pointer group flex-1 hover:bg-neutral-tertiary w-max p-1 rounded-md'
+              className='flex  items-center  gap-1 cursor-pointer group  hover:bg-neutral-tertiary  p-1 rounded-md'
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               onClick={handleEditClick}
             >
-              <h1 className='text-base font-semibold text-neutral-ct-primary truncate'>
+              <h1 className='text-base font-semibold  text-neutral-ct-primary truncate'>
                 {title}
               </h1>
               {isHovered && (
@@ -121,11 +122,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           </div>
         )}
 
-        <div className='flex items-center space-x-2'>
-          <Button
-            className='py-2 px-4 text-neutral-ct-inverse text-xs font-semibold'
-            onClick={() => setOpenShareChatModal(true)}
-          >
+        <div className='flex items-center justify-end space-x-2'>
+          <Button className='py-2 px-4 text-neutral-ct-inverse text-xs font-semibold'>
             <GoShareAndroid className='h-4 w-4 -mr-1' /> Share
           </Button>
           <Popover>
@@ -145,7 +143,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             >
               <button
                 className='w-full flex items-center justify-between gap-2 px-3 py-2.5  hover:bg-neutral-disabled rounded-md transition-colors text-sm'
-                // onClick={onDelete}
+                onClick={() => setAddToGroupModal(true)}
                 type='button'
               >
                 <div className='flex items-center gap-2'>
@@ -206,6 +204,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       <ShareChatModal
         open={shareChatModal}
         onOpenChange={() => setOpenShareChatModal(false)}
+      />
+      <AddToGroup
+        open={addToGroupModal}
+        onOpenChange={() => setAddToGroupModal(false)}
       />
     </div>
   );

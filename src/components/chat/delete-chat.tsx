@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 
 interface DeleteChatProps {
   open: boolean;
@@ -27,11 +27,16 @@ const DeleteChat = ({ open, onOpenChange }: DeleteChatProps) => {
         </DialogHeader>
         <DialogFooter className='mt-4'>
           <DialogClose asChild>
-            <Button variant='secondary' className='px-4 py-2'>
+            <Button variant='secondary' size={'xs'} className='px-4 py-2'>
               Cancel
             </Button>
           </DialogClose>
-          <Button type='submit' variant={'destructive'} className='px-4 py-2'>
+          <Button
+            type='submit'
+            size={'xs'}
+            variant={'destructive'}
+            className='px-4 py-2'
+          >
             Delete
           </Button>
         </DialogFooter>

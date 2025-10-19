@@ -2,7 +2,7 @@
 
 import InvoiceView from '../common/invoice-view';
 import { PiThumbsUp } from 'react-icons/pi';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { Message } from '../icons';
 import DashboardLayout from '../layout/dashboard-layout';
 import { SearchTab } from '../common';
@@ -12,20 +12,26 @@ import ProvideFeedbackModal from './provice-feedback-modal';
 
 const InvoiceSearchedByCustomer = () => {
   const router = useRouter();
-  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState(false);
+  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState<{
+    visible: boolean;
+    type: 'POSITIVE' | 'NAGETIVE';
+  }>({
+    visible: false,
+    type: 'POSITIVE',
+  });
   return (
     <DashboardLayout>
-      <div className='bg-transparent'>
+      <div className='bg-transparent '>
         <div className='bg-white pb-4 pt-2.5'>
           <div className='max-w-[758px] mx-auto w-full'>
             <SearchTab className='!mt-0' />
           </div>
         </div>
-        <div className='max-w-[758px] mx-auto w-full pb-6 '>
+        <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
           {/* Results Section */}
           <div className='mt-8 space-y-6'>
             {/* Title */}
-            <h2 className='text-2xl font-semibold text-balck'>
+            <h2 className='lg:text-2xl text-xl font-semibold text-balck'>
               Open Invoices by Customer
             </h2>
             {/* Summary Cards */}
@@ -53,23 +59,34 @@ const InvoiceSearchedByCustomer = () => {
             </div>
             {/* Invoice View */}
             <InvoiceView />
-            <div className='flex items-center justify-between'>
+            <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between'>
               <div className='flex items-center gap-3'>
                 <span className='text-sm text-neutral-ct-tertiary'>
                   Was this answer helpful?
                 </span>
                 <PiThumbsUp
                   className='text-neutral-ct-secondary'
-                  onClick={() => setOpenProvideFeedbackModal(true)}
+                  onClick={() =>
+                    setOpenProvideFeedbackModal({
+                      type: 'POSITIVE',
+                      visible: true,
+                    })
+                  }
                 />
                 <PiThumbsUp
                   className='rotate-180 text-neutral-ct-secondary'
-                  onClick={() => setOpenProvideFeedbackModal(true)}
+                  onClick={() =>
+                    setOpenProvideFeedbackModal({
+                      type: 'NAGETIVE',
+                      visible: true,
+                    })
+                  }
                 />
               </div>
               <Button
                 variant={'secondary'}
                 onClick={() => router.push('/invoice/conversations')}
+                className='w-max'
               >
                 <Message /> Switch to Conversation Mode
               </Button>
@@ -79,7 +96,9 @@ const InvoiceSearchedByCustomer = () => {
       </div>
       <ProvideFeedbackModal
         open={provideFeedbackModal}
-        onOpenChange={() => setOpenProvideFeedbackModal(false)}
+        onOpenChange={() =>
+          setOpenProvideFeedbackModal({ type: 'POSITIVE', visible: false })
+        }
       />
     </DashboardLayout>
   );

@@ -17,7 +17,7 @@ const SearchTabs = ({ activeTab, onTabChange }: SearchTabsProps) => {
         <TabsTrigger
           value='search'
           className={cn(
-            'flex-1 rounded-none border-b-neutral-br-primary py-4 px-6 text-sm',
+            'flex-1 rounded-none border-b-neutral-br-primary py-4 px-6 lg:text-sm text-xs',
             'data-[state=active]:border-b-2 data-[state=active]:border-b-brand-ct-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none',
             'text-neutral-ct-tertiary data-[state=active]:text-brand-ct-brand font-semibold',
             'focus-visible:ring-0 focus-visible:outline-none focus:ring-0'
@@ -30,7 +30,7 @@ const SearchTabs = ({ activeTab, onTabChange }: SearchTabsProps) => {
         <TabsTrigger
           value='conversation'
           className={cn(
-            'flex-1 rounded-none border-b-neutral-br-primary py-4 px-6 text-sm',
+            'flex-1 rounded-none border-b-neutral-br-primary py-4 px-6 lg:text-sm text-xs',
             'data-[state=active]:border-b-2 data-[state=active]:border-b-brand-ct-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none',
             'text-neutral-ct-tertiary data-[state=active]:text-brand-ct-brand font-semibold',
             'focus-visible:ring-0 focus-visible:outline-none focus:ring-0'
