@@ -9,7 +9,7 @@ const SearchSection = () => {
   const [activeTab, setActiveTab] = useState('search');
 
   return (
-    <div className='w-full bg-white border-gray-200 shadow-lg rounded-[12px] h-auto px-6 pb-2'>
+    <div className='w-full bg-white border-gray-200 shadow-lg rounded-[12px] h-auto md:px-6 px-3 pb-2'>
       <SearchTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === 'search' && <SearchTab className='mb-6 mt-4' />}

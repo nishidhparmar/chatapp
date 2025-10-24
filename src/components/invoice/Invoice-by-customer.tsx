@@ -22,7 +22,7 @@ const InvoiceSearchedByCustomer = () => {
   return (
     <DashboardLayout>
       <div className='bg-transparent '>
-        <div className='bg-white pb-4 pt-2.5'>
+        <div className='bg-white pb-4 md:px-0 px-4 pt-2.5'>
           <div className='max-w-[758px] mx-auto w-full'>
             <SearchTab className='!mt-0' />
           </div>

@@ -6,47 +6,81 @@ import {
   Area,
   XAxis,
   YAxis,
-  CartesianGrid,
+  Tooltip,
+  TooltipContentProps,
 } from 'recharts';
 import { useIsMobile } from '../../../hooks/use-mobile';
 
 const lineData = [
-  { date: '05', leads: 95 },
-  { date: '06', leads: 100 },
-  { date: '07', leads: 120 },
-  { date: '08', leads: 108 },
-  { date: '09', leads: 100 },
-  { date: '10', leads: 105 },
-  { date: '11', leads: 90 },
-  { date: '12', leads: 92 },
-  { date: '13', leads: 85 },
-  { date: '14', leads: 95 },
-  { date: '15', leads: 78 },
-  { date: '16', leads: 100 },
-  { date: '17', leads: 105 },
-  { date: '18', leads: 65 },
-  { date: '19', leads: 80 },
-  { date: '20', leads: 85 },
-  { date: '21', leads: 75 },
-  { date: '22', leads: 60 },
-  { date: '23', leads: 72 },
-  { date: '24', leads: 55 },
-  { date: '25', leads: 80 },
-  { date: '26', leads: 82 },
-  { date: '27', leads: 85 },
-  { date: '28', leads: 80 },
-  { date: '29', leads: 78 },
-  { date: '30', leads: 75 },
-  { date: '31', leads: 95 },
-  { date: '01', leads: 100 },
+  { date: '05', fullDate: 'March 05, 2025', leads: 95 },
+  { date: '06', fullDate: 'March 06, 2025', leads: 100 },
+  { date: '07', fullDate: 'March 07, 2025', leads: 120 },
+  { date: '08', fullDate: 'March 08, 2025', leads: 108 },
+  { date: '09', fullDate: 'March 09, 2025', leads: 100 },
+  { date: '10', fullDate: 'March 10, 2025', leads: 105 },
+  { date: '11', fullDate: 'March 11, 2025', leads: 90 },
+  { date: '12', fullDate: 'March 12, 2025', leads: 92 },
+  { date: '13', fullDate: 'March 13, 2025', leads: 85 },
+  { date: '14', fullDate: 'March 14, 2025', leads: 95 },
+  { date: '15', fullDate: 'March 15, 2025', leads: 78 },
+  { date: '16', fullDate: 'March 16, 2025', leads: 100 },
+  { date: '17', fullDate: 'March 17, 2025', leads: 105 },
+  { date: '18', fullDate: 'March 18, 2025', leads: 65 },
+  { date: '19', fullDate: 'March 19, 2025', leads: 80 },
+  { date: '20', fullDate: 'March 20, 2025', leads: 85 },
+  { date: '21', fullDate: 'March 21, 2025', leads: 75 },
+  { date: '22', fullDate: 'March 22, 2025', leads: 60 },
+  { date: '23', fullDate: 'March 23, 2025', leads: 72 },
+  { date: '24', fullDate: 'March 24, 2025', leads: 55 },
+  { date: '25', fullDate: 'March 25, 2025', leads: 80 },
+  { date: '26', fullDate: 'March 26, 2025', leads: 82 },
+  { date: '27', fullDate: 'March 27, 2025', leads: 85 },
+  { date: '28', fullDate: 'March 28, 2025', leads: 80 },
+  { date: '29', fullDate: 'March 29, 2025', leads: 78 },
+  { date: '30', fullDate: 'March 30, 2025', leads: 75 },
+  { date: '31', fullDate: 'March 31, 2025', leads: 95 },
+  { date: '01', fullDate: 'April 01, 2025', leads: 100 },
 ];
+
+// Custom Tooltip Component
+const CustomTooltip = ({
+  active,
+  payload,
+}: TooltipContentProps<string | number, string>) => {
+  if (!active || !payload?.length) return null;
+
+  const data = payload[0].payload;
+
+  return (
+    <div className='relative' style={{ transform: 'translateY(-20px)' }}>
+      {/* Tooltip Box */}
+      <div className='bg-gray-700 text-white rounded-lg p-3 shadow-lg min-w-[180px]'>
+        <div className='text-sm font-medium mb-2 text-gray-200'>
+          {data.fullDate}
+        </div>
+
+        {/* Number of Leads */}
+        <div className='flex items-center justify-between gap-6'>
+          <div className='flex items-center gap-2'>
+            <div
+              className='w-3 h-3 rounded-full'
+              style={{ backgroundColor: '#EF4444' }}
+            ></div>
+            <span className='text-xs text-gray-300'>Number of Leads</span>
+          </div>
+          <span className='text-xs font-semibold'>{data.leads}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const LineChartComp = () => {
   const isMobile = useIsMobile();
 
   // Responsive dimensions
   const chartHeight = isMobile ? 300 : 400;
-  const margins = { top: 16, right: 16, left: 0, bottom: 16 };
+  const margins = { top: 80, right: 16, left: 0, bottom: 16 };
   const fontSize = isMobile ? 10 : 12;
   const yAxisFontSize = isMobile ? 12 : 14;
   const yAxisWidth = isMobile ? 40 : 60;
@@ -64,15 +98,10 @@ const LineChartComp = () => {
                 <stop offset='95%' stopColor='#EF4444' stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid
-              strokeDasharray='0'
-              stroke='#F3F4F6'
-              vertical={false}
-              strokeWidth={1}
-            />
+
             <XAxis
               dataKey='date'
-              axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+              axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
                 fill: '#6B7280',
@@ -83,7 +112,7 @@ const LineChartComp = () => {
               height={isMobile ? 30 : 40}
             />
             <YAxis
-              axisLine={false}
+              axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
                 fill: '#6b7280',
@@ -104,6 +133,14 @@ const LineChartComp = () => {
                   fontWeight: 400,
                 },
                 offset: 10,
+              }}
+            />
+            <Tooltip
+              content={CustomTooltip}
+              cursor={{
+                stroke: '#EF4444',
+                strokeWidth: 1,
+                strokeDasharray: '5 5',
               }}
             />
             <Area

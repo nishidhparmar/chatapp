@@ -35,31 +35,45 @@ const InvoiceConversation = () => {
               side='right'
             />
 
-            <div className='flex items-start gap-3'>
-              <div className='w-6 h-6 rounded-full bg-brand-default flex items-center justify-center flex-shrink-0'>
+            <div className='flex flex-col md:flex-row md:items-start md:gap-3'>
+              {/* Icon */}
+              <div className='w-6 h-6 md:block rounded-full bg-brand-default hidden items-center justify-center flex-shrink-0 mb-3 md:mb-0'>
                 <Aichat />
               </div>
-              <div className='flex-1'>
-                <p className='text-neutral-900 -mb-2 text-sm mt-0.5'>
-                  Here are the open invoices grouped by customer as of{' '}
-                  <span className='font-semibold'>September 8, 2025:</span>
-                </p>
 
+              {/* Content */}
+              <div className='flex-1'>
+                <div className='flex items-center gap-2'>
+                  <Aichat className='shrink-0 md:hidden block' />
+                  <p className='text-neutral-900 -mb-2 text-sm mt-0.5'>
+                    Here are the open invoices grouped by customer as of{' '}
+                    <span className='font-semibold'>September 8, 2025:</span>
+                  </p>
+                </div>
                 <div className='mt-8 space-y-6'>
                   <InvoiceView />
                 </div>
 
                 <div className='flex flex-row flex-wrap gap-3 mt-6'>
-                  <Button variant={'secondary'} className='text-sm font-normal'>
+                  <Button
+                    variant={'secondary'}
+                    size={'xs'}
+                    className='text-sm font-normal'
+                  >
                     <GoMail className='!h-4 !w-4 text-neutral-ct-secondary' />{' '}
                     Send reminders to customers
                   </Button>
-                  <Button variant={'secondary'} className='text-sm font-normal'>
+                  <Button
+                    variant={'secondary'}
+                    size={'xs'}
+                    className='text-sm font-normal'
+                  >
                     <Document /> See individual invoices for Acme Corp
                   </Button>
                   <Button
                     variant={'secondary'}
-                    className='text-sm font-normal  md:flex hidden'
+                    className='text-sm font-normal md:flex hidden'
+                    size={'xs'}
                   >
                     <People /> Highlight customers with highest late-payment
                     risk

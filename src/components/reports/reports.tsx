@@ -61,13 +61,13 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <div className='p-8'>
+      <div className='md:p-8 p-4'>
         <h1 className='text-2xl font-bold text-neutral-ct-primary mb-6'>
           Dashboards
         </h1>
 
         <div className='bg-white rounded-lg border border-neutral-br-disabled overflow-hidden'>
-          <Table>
+          <Table className='min-w-[600px] overflow-auto'>
             <TableHeader>
               <TableRow className='bg-neutral-disabled hover:bg-neutral-disabled'>
                 <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
