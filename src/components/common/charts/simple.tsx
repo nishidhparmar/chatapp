@@ -7,6 +7,8 @@ import {
   XAxis,
   YAxis,
   Label,
+  Tooltip,
+  TooltipContentProps,
 } from 'recharts';
 import { useIsMobile } from '../../../hooks/use-mobile';
 
@@ -26,27 +28,27 @@ const simpleBarData = [
 ];
 
 // Custom Tooltip Component
-// const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-//   if (active && payload && payload.length) {
-//     const data = payload[0].payload;
-//     return (
-//       <div className='relative' style={{ transform: 'translateY(-20px)' }}>
-//         {/* Tooltip Box */}
-//         <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
-//           <div className='flex items-center justify-between gap-8 text-xs'>
-//             <span className='font-medium'>{data.fullMonth}</span>
-//             <span className='font-semibold'>{data.sale}.4M</span>
-//           </div>
-//         </div>
-//         {/* Arrow pointing down */}
-//         <div className='absolute left-1/2 -translate-x-1/2 -bottom-3'>
-//           <div className='w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-gray-700' />
-//         </div>
-//       </div>
-//     );
-//   }
-//   return null;
-// };
+const CustomTooltip = ({
+  active,
+  payload,
+}: TooltipContentProps<string | number, string>) => {
+  if (!active || !payload?.length) return null;
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className='relative' style={{ transform: 'translateY(-20px)' }}>
+        {/* Tooltip Box */}
+        <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
+          <div className='flex items-center justify-between gap-8 text-xs'>
+            <span className='font-medium'>{data.fullMonth}</span>
+            <span className='font-semibold'>{data.sale}.4M</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 const SimpleChart = () => {
   const isMobile = useIsMobile();
@@ -65,7 +67,7 @@ const SimpleChart = () => {
           <BarChart data={simpleBarData} margin={margins}>
             <XAxis
               dataKey='month'
-              axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+              axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
                 fill: '#6B7280',
@@ -76,7 +78,7 @@ const SimpleChart = () => {
               height={isMobile ? 40 : 50}
             />
             <YAxis
-              axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+              axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
                 fill: '#6B7280',
@@ -100,10 +102,10 @@ const SimpleChart = () => {
                 }}
               />
             </YAxis>
-            {/* <Tooltip
-              content={<CustomTooltip />}
+            <Tooltip
+              content={CustomTooltip}
               cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
-            /> */}
+            />
             <Bar
               dataKey='sale'
               fill='#3B82F6'

@@ -54,9 +54,6 @@ const Sidebar = ({
             <item.icon
               size={24}
               color={isActive(item.href) ? '#1D4ED8' : '#94A3B8'}
-              className={
-                isActive(item.href) ? 'text-blue-700' : 'text-slate-400'
-              }
             />
             <span className='text-xs'>{item.label}</span>
           </Link>
@@ -78,9 +75,6 @@ const Sidebar = ({
             <item.icon
               size={24}
               color={isActive(item.href) ? '#1D4ED8' : '#94A3B8'}
-              className={
-                isActive(item.href) ? 'text-blue-700' : 'text-slate-400'
-              }
             />
             <span className='text-xs'>{item.label}</span>
           </Link>

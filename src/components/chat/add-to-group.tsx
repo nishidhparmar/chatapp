@@ -14,6 +14,7 @@ import { AuthInput } from '../auth/common/auth-input';
 import Folder from '../icons/Folder';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
+import { Trash } from '../icons';
 
 interface AddToGroupProps {
   open: boolean;
@@ -136,7 +137,7 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
                           <div
                             key={group.id}
                             onMouseDown={e => e.preventDefault()}
-                            className='flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer'
+                            className='group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition'
                             onClick={() => handleGroupToggle(group.id)}
                           >
                             <div className='flex items-center space-x-3'>
@@ -147,9 +148,24 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
                                 </p>
                               </div>
                             </div>
-                            {selectedGroups.includes(group.id) && (
-                              <div className='w-2 h-2 bg-blue-500 rounded-full' />
-                            )}
+
+                            <div className='flex items-center space-x-2'>
+                              {/* Selected dot */}
+                              {selectedGroups.includes(group.id) && (
+                                <div className='w-2 h-2 bg-blue-500 rounded-full' />
+                              )}
+
+                              {/* Trash icon - visible only on hover */}
+                              <Trash
+                                size={16}
+                                className=' opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-error-active '
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  console.log('Delete group:', group.name);
+                                  // TODO: Add your delete logic here
+                                }}
+                              />
+                            </div>
                           </div>
                         ))
                       ) : (

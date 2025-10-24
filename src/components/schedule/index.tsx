@@ -112,7 +112,7 @@ const Schedule = () => {
           </div>
 
           {/* Input Card */}
-          <div className='bg-white border border-gray-200 shadow-sm rounded-xl p-6 mb-8'>
+          <div className='bg-white border border-gray-200 shadow-sm rounded-xl md:p-6 p-4 mb-8'>
             <div className='space-y-2 w-full'>
               {newQuestions.map((question, index) => (
                 <div key={index} className='w-full flex items-center gap-5'>

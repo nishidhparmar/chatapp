@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { Filter, ChevronDown, ChevronUp, Folder, Trash } from '../icons';
 import { AuthInput } from '../auth/common/auth-input';
 import { BsThreeDots } from 'react-icons/bs';
@@ -26,10 +26,15 @@ interface Group {
   items: ChatItem[];
 }
 
-const ChatSidebar = () => {
+const ChatSidebar = ({
+  activeChat,
+  setActiveChat,
+}: {
+  activeChat: string;
+  setActiveChat: Dispatch<SetStateAction<string>>;
+}) => {
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
   const [isChatsExpanded, setIsChatsExpanded] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [deleteChatModal, setDeleteChatModal] = useState(false);
   const [openAddToGroupModal, setOpenAddToGroupModal] = useState(false);
@@ -38,10 +43,10 @@ const ChatSidebar = () => {
 
   const [chats, setChats] = useState<ChatItem[]>([
     { id: 'sales-trends-3mo', title: 'Sales trends over the past 3 mo' },
-    { id: 'top-growing', title: 'Top-Growing Product Categor...' },
+    { id: 'top-growing', title: 'Top-Growing Product Categor' },
     { id: 'north-america', title: 'North America Revenue' },
-    { id: 'churn-pricing', title: 'Churn Before vs After Pricing...' },
-    { id: 'customer-segments', title: 'Customer Segments with High...' },
+    { id: 'churn-pricing', title: 'Churn Before vs After Pricing' },
+    { id: 'customer-segments', title: 'Customer Segments with High' },
   ]);
 
   const groups: Group[] = [
@@ -52,7 +57,6 @@ const ChatSidebar = () => {
         {
           id: 'sales-trends',
           title: 'Sales trends by Budgeting',
-          isActive: true,
           groupId: 'forecasting',
         },
         {
@@ -68,12 +72,12 @@ const ChatSidebar = () => {
       items: [
         {
           id: 'competitive',
-          title: 'Competitive landscape ove...',
+          title: 'Competitive landscape ove',
           groupId: 'market-analysis',
         },
         {
           id: 'key-players',
-          title: 'Key players and market sh...',
+          title: 'Key players and market sh',
           groupId: 'market-analysis',
         },
       ],
@@ -84,22 +88,22 @@ const ChatSidebar = () => {
       items: [
         {
           id: 'demographic',
-          title: 'Demographic analysis - Jul...',
+          title: 'Demographic analysis - Jul',
           groupId: 'customer-insights',
         },
         {
           id: 'market-trends',
-          title: 'Market trends - August 20...',
+          title: 'Market trends - August 20',
           groupId: 'customer-insights',
         },
         {
           id: 'consumer-behavior',
-          title: 'Consumer behavior insight...',
+          title: 'Consumer behavior insight',
           groupId: 'customer-insights',
         },
         {
           id: 'target-audience',
-          title: 'Target audience segmenta...',
+          title: 'Target audience segmenta',
           groupId: 'customer-insights',
         },
       ],
@@ -217,13 +221,12 @@ const ChatSidebar = () => {
       <div
         key={item.id}
         className={`relative h-10 group flex items-center text-neutral-ct-primary justify-between py-2 ${isInGroup ? 'px-3' : 'px-3'} rounded-lg text-sm cursor-pointer transition-colors ${
-          item.isActive
+          activeChat === item.id
             ? 'bg-neutral-disabled'
             : renamingItem !== item.id &&
               'hover:bg-neutral-disabled bg-transparent'
         }`}
-        onMouseEnter={() => setHoveredItem(item.id)}
-        onMouseLeave={() => setHoveredItem(null)}
+        onClick={() => setActiveChat(item.id)}
       >
         {isInGroup && (
           <div className='absolute h-[1px] -left-1.5 w-3 bg-neutral-br-primary' />
@@ -243,62 +246,60 @@ const ChatSidebar = () => {
         )}
 
         {/* Context Menu Button with Popover */}
-        {hoveredItem === item.id && renamingItem !== item.id && (
-          <Popover
-            open={openPopover === item.id}
-            onOpenChange={open => setOpenPopover(open ? item.id : null)}
+        <Popover
+          open={openPopover === item.id}
+          onOpenChange={open => setOpenPopover(open ? item.id : null)}
+        >
+          <PopoverTrigger asChild>
+            <button
+              className='opacity-0 hover:text-neutral-ct-secondary hover:bg-neutral-active cursor-pointer group-hover:opacity-100 transition-opacity p-1 rounded'
+              onClick={e => e.stopPropagation()}
+              type='button'
+            >
+              <BsThreeDots size={14} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            className='w-[200px] p-0'
+            align='start'
+            sideOffset={6}
           >
-            <PopoverTrigger asChild>
+            {menuItems.map((menuItem, index) => (
               <button
-                className='opacity-0 hover:text-neutral-ct-secondary hover:bg-neutral-active cursor-pointer group-hover:opacity-100 transition-opacity p-1 rounded'
-                onClick={e => e.stopPropagation()}
+                key={index}
+                className={`w-full flex items-center ${menuItem.hasSubmenu ? 'justify-between' : 'gap-2'} px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm ${
+                  menuItem.isDestructive
+                    ? 'text-error-active'
+                    : 'text-neutral-ct-primary'
+                }`}
+                onClick={e => {
+                  e.stopPropagation();
+                  menuItem.onClick?.();
+                }}
                 type='button'
               >
-                <BsThreeDots size={14} />
+                <div className='flex items-center gap-2'>
+                  <span
+                    className={`${menuItem.isDestructive ? 'text-error-active' : 'text-neutral-ct-secondary'} flex items-center`}
+                  >
+                    {menuItem.icon}
+                  </span>
+                  <span className='max-w-[150px] truncate'>
+                    {menuItem.title}
+                  </span>
+                </div>
               </button>
-            </PopoverTrigger>
-            <PopoverContent
-              className='w-[200px] p-0'
-              align='start'
-              sideOffset={6}
-            >
-              {menuItems.map((menuItem, index) => (
-                <button
-                  key={index}
-                  className={`w-full flex items-center ${menuItem.hasSubmenu ? 'justify-between' : 'gap-2'} px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm ${
-                    menuItem.isDestructive
-                      ? 'text-error-active'
-                      : 'text-neutral-ct-primary'
-                  }`}
-                  onClick={e => {
-                    e.stopPropagation();
-                    menuItem.onClick?.();
-                  }}
-                  type='button'
-                >
-                  <div className='flex items-center gap-2'>
-                    <span
-                      className={`${menuItem.isDestructive ? 'text-error-active' : 'text-neutral-ct-secondary'} flex items-center`}
-                    >
-                      {menuItem.icon}
-                    </span>
-                    <span className='max-w-[150px] truncate'>
-                      {menuItem.title}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </PopoverContent>
-          </Popover>
-        )}
+            ))}
+          </PopoverContent>
+        </Popover>
       </div>
     );
   };
 
   return (
-    <div className='w-80 md:flex  bg-white border-r border-neutral-br-secondary hidden flex-col h-full'>
+    <div className='md:w-80 w-full flex  bg-white border-r border-neutral-br-secondary  flex-col h-full'>
       {/* Header */}
-      <div className='p-4'>
+      <div className='md:p-4 px-6 py-4'>
         <h2 className='text font-semibold text-neutral-ct-primary mb-3'>
           Chat History
         </h2>
@@ -321,7 +322,7 @@ const ChatSidebar = () => {
       </div>
 
       {/* Content */}
-      <div className='flex-1 overflow-y-auto px-4 pb-4'>
+      <div className='flex-1 overflow-y-auto md:px-4 px-6 pb-4'>
         {/* Groups Section */}
         <div className='mb-6'>
           <button

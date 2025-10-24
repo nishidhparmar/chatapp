@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/button';
-import { GoShareAndroid } from 'react-icons/go';
+import { MdArrowBackIos } from 'react-icons/md';
+
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '../../lib/utils';
 import {
@@ -20,11 +20,13 @@ import Edit from '../icons/Edit';
 import FolderOpen from '../icons/FolderOpen';
 import Input from '../ui/input';
 import AddToGroup from './add-to-group';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 interface ChatHeaderProps {
   title?: string;
   activeTab?: 'chat' | 'data';
   onTabChange?: (tab: 'chat' | 'data') => void;
+  handleBack: () => void;
   // Optionally, add onDelete?: () => void here if needed for delete action
 }
 
@@ -32,6 +34,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   title = 'Sales trends by Product Category - June 2025 to August 2025',
   activeTab = 'chat',
   onTabChange,
+  handleBack,
   // onDelete,
 }) => {
   const [deleteChatModal, setOpenDeleteChatModal] = useState(false);
@@ -41,6 +44,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const [editedTitle, setEditedTitle] = useState(title);
   const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -76,23 +80,28 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className='bg-white px-4 border-b border-neutral-br-secondary pt-4'>
       {/* Main Title */}
-      <div className='flex lg:flex-row flex-col gap-2 lg:items-center justify-between'>
+      <div className='flex flex-wrap items-center justify-between overflow-hidden'>
+        {isMobile && (
+          <button onClick={handleBack}>
+            <MdArrowBackIos className='h-4 w-4 text-neutral-ct-disabled' />
+          </button>
+        )}
         {isEditing ? (
-          <div className='flex items-center gap-2 flex-1 mr-4'>
+          <div className='flex items-center gap-2 flex-1 min-w-0 mr-4'>
             <Input
               ref={inputRef}
               type='text'
               value={editedTitle}
               onChange={e => setEditedTitle(e.target.value)}
               onKeyDown={handleKeyDown}
-              className='flex-1 max-h-[32px] !px-2 !py-1 '
+              className='flex-1 max-h-[32px] !px-2 !py-1'
             />
             <button
               onClick={handleSave}
               className='p-1.5 rounded-md border border-neutral-br-secondary cursor-pointer text-success-ct-success'
               title='Save'
             >
-              <FiCheck className='h-5 w-5 ' />
+              <FiCheck className='h-5 w-5' />
             </button>
             <button
               onClick={handleCancel}
@@ -103,33 +112,29 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             </button>
           </div>
         ) : (
-          <div className='w-full'>
+          <div className='flex-1 min-w-0'>
             <div
-              className='flex  items-center  gap-1 cursor-pointer group  hover:bg-neutral-tertiary  p-1 rounded-md'
+              className='flex items-center gap-1 cursor-pointer group w-max max-w-full hover:bg-neutral-tertiary p-1 rounded-md'
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               onClick={handleEditClick}
             >
-              <h1 className='text-base font-semibold  text-neutral-ct-primary truncate'>
+              <h1 className='text-base font-semibold text-neutral-ct-primary truncate max-w-[calc(100vw-80px)]'>
                 {title}
               </h1>
               {isHovered && (
-                <button title='Edit title' className='cursor-pointer'>
+                <button title='Edit title' className='cursor-pointer shrink-0'>
                   <Edit className='h-4 w-4' />
                 </button>
               )}
             </div>
           </div>
         )}
-
-        <div className='flex items-center justify-end space-x-2'>
-          <Button className='py-2 px-4 text-neutral-ct-inverse text-xs font-semibold'>
-            <GoShareAndroid className='h-4 w-4 -mr-1' /> Share
-          </Button>
+        <div className='flex items-center justify-end space-x-2 shrink-0 ml-1'>
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center'
+                className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0'
                 aria-label='More'
                 type='button'
               >
@@ -142,7 +147,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               sideOffset={6}
             >
               <button
-                className='w-full flex items-center justify-between gap-2 px-3 py-2.5  hover:bg-neutral-disabled rounded-md transition-colors text-sm'
+                className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
                 onClick={() => setAddToGroupModal(true)}
                 type='button'
               >
@@ -164,7 +169,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           </Popover>
         </div>
       </div>
-
       {/* Tabs and Actions */}
       <Tabs
         value={activeTab}

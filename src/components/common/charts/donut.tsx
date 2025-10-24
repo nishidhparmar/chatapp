@@ -1,6 +1,13 @@
 'use client';
 import React from 'react';
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  TooltipContentProps,
+} from 'recharts';
 import { useIsMobile } from '../../../hooks/use-mobile';
 
 const donutData = [
@@ -10,6 +17,34 @@ const donutData = [
 ];
 
 const DONUT_COLORS = ['#FF0062', '#3B86FE', '#8338EC'];
+
+// Custom Tooltip Component
+const CustomTooltip = ({
+  active,
+  payload,
+}: TooltipContentProps<string | number, string>) => {
+  if (!active || !payload?.length) return null;
+
+  const data = payload[0];
+
+  return (
+    <div className='bg-gray-700 text-white rounded-lg p-3 shadow-lg min-w-[180px]'>
+      <div className='text-sm font-medium mb-2 text-gray-200'>{data.name}</div>
+
+      <div className='flex items-center justify-between gap-6 mb-1.5'>
+        <span className='text-xs text-gray-300'>Value</span>
+        <span className='text-xs font-semibold'>
+          ${data.value.toLocaleString()}
+        </span>
+      </div>
+
+      <div className='flex items-center justify-between gap-6'>
+        <span className='text-xs text-gray-300'>Percentage</span>
+        <span className='text-xs font-semibold'>{data.payload.percent}%</span>
+      </div>
+    </div>
+  );
+};
 
 const DonutChart = () => {
   const isMobile = useIsMobile();
@@ -21,8 +56,6 @@ const DonutChart = () => {
   const legendFontSize = isMobile ? 10 : 12;
   const valueFontSize = isMobile ? 11 : 14;
   const percentFontSize = isMobile ? 10 : 12;
-  const centerFontSize = isMobile ? 8 : 10;
-  const totalFontSize = isMobile ? 12 : 16;
 
   return (
     <div className='w-full'>
@@ -49,6 +82,7 @@ const DonutChart = () => {
                   />
                 ))}
               </Pie>
+              <Tooltip content={CustomTooltip} />
             </PieChart>
           </ResponsiveContainer>
           <div className='text-center -mt-4 md:-mt-56'>
@@ -58,7 +92,7 @@ const DonutChart = () => {
             <div className='text-base font-bold'>$132,320.47</div>
           </div>
         </div>
-        <div className={`flex-1 ${isMobile ? 'mt-4' : 'mr-10'}`}>
+        <div className={`flex-1  ${isMobile ? 'mt-4 w-full px-6' : 'mr-10'}`}>
           {donutData.map((item, index) => (
             <div
               key={index}
