@@ -3,7 +3,6 @@
 import { notFound, useParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import InvoiceView from '@/components/common/invoice-view';
-import { Button } from '../../../components/ui/button';
 import Link from 'next/link';
 
 // Mock data for individual reports

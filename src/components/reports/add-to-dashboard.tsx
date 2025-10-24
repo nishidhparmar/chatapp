@@ -11,7 +11,6 @@ import {
 
 import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
-import Folder from '../icons/Folder';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
 

@@ -27,7 +27,6 @@ import AddToDashboard from '../../reports/add-to-dashboard';
 import ScheduleRecurring from '../../schedule/schedule-recurring-modal';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Button } from '../../ui/button';
 
 interface InvoiceViewProps {
   defaultView?: string;

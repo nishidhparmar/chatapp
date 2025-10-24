@@ -3,7 +3,7 @@ import React, { ReactNode, useState } from 'react';
 import Header from './header';
 import Sidebar from './sidebar';
 import { Sheet, SheetContent, SheetHeader } from '../ui/sheet';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import CreateNewChat from '../chat/create-new-chat';
 import MobileSidebar from './mobile-sidebar';
 

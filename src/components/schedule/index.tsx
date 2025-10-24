@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Clock, Trash2, Delete } from 'lucide-react';
+import { Plus, Clock, Trash2 } from 'lucide-react';
 import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';

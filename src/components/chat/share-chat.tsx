@@ -14,8 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Lock, Link2, X } from 'lucide-react';
-import { Button } from '../ui/button';
 import Input from '../ui/input';
+import { Button } from '../ui/button';
 
 interface ShareChatModalProps {
   open: boolean;

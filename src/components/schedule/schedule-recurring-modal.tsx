@@ -6,13 +6,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
 
 import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
-import Folder from '../icons/Folder';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
 import ScheduleModal from './schedule-modal';
 
