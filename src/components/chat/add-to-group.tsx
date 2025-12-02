@@ -19,6 +19,7 @@ import { Trash } from '../icons';
 interface AddToGroupProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  chatId: number | null;
 }
 
 // Mock data for demonstration - replace with actual data
@@ -30,9 +31,11 @@ const mockGroups = [
   { id: 5, name: 'Support Team', members: 6 },
 ];
 
-const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
+import { useAddToGroup } from '@/hooks/mutations/chat-groups/use-add-to-group';
+
+const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
+  const addToGroup = useAddToGroup();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -47,13 +50,25 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
     setShowSuggestions(value.trim().length > 0);
   };
 
-  const handleGroupToggle = (groupId: number) => {
-    setSelectedGroups(prev =>
-      prev.includes(groupId)
-        ? prev.filter(id => id !== groupId)
-        : [...prev, groupId]
+  const handleGroupToggle = (groupId: number, groupName: string) => {
+    if (!chatId) return;
+
+    addToGroup.mutate(
+      {
+        chatId,
+        payload: {
+          group_id: groupId,
+          group_name: groupName,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowSuggestions(false);
+          setSearchTerm('');
+          onOpenChange(false);
+        },
+      }
     );
-    setShowSuggestions(false);
   };
 
   const handleCreateGroup = () => {
@@ -138,7 +153,9 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
                             key={group.id}
                             onMouseDown={e => e.preventDefault()}
                             className='group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition'
-                            onClick={() => handleGroupToggle(group.id)}
+                            onClick={() =>
+                              handleGroupToggle(group.id, group.name)
+                            }
                           >
                             <div className='flex items-center space-x-3'>
                               <Folder size={16} color='#6B7280' />
@@ -150,11 +167,6 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
                             </div>
 
                             <div className='flex items-center space-x-2'>
-                              {/* Selected dot */}
-                              {selectedGroups.includes(group.id) && (
-                                <div className='w-2 h-2 bg-blue-500 rounded-full' />
-                              )}
-
                               {/* Trash icon - visible only on hover */}
                               <Trash
                                 size={16}
@@ -187,7 +199,11 @@ const AddToGroup = ({ open, onOpenChange }: AddToGroupProps) => {
               >
                 <Plus className='text-neutral-ct-primary -mr-1' /> New Group
               </Button>
-              <Button type='submit' size={'xs'}>
+              <Button
+                type='submit'
+                size={'xs'}
+                onClick={() => onOpenChange(false)}
+              >
                 Done
               </Button>
             </div>

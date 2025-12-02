@@ -13,9 +13,16 @@ import { Button } from '../ui/button';
 interface DeleteChatProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onConfirm?: () => void;
+  isDeleting?: boolean;
 }
 
-const DeleteChat = ({ open, onOpenChange }: DeleteChatProps) => {
+const DeleteChat = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  isDeleting,
+}: DeleteChatProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px] space-y-2'>
@@ -36,8 +43,10 @@ const DeleteChat = ({ open, onOpenChange }: DeleteChatProps) => {
             size={'xs'}
             variant={'destructive'}
             className='px-4 py-2'
+            onClick={onConfirm}
+            disabled={isDeleting}
           >
-            Delete
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>
       </DialogContent>
