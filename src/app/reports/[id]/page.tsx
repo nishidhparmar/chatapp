@@ -10,7 +10,7 @@ const reportsData = {
   1: {
     id: 1,
     name: 'Sales Dashboard',
-    defaultView: 'bar-chart',
+    defaultView: 'bar_chart',
     title: 'Sales Performance Overview',
   },
   2: {
@@ -81,7 +81,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='bar-chart'
+            defaultView='bar_chart'
             title='Bar Chart'
             hideViewAs
             hideExtentView
@@ -89,7 +89,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='line-chart'
+            defaultView='line_chart'
             title='Line Chart'
             hideViewAs
             HideAddToDashboard
@@ -97,7 +97,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='pie-chart'
+            defaultView='pie_chart'
             title='Pie Chart'
             hideViewAs
             hideExtentView
@@ -105,7 +105,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='stacked-chart'
+            defaultView='stacked_chart'
             title='Stacked Chart'
             hideViewAs
             hideExtentView
@@ -113,7 +113,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='grouped-chart'
+            defaultView='grouped_chart'
             title='Grouped Chart'
             hideViewAs
             hideExtentView
@@ -121,7 +121,7 @@ export default function ReportDetailPage() {
             showDelete
           />
           <InvoiceView
-            defaultView='multi-line'
+            defaultView='multi_line'
             title='Multi Line Chart'
             hideViewAs
             hideExtentView

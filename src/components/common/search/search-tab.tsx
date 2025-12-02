@@ -8,6 +8,8 @@ import { AuthInput } from '../../auth/common/auth-input';
 import SearchSuggestions from './search-suggestions';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../ui/button';
+import { useSuggestedQuestions } from '../../../hooks/queries';
+import { useChatAsk } from '../../../hooks/mutations';
 
 interface SearchTabProps {
   placeholder?: string;
@@ -17,33 +19,32 @@ interface SearchTabProps {
 
 const SearchTab = ({
   placeholder = 'Show me the sales data for California?',
-  suggestions = [
-    'Show me open invoices for Acme Corp due this month',
-    'Show open invoices by customer',
-    'Show sales by region this month',
-    'Show top 10 overdue accounts',
-    'Show cash flow by week for the next 60 days',
-  ],
   className,
 }: SearchTabProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const router = useRouter();
+  const [onFocus, setOnFocus] = useState(false);
+  const { data: suggestedData } = useSuggestedQuestions({
+    enabled: onFocus && !searchQuery,
+  });
 
-  const filteredSuggestions = suggestions.filter(suggestion =>
-    suggestion.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { mutate: createChat } = useChatAsk();
+  const router = useRouter();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    setShowSuggestions(value.trim().length > 0);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
+    createChat(
+      { chat_id: 0, mode: 'search', text: suggestion },
+      {
+        onSuccess: response => {
+          router.push(`/invoice/chat/${response.data.chat_id}`);
+        },
+      }
+    );
     setSearchQuery(suggestion);
-    setShowSuggestions(false);
-    router.push('/invoice');
   };
 
   return (
@@ -54,14 +55,15 @@ const SearchTab = ({
           type='text'
           value={searchQuery}
           onChange={handleSearchChange}
-          onFocus={() => setShowSuggestions(searchQuery.length > 0)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          onFocus={() => setOnFocus(true)}
+          onBlur={() => setTimeout(() => setOnFocus(false), 200)}
           placeholder={placeholder}
           className='h-16 !px-4'
           rightIcon={
             <Button
               size={'icon'}
               variant={searchQuery.length > 0 ? 'default' : 'secondary'}
+              onClick={() => handleSuggestionClick(searchQuery)}
             >
               {searchQuery.length > 0 ? (
                 <IoSearchOutline className='h-4 w-4' />
@@ -71,9 +73,10 @@ const SearchTab = ({
             </Button>
           }
         />
-        {showSuggestions && (
+        {onFocus && !searchQuery && suggestedData && (
           <SearchSuggestions
-            suggestions={filteredSuggestions}
+            recentQuestions={suggestedData.data.recent_questions}
+            roleBasedQuestions={suggestedData.data.role_based_questions}
             onSuggestionClick={handleSuggestionClick}
           />
         )}

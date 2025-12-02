@@ -2,8 +2,27 @@ import { useState } from 'react';
 import { cn } from '../../../lib/utils';
 import { GoArrowUp } from 'react-icons/go';
 
-const SendInput = () => {
+interface SendInputProps {
+  onSend?: (message: string) => void;
+  isLoading?: boolean;
+}
+
+const SendInput = ({ onSend, isLoading }: SendInputProps) => {
   const [text, setText] = useState('');
+
+  const handleSend = () => {
+    if (!text.trim() || isLoading) return;
+    onSend?.(text);
+    setText('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div className='relative bg-white rounded-md p-4 border-neutral-br-secondary border'>
       <textarea
@@ -13,24 +32,33 @@ const SendInput = () => {
           fontSize: '14px',
           overflow: 'hidden',
         }}
+        value={text}
         onChange={e => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        disabled={isLoading}
       />
 
       <div className='flex items-center justify-end'>
         <button
+          onClick={handleSend}
+          disabled={!text.trim() || isLoading}
           className={cn(
-            'h-8 w-8 flex items-center justify-center rounded-lg bg-neutral-disabled',
-            text
-              ? 'bg-brand-default text-white cursor-pointer'
-              : 'bg-neutral-disabled'
+            'h-8 w-8 flex items-center justify-center rounded-lg',
+            text && !isLoading
+              ? 'bg-brand-default text-white cursor-pointer hover:bg-brand-hover'
+              : 'bg-neutral-disabled cursor-not-allowed'
           )}
         >
-          <GoArrowUp
-            className={cn(
-              'w-4 h-4',
-              text ? 'text-white' : 'text-neutral-ct-disabled'
-            )}
-          />
+          {isLoading ? (
+            <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
+          ) : (
+            <GoArrowUp
+              className={cn(
+                'w-4 h-4',
+                text ? 'text-white' : 'text-neutral-ct-disabled'
+              )}
+            />
+          )}
         </button>
       </div>
     </div>
