@@ -1,6 +1,6 @@
 // Header Component
 import { IoIosArrowDown } from 'react-icons/io';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { HiOutlineBars3 } from 'react-icons/hi2';
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {

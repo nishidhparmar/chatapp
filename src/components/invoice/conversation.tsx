@@ -2,7 +2,7 @@
 
 import InvoiceView, { VisualizationType } from '../common/invoice-view';
 import DashboardLayout from '../layout/dashboard-layout';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { Aichat } from '../icons';
 import ChatBubble from '../common/message/chat-Bubble';
 import SendInput from '../common/message/send-input';

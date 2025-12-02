@@ -10,50 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-
-// Mock data for reports
-const reportsData = [
-  {
-    id: 1,
-    name: 'Sales Dashboard',
-    lastViewed: 'Aug 10, 2025',
-    dateCreated: 'Aug 15, 2025',
-  },
-  {
-    id: 2,
-    name: 'Weekly Marketing',
-    lastViewed: 'Jul 5, 2025',
-    dateCreated: 'Aug 28, 2025',
-  },
-  {
-    id: 3,
-    name: 'Monthly Report Dashboard',
-    lastViewed: 'Jun 18, 2025',
-    dateCreated: 'Sep 2, 2025',
-  },
-  {
-    id: 4,
-    name: 'Daily Marketing Dashboard',
-    lastViewed: 'May 30, 2025',
-    dateCreated: 'Sep 5, 2025',
-  },
-  {
-    id: 5,
-    name: 'Monthly Marketing Dashboard',
-    lastViewed: 'May 12, 2025',
-    dateCreated: 'Sep 2, 2025',
-  },
-  {
-    id: 6,
-    name: 'Yearly Marketing Dashboard',
-    lastViewed: 'May 9, 2025',
-    dateCreated: 'Aug 25, 2025',
-  },
-];
+import { useGetDashboards } from '../../hooks/queries/dashboard/use-get-dashboards';
 
 const Reports = () => {
   const router = useRouter();
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
+  const getDashBoardListQuery = useGetDashboards();
 
   const handleRowClick = (id: number) => {
     router.push(`/reports/${id}`);
@@ -82,29 +45,31 @@ const Reports = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reportsData.map((report, index) => (
-                <TableRow
-                  key={report.id}
-                  className={`cursor-pointer transition-colors ${
-                    hoveredRow === index
-                      ? 'bg-neutral-tertiary'
-                      : 'hover:bg-neutral-tertiary'
-                  }`}
-                  onClick={() => handleRowClick(report.id)}
-                  onMouseEnter={() => setHoveredRow(index)}
-                  onMouseLeave={() => setHoveredRow(null)}
-                >
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.name}
-                  </TableCell>
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.lastViewed}
-                  </TableCell>
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.dateCreated}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {getDashBoardListQuery.isLoading
+                ? 'Loading...'
+                : getDashBoardListQuery.data?.data.map((report, index) => (
+                    <TableRow
+                      key={report.dashboard_id}
+                      className={`cursor-pointer transition-colors ${
+                        hoveredRow === index
+                          ? 'bg-neutral-tertiary'
+                          : 'hover:bg-neutral-tertiary'
+                      }`}
+                      onClick={() => handleRowClick(report.dashboard_id)}
+                      onMouseEnter={() => setHoveredRow(index)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                    >
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {report.name}
+                      </TableCell>
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {report.updated_at}
+                      </TableCell>
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {report.created_at}
+                      </TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </div>

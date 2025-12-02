@@ -7,8 +7,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { LoginSchema } from '@/lib/validation';
-import { Button } from '../ui/button';
-import ILink from '../ui/link';
+import { Button } from '../ui/Button';
+import ILink from '../ui/Link';
 import { useLogin } from '@/hooks/mutations/use-login';
 
 const LoginPage = () => {
