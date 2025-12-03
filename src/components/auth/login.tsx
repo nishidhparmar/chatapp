@@ -8,11 +8,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { LoginSchema } from '@/lib/validation';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation';
 import ILink from '../ui/link';
+import { useLogin } from '@/hooks/mutations/use-login';
 
 const LoginPage = () => {
-  const router = useRouter();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -21,9 +20,10 @@ const LoginPage = () => {
     },
   });
 
+  const loginMutation = useLogin();
+
   const onSubmit = (data: z.infer<typeof LoginSchema>) => {
-    console.log(data);
-    router.push('/');
+    loginMutation.mutate(data);
   };
 
   return (
@@ -83,7 +83,11 @@ const LoginPage = () => {
                   Forgot password?
                 </ILink>
               </div>
-              <Button type='submit' className='w-full mt-8'>
+              <Button
+                type='submit'
+                className='w-full mt-8'
+                loading={loginMutation.isPending}
+              >
                 Log In
               </Button>
               <Button type='submit' className='w-full mt-3' variant='outline'>

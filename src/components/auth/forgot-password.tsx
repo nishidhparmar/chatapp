@@ -9,9 +9,12 @@ import { ForgotPasswordSchema } from '@/lib/validation';
 import { Button } from '../ui/button';
 import { BackToLoginButton } from './common/back-to-login-button';
 import { useRouter } from 'next/navigation';
+import { useForgotPassword } from '@/hooks/mutations/use-forgot-password';
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
+  const forgotPasswordMutation = useForgotPassword();
+
   const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
     resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: {
@@ -20,8 +23,11 @@ const ForgotPasswordPage = () => {
   });
 
   const onSubmit = (data: z.infer<typeof ForgotPasswordSchema>) => {
-    console.log(data);
-    router.push('/send-mail');
+    forgotPasswordMutation.mutate(data, {
+      onSuccess: () => {
+        router.push('/send-mail');
+      },
+    });
   };
 
   return (
@@ -47,7 +53,11 @@ const ForgotPasswordPage = () => {
                 </FormItem>
               )}
             />
-            <Button type='submit' className='w-full mt-8'>
+            <Button
+              type='submit'
+              className='w-full mt-8'
+              loading={forgotPasswordMutation.isPending}
+            >
               Send reset link
             </Button>
             <BackToLoginButton />

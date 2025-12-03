@@ -12,6 +12,9 @@ import { GoShareAndroid } from 'react-icons/go';
 import DeleteChat from './delete-chat';
 import AddToGroup from './add-to-group';
 import { IoSearchOutline } from 'react-icons/io5';
+import { useGetChatList } from '../../hooks/queries/use-get-chat-list';
+import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
+import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
 
 interface ChatItem {
   id: string;
@@ -33,82 +36,26 @@ const ChatSidebar = ({
   activeChat: string;
   setActiveChat: Dispatch<SetStateAction<string>>;
 }) => {
+  const { data } = useGetChatList();
+  const deleteChat = useDeleteChat();
+  const renameChat = useRenameChat();
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
   const [isChatsExpanded, setIsChatsExpanded] = useState(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [deleteChatModal, setDeleteChatModal] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
   const [openAddToGroupModal, setOpenAddToGroupModal] = useState(false);
+  const [chatToAddToGroup, setChatToAddToGroup] = useState<string | null>(null);
   const [renamingItem, setRenamingItem] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
 
-  const [chats, setChats] = useState<ChatItem[]>([
-    { id: 'sales-trends-3mo', title: 'Sales trends over the past 3 mo' },
-    { id: 'top-growing', title: 'Top-Growing Product Categor' },
-    { id: 'north-america', title: 'North America Revenue' },
-    { id: 'churn-pricing', title: 'Churn Before vs After Pricing' },
-    { id: 'customer-segments', title: 'Customer Segments with High' },
-  ]);
+  const chats: ChatItem[] =
+    data?.data?.chats?.map(chat => ({
+      id: String(chat.chat_id),
+      title: chat.title || 'Untitled Chat',
+    })) || [];
 
-  const groups: Group[] = [
-    {
-      id: 'forecasting',
-      name: 'Forecasting & Budgeting',
-      items: [
-        {
-          id: 'sales-trends',
-          title: 'Sales trends by Budgeting',
-          groupId: 'forecasting',
-        },
-        {
-          id: 'sales-year',
-          title: 'Sales trends by Year',
-          groupId: 'forecasting',
-        },
-      ],
-    },
-    {
-      id: 'market-analysis',
-      name: 'Market Analysis',
-      items: [
-        {
-          id: 'competitive',
-          title: 'Competitive landscape ove',
-          groupId: 'market-analysis',
-        },
-        {
-          id: 'key-players',
-          title: 'Key players and market sh',
-          groupId: 'market-analysis',
-        },
-      ],
-    },
-    {
-      id: 'customer-insights',
-      name: 'Customer Insights',
-      items: [
-        {
-          id: 'demographic',
-          title: 'Demographic analysis - Jul',
-          groupId: 'customer-insights',
-        },
-        {
-          id: 'market-trends',
-          title: 'Market trends - August 20',
-          groupId: 'customer-insights',
-        },
-        {
-          id: 'consumer-behavior',
-          title: 'Consumer behavior insight',
-          groupId: 'customer-insights',
-        },
-        {
-          id: 'target-audience',
-          title: 'Target audience segmenta',
-          groupId: 'customer-insights',
-        },
-      ],
-    },
-  ];
+  const groups: Group[] = (data?.data?.groups as Group[]) || [];
 
   const handleRename = (itemId: string) => {
     const item = chats.find(chat => chat.id === itemId);
@@ -121,15 +68,18 @@ const ChatSidebar = ({
 
   const handleRenameSave = () => {
     if (renamingItem && renameValue.trim()) {
-      setChats(prevChats =>
-        prevChats.map(chat =>
-          chat.id === renamingItem
-            ? { ...chat, title: renameValue.trim() }
-            : chat
-        )
+      renameChat.mutate(
+        {
+          chatId: Number(renamingItem),
+          payload: { title: renameValue.trim() },
+        },
+        {
+          onSuccess: () => {
+            setRenamingItem(null);
+            setRenameValue('');
+          },
+        }
       );
-      setRenamingItem(null);
-      setRenameValue('');
     }
   };
 
@@ -143,6 +93,21 @@ const ChatSidebar = ({
       handleRenameSave();
     } else if (e.key === 'Escape') {
       handleRenameCancel();
+    }
+  };
+
+  const handleDeleteChat = () => {
+    if (chatToDelete) {
+      deleteChat.mutate(Number(chatToDelete), {
+        onSuccess: () => {
+          setDeleteChatModal(false);
+          setChatToDelete(null);
+          // If the deleted chat was active, clear the active chat
+          if (activeChat === chatToDelete) {
+            setActiveChat('');
+          }
+        },
+      });
     }
   };
 
@@ -164,7 +129,7 @@ const ChatSidebar = ({
           title: 'Delete',
           icon: <Trash className='h-4 w-4' />,
           onClick: () => {
-            console.log('Delete', item.id);
+            setChatToDelete(item.id);
             setDeleteChatModal(true);
             setOpenPopover(null);
           },
@@ -195,8 +160,9 @@ const ChatSidebar = ({
           title: 'Add to group',
           icon: <FolderOpen />,
           onClick: () => {
-            console.log('Add to group', item.id);
+            setChatToAddToGroup(item.id);
             setOpenAddToGroupModal(true);
+            setOpenPopover(null);
           },
           hasSubmenu: true,
         },
@@ -204,7 +170,7 @@ const ChatSidebar = ({
           title: 'Delete',
           icon: <Trash className='!h-4 !w-4' />,
           onClick: () => {
-            console.log('Delete', item.id);
+            setChatToDelete(item.id);
             setDeleteChatModal(true);
             setOpenPopover(null);
           },
@@ -238,7 +204,7 @@ const ChatSidebar = ({
             onChange={e => setRenameValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleRenameSave}
-            className='w-full h-10 px-2 text-neutral-ct-primary border border-neutral-br-primary rounded bg-transparent  outline-none text-sm '
+            className='w-full h-10 px-2 text-neutral-ct-primary rounded bg-transparent  outline-none text-sm '
             autoFocus
           />
         ) : (
@@ -380,11 +346,20 @@ const ChatSidebar = ({
       </div>
       <DeleteChat
         open={deleteChatModal}
-        onOpenChange={() => setDeleteChatModal(false)}
+        onOpenChange={() => {
+          setDeleteChatModal(false);
+          setChatToDelete(null);
+        }}
+        onConfirm={handleDeleteChat}
+        isDeleting={deleteChat.isPending}
       />
       <AddToGroup
         open={openAddToGroupModal}
-        onOpenChange={() => setOpenAddToGroupModal(false)}
+        onOpenChange={() => {
+          setOpenAddToGroupModal(false);
+          setChatToAddToGroup(null);
+        }}
+        chatId={chatToAddToGroup ? Number(chatToAddToGroup) : null}
       />
     </div>
   );

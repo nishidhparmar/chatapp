@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../ui/button';
+import { useChatAsk } from '../../../hooks/mutations';
 
 interface ConversationTabProps {
   placeholder?: string;
@@ -15,12 +16,27 @@ const ConversationTab = ({
   placeholder = 'Show me the sales data for California?',
 }: ConversationTabProps) => {
   const [searchConversationQuery, setSearchConversationQuery] = useState('');
+  const { mutate: createChat } = useChatAsk();
   const router = useRouter();
+
   const handleSearchConversationChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
     setSearchConversationQuery(value);
+  };
+
+  const handleAskQuestion = () => {
+    if (!searchConversationQuery.trim()) return;
+
+    createChat(
+      { chat_id: 0, mode: 'conversational', text: searchConversationQuery },
+      {
+        onSuccess: response => {
+          router.push(`/invoice/conversations/${response.data.chat_id}`);
+        },
+      }
+    );
   };
 
   return (
@@ -36,7 +52,7 @@ const ConversationTab = ({
           rightIcon={
             <Button
               size={'icon'}
-              onClick={() => router.push('/invoice/conversations')}
+              onClick={handleAskQuestion}
               variant={
                 searchConversationQuery.length > 0 ? 'default' : 'secondary'
               }
