@@ -1,7 +1,7 @@
 'use client';
 
 import { PiThumbsUp } from 'react-icons/pi';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { Message, Aichat } from '../icons';
 import DashboardLayout from '../layout/dashboard-layout';
 import { useRouter } from 'next/navigation';

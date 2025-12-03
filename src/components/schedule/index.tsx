@@ -7,7 +7,7 @@ import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';
 import { Edit, Play, Stop } from '../icons';
 import ScheduleModal from './schedule-modal';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import DeleteRecurrence from './delete-recurrence';
 
 const Schedule = () => {

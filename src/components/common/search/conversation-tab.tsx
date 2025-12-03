@@ -5,7 +5,7 @@ import { GoArrowUp } from 'react-icons/go';
 import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import { useRouter } from 'next/navigation';
-import { Button } from '../../ui/button';
+import { Button } from '../../ui/Button';
 import { useChatAsk } from '../../../hooks/mutations';
 
 interface ConversationTabProps {

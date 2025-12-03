@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { AuthInput } from '../auth/common/auth-input';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';

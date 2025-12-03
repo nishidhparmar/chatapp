@@ -6,7 +6,7 @@ import DashboardLayout from '../layout/dashboard-layout';
 import ChatBubble from '../common/message/chat-Bubble';
 import { Aichat, Document, People } from '../icons';
 import { InvoiceView } from '../common';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { GoMail } from 'react-icons/go';
 import SendInput from '../common/message/send-input';
 

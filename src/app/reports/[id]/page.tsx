@@ -4,6 +4,7 @@ import { notFound, useParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import InvoiceView from '@/components/common/invoice-view';
 import Link from 'next/link';
+import { useGetDashboardById } from '../../../hooks/queries/dashboard/use-get-dashboard-by-id';
 
 // Mock data for individual reports
 const reportsData = {
@@ -51,7 +52,8 @@ export default function ReportDetailPage() {
   const reportId = Array.isArray(params.id) ? params.id[0] : params.id;
   const numericReportId = parseInt(reportId || '0');
   const report = reportsData[numericReportId as keyof typeof reportsData];
-
+  const getDashBoardByIdQuery = useGetDashboardById(Number(reportId));
+  console.log(getDashBoardByIdQuery.data?.data);
   if (!report) {
     notFound();
   }
