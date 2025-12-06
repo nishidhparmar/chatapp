@@ -25,16 +25,10 @@ export function useLogout() {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('expires_in');
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // Legacy token if exists
-
-    // Clear cookies
+    localStorage.removeItem('token');
     deleteCookie('access_token');
-
-    // Clear user store
     clearUser();
     reset();
-
-    // Clear all React Query cache
     queryClient.clear();
   };
 
@@ -52,9 +46,7 @@ export function useLogout() {
       router.push('/login');
     },
     onError: (error: unknown) => {
-      // Even if the API call fails, we should still clear local auth data
       clearAuthData();
-
       const errorMessage =
         (error as { response?: { data?: { message?: string } } }).response?.data
           ?.message || 'Logout completed';

@@ -18,7 +18,7 @@ export function useSaveChat() {
       );
       return response.data;
     },
-    onSuccess: (data, { chat_id }) => {
+    onSuccess: (_, { chat_id }) => {
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['chat', chat_id] });
     },

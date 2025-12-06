@@ -17,14 +17,8 @@ export function useCreateGroup() {
       );
       return response.data;
     },
-    onSuccess: data => {
-      console.log('Group created successfully:', data);
-
-      // Invalidate chat groups to show the new group
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
-    },
-    onError: (error: unknown) => {
-      console.error('Create group error:', error);
     },
   });
 }

@@ -17,20 +17,11 @@ export function useLogin() {
       return response.data;
     },
     onSuccess: data => {
-      // Store tokens in localStorage
       localStorage.setItem('access_token', data.data.access_token);
       localStorage.setItem('refresh_token', data.data.refresh_token);
       localStorage.setItem('expires_in', data.data.expires_in.toString());
-
-      // Set cookie for middleware
       setCookie('access_token', data.data.access_token, data.data.expires_in);
-
-      toast.success(data.message || 'Login successful');
-
-      // Get redirect URL from query params or default to home
       const redirectUrl = searchParams.get('redirect') || '/';
-
-      // Force a full page reload to trigger middleware
       window.location.href = redirectUrl;
     },
     onError: (error: unknown) => {

@@ -12,17 +12,9 @@ export function useDeleteChat() {
       );
       return response.data;
     },
-    onSuccess: (data, chatId) => {
-      console.log('Chat deleted successfully:', data);
-
-      // Invalidate and refetch chat list
+    onSuccess: (_, chatId) => {
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
-
-      // Remove the specific chat from cache
       queryClient.removeQueries({ queryKey: ['chat', chatId] });
-    },
-    onError: (error: unknown) => {
-      console.error('Delete chat error:', error);
     },
   });
 }

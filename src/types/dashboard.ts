@@ -60,6 +60,8 @@ export interface DashboardWidget {
   title: string;
   chart_type: string;
   chart_config: ChartConfig;
+  position: number;
+  created_at: string;
 }
 
 export interface DashboardDetail {
@@ -68,4 +70,6 @@ export interface DashboardDetail {
   client_id: number;
   name: string;
   charts: DashboardWidget[];
+  created_at: string;
+  updated_at: string;
 }

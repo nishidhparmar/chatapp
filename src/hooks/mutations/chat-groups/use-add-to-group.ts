@@ -22,22 +22,10 @@ export function useAddToGroup() {
       );
       return response.data;
     },
-    onSuccess: (data, { chatId, payload }) => {
-      if (payload.group_id === 0) {
-        console.log('Group created successfully:', data);
-        console.log('Group name:', payload.group_name);
-      } else {
-        console.log('Chat added to group successfully:', data);
-        console.log('Chat ID:', chatId);
-        console.log('Group:', payload.group_name);
-      }
-
-      // Invalidate specific chat to update group information (if not creating a standalone group)
+    onSuccess: (_, { chatId }) => {
       if (chatId !== 0) {
         queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
       }
-
-      // Always invalidate chat list and groups after any group operation
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
     },

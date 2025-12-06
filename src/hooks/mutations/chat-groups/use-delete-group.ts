@@ -12,17 +12,9 @@ export function useDeleteGroup() {
       );
       return response.data;
     },
-    onSuccess: (data, groupId) => {
-      console.log('Group deleted successfully:', data);
-
-      // Invalidate chat groups to remove the deleted group
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
-
-      // Invalidate chat list in case any chats were in the deleted group
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
-    },
-    onError: (error: unknown) => {
-      console.error('Delete group error:', error);
     },
   });
 }

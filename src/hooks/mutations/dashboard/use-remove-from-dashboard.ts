@@ -16,22 +16,10 @@ export function useRemoveFromDashboard() {
       );
       return response.data;
     },
-    onSuccess: (data, { dashboardId, chartId }) => {
-      console.log('Chart removed from dashboard successfully:', data);
-      console.log('Dashboard ID:', dashboardId);
-      console.log('Chart ID:', chartId);
-
-      // Invalidate dashboard list to reflect changes
+    onSuccess: (_, { dashboardId, chartId }) => {
       queryClient.invalidateQueries({ queryKey: ['dashboards'] });
-
-      // Invalidate specific dashboard to update chart list
       queryClient.invalidateQueries({ queryKey: ['dashboard', dashboardId] });
-
-      // Remove the specific chart from cache
       queryClient.removeQueries({ queryKey: ['dashboard-chart', chartId] });
-    },
-    onError: (error: unknown) => {
-      console.error('Remove from dashboard error:', error);
     },
   });
 }

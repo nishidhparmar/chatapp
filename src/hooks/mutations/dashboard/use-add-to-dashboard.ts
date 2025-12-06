@@ -24,21 +24,10 @@ export function useAddToDashboard() {
       return response.data;
     },
     onSuccess: (data, { payload }) => {
-      console.log('Chart added to dashboard successfully:', data);
-      console.log('Chart title:', payload.chart_title);
-      console.log('Dashboard:', payload.dashboard_name);
-      console.log('Chart type:', payload.chart_type);
-
-      // Invalidate dashboards list to show updated dashboard
       queryClient.invalidateQueries({ queryKey: ['dashboards'] });
-
-      // Invalidate specific dashboard to show new chart
       queryClient.invalidateQueries({
         queryKey: ['dashboard', payload.dashboard_id],
       });
-    },
-    onError: (error: unknown) => {
-      console.error('Add to dashboard error:', error);
     },
   });
 }

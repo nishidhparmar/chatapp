@@ -18,11 +18,5 @@ export function useForgotPassword() {
     onSuccess: data => {
       toast.success(data.message || 'Password reset email sent successfully');
     },
-    onError: (error: unknown) => {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } }).response?.data
-          ?.message || 'Failed to send reset email. Please try again.';
-      toast.error(errorMessage);
-    },
   });
 }

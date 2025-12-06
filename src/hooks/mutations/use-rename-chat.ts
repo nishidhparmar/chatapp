@@ -19,12 +19,9 @@ export function useRenameChat() {
       );
       return response.data;
     },
-    onSuccess: (data, { chatId }) => {
+    onSuccess: (_, { chatId }) => {
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
-    },
-    onError: (error: unknown) => {
-      console.error('Rename chat error:', error);
     },
   });
 }
