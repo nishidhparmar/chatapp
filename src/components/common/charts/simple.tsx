@@ -11,21 +11,26 @@ import {
   TooltipContentProps,
 } from 'recharts';
 import { useIsMobile } from '../../../hooks/use-mobile';
+import { BarChartData } from '../../../types/chat';
 
 const simpleBarData = [
-  { month: 'Jan', fullMonth: 'January', sale: 24 },
-  { month: 'Feb', fullMonth: 'February', sale: 36 },
-  { month: 'Mar', fullMonth: 'March', sale: 33 },
-  { month: 'Apr', fullMonth: 'April', sale: 25 },
-  { month: 'May', fullMonth: 'May', sale: 35 },
-  { month: 'Jun', fullMonth: 'June', sale: 25 },
-  { month: 'Jul', fullMonth: 'July', sale: 22 },
-  { month: 'Aug', fullMonth: 'August', sale: 34 },
-  { month: 'Sep', fullMonth: 'September', sale: 27 },
-  { month: 'Oct', fullMonth: 'October', sale: 39 },
-  { month: 'Nov', fullMonth: 'November', sale: 26 },
-  { month: 'Dec', fullMonth: 'December', sale: 34 },
+  { month: 'Jan', fullMonth: 'January', value: 24 },
+  { month: 'Feb', fullMonth: 'February', value: 36 },
+  { month: 'Mar', fullMonth: 'March', value: 33 },
+  { month: 'Apr', fullMonth: 'April', value: 25 },
+  { month: 'May', fullMonth: 'May', value: 35 },
+  { month: 'Jun', fullMonth: 'June', value: 25 },
+  { month: 'Jul', fullMonth: 'July', value: 22 },
+  { month: 'Aug', fullMonth: 'August', value: 34 },
+  { month: 'Sep', fullMonth: 'September', value: 27 },
+  { month: 'Oct', fullMonth: 'October', value: 39 },
+  { month: 'Nov', fullMonth: 'November', value: 26 },
+  { month: 'Dec', fullMonth: 'December', value: 34 },
 ];
+
+interface SimpleChartProps {
+  data?: BarChartData['data'];
+}
 
 // Custom Tooltip Component
 const CustomTooltip = ({
@@ -41,7 +46,7 @@ const CustomTooltip = ({
         <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
           <div className='flex items-center justify-between gap-8 text-xs'>
             <span className='font-medium'>{data.fullMonth}</span>
-            <span className='font-semibold'>{data.sale}.4M</span>
+            <span className='font-semibold'>{data.value}</span>
           </div>
         </div>
       </div>
@@ -50,8 +55,11 @@ const CustomTooltip = ({
   return null;
 };
 
-const SimpleChart = () => {
+const SimpleChart: React.FC<SimpleChartProps> = ({ data }) => {
   const isMobile = useIsMobile();
+
+  // Use API data if available, otherwise fallback to default data
+  const chartData = data || simpleBarData;
 
   // Responsive dimensions
   const chartHeight = isMobile ? 300 : 400;
@@ -64,7 +72,7 @@ const SimpleChart = () => {
     <div className='w-full'>
       <div className='w-full' style={{ height: chartHeight }}>
         <ResponsiveContainer width='100%' height='100%'>
-          <BarChart data={simpleBarData} margin={margins}>
+          <BarChart data={chartData} margin={margins}>
             <XAxis
               dataKey='month'
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
@@ -107,7 +115,7 @@ const SimpleChart = () => {
               cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
             />
             <Bar
-              dataKey='sale'
+              dataKey='value'
               fill='#3B82F6'
               radius={[barRadius, barRadius, 0, 0]}
               barSize={barSize}

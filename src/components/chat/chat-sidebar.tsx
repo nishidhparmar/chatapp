@@ -12,21 +12,22 @@ import { GoShareAndroid } from 'react-icons/go';
 import DeleteChat from './delete-chat';
 import AddToGroup from './add-to-group';
 import { IoSearchOutline } from 'react-icons/io5';
-import { useGetChatList } from '../../hooks/queries/use-get-chat-list';
+import { useGetChatList, useGetChatGroups } from '../../hooks/queries';
 import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
 import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
+import { useRemoveFromGroup } from '../../hooks/mutations';
+import type { ChatGroup } from '@/types/chat';
 
 interface ChatItem {
   id: string;
   title: string;
   isActive?: boolean;
-  groupId?: string;
 }
 
 interface Group {
-  id: string;
-  name: string;
-  items: ChatItem[];
+  group_id?: number;
+  title: string;
+  chats: ChatItem[];
 }
 
 const ChatSidebar = ({
@@ -37,8 +38,10 @@ const ChatSidebar = ({
   setActiveChat: Dispatch<SetStateAction<string>>;
 }) => {
   const { data } = useGetChatList();
+  const { data: chatGroupsData } = useGetChatGroups();
   const deleteChat = useDeleteChat();
   const renameChat = useRenameChat();
+  const removeFromGroup = useRemoveFromGroup();
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
   const [isChatsExpanded, setIsChatsExpanded] = useState(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
@@ -55,7 +58,22 @@ const ChatSidebar = ({
       title: chat.title || 'Untitled Chat',
     })) || [];
 
-  const groups: Group[] = (data?.data?.groups as Group[]) || [];
+  const groups: Group[] =
+    data?.data?.groups?.map(group => {
+      // Try to find matching group ID from chat groups API
+      const matchingGroup = chatGroupsData?.data?.find(
+        (chatGroup: ChatGroup) => chatGroup.name === group.title
+      );
+
+      return {
+        group_id: group.group_id || matchingGroup?.group_id,
+        title: group.title,
+        chats: group.chats.map(chat => ({
+          id: String(chat.chat_id),
+          title: chat.title || 'Untitled Chat',
+        })),
+      };
+    }) || [];
 
   const handleRename = (itemId: string) => {
     const item = chats.find(chat => chat.id === itemId);
@@ -111,18 +129,37 @@ const ChatSidebar = ({
     }
   };
 
-  const getMenuForItem = (item: ChatItem) => {
-    if (item.groupId) {
+  const handleRemoveFromGroup = (chatId: string, groupId: number) => {
+    removeFromGroup.mutate(
+      {
+        groupId,
+        chatId: Number(chatId),
+      },
+      {
+        onSuccess: () => {
+          console.log(`Chat ${chatId} removed from group ${groupId}`);
+          setOpenPopover(null);
+        },
+        onError: (error: unknown) => {
+          console.error('Failed to remove chat from group:', error);
+        },
+      }
+    );
+  };
+
+  const getMenuForItem = (
+    item: ChatItem,
+    groupTitle?: string,
+    groupId?: number
+  ) => {
+    if (groupTitle && groupId) {
       // Item is in a group - show "Remove from group" first
-      const groupName =
-        groups.find(g => g.id === item.groupId)?.name || 'group';
       return [
         {
-          title: `Remove from ${groupName}`,
+          title: `Remove from ${groupTitle}`,
           icon: <TurnArrow />,
           onClick: () => {
-            console.log('Remove from group', item.id);
-            setOpenPopover(null);
+            handleRemoveFromGroup(item.id, groupId);
           },
         },
         {
@@ -180,8 +217,13 @@ const ChatSidebar = ({
     }
   };
 
-  const renderChatItem = (item: ChatItem, isInGroup = false) => {
-    const menuItems = getMenuForItem(item);
+  const renderChatItem = (
+    item: ChatItem,
+    isInGroup = false,
+    groupTitle?: string,
+    groupId?: number
+  ) => {
+    const menuItems = getMenuForItem(item, groupTitle, groupId);
 
     return (
       <div
@@ -270,7 +312,6 @@ const ChatSidebar = ({
           Chat History
         </h2>
 
-        {/* Search Bar */}
         <div className='flex gap-3 w-full items-center'>
           <div className='flex-1'>
             <AuthInput
@@ -305,17 +346,19 @@ const ChatSidebar = ({
 
           {isGroupsExpanded && (
             <div className='space-y-1 mt-2'>
-              {groups.map(group => (
-                <div key={group.id}>
+              {groups.map((group, index) => (
+                <div key={index}>
                   {/* Group Header */}
                   <div className='flex items-center gap-2 py-1 text-sm text-neutral-ct-primary mb-1'>
                     <Folder size={14} className='text-neutral-ct-tertiary' />
-                    <span>{group.name}</span>
+                    <span>{group.title}</span>
                   </div>
 
                   {/* Group Items */}
                   <div className='ml-1.5 px-1.5 space-y-1 border-l border-neutral-br-primary'>
-                    {group.items.map(item => renderChatItem(item, true))}
+                    {group.chats.map(item =>
+                      renderChatItem(item, true, group.title, group.group_id)
+                    )}
                   </div>
                 </div>
               ))}

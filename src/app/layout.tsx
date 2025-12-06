@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from '../components/ui/sonner';
 import { ReactQueryProvider } from '@/lib/react-query';
 import { AuthGuard } from '@/components/auth/auth-guard';
+import { UserProvider } from '@/components/providers/user-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,10 +24,12 @@ export default function RootLayout({
     <html lang='en'>
       <body className={`${inter.className} antialiased`}>
         <ReactQueryProvider>
-          <AuthGuard>
-            <Toaster />
-            {children}
-          </AuthGuard>
+          <UserProvider>
+            <AuthGuard>
+              <Toaster />
+              {children}
+            </AuthGuard>
+          </UserProvider>
         </ReactQueryProvider>
       </body>
     </html>

@@ -13,6 +13,9 @@ export function useAddToGroup() {
 
   return useMutation({
     mutationFn: async ({ chatId, payload }: AddToGroupParams) => {
+      // Use the single endpoint for both adding to existing group and creating new group
+      // When payload.group_id is 0, the API will create a new group
+      // When payload.group_id is a valid ID, the API will add chat to existing group
       const response = await axiosInstance.post<ApiResponse>(
         `/api/v1/chat-groups/add-to-group/${chatId}`,
         payload
@@ -20,17 +23,22 @@ export function useAddToGroup() {
       return response.data;
     },
     onSuccess: (data, { chatId, payload }) => {
-      console.log('Chat added to group successfully:', data);
-      console.log('Chat ID:', chatId);
-      console.log('Group:', payload.group_name);
+      if (payload.group_id === 0) {
+        console.log('Group created successfully:', data);
+        console.log('Group name:', payload.group_name);
+      } else {
+        console.log('Chat added to group successfully:', data);
+        console.log('Chat ID:', chatId);
+        console.log('Group:', payload.group_name);
+      }
 
-      // Invalidate chat list to reflect group changes
+      // Invalidate specific chat to update group information (if not creating a standalone group)
+      if (chatId !== 0) {
+        queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
+      }
+
+      // Always invalidate chat list and groups after any group operation
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
-
-      // Invalidate specific chat to update group information
-      queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
-
-      // If there are group-related queries, invalidate them too
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
     },
     onError: (error: unknown) => {

@@ -18,10 +18,17 @@ export function useRemoveFromGroup() {
       return response.data;
     },
     onSuccess: (data, { groupId, chatId }) => {
+      console.log('Chat removed from group successfully:', data);
+      console.log('Chat ID:', chatId, 'Group ID:', groupId);
+
+      // Invalidate chat list to refresh the groups structure
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
+
+      // Invalidate chat groups to refresh the groups list
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
-      queryClient.invalidateQueries({ queryKey: ['chat-groups', groupId] });
+
+      // Invalidate specific chat to update its group information
+      queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
     },
     onError: (error: unknown) => {
       console.error('Remove from group error:', error);

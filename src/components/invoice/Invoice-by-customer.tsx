@@ -2,14 +2,13 @@
 
 import { PiThumbsUp } from 'react-icons/pi';
 import { Button } from '../ui/button';
-import { Message, Aichat } from '../icons';
+import { Message } from '../icons';
 import DashboardLayout from '../layout/dashboard-layout';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import ProvideFeedbackModal from './provice-feedback-modal';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
-import ChatBubble from '../common/message/chat-Bubble';
-import InvoiceView, { VisualizationType } from '../common/invoice-view';
+import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
 
 const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
@@ -75,57 +74,8 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
         )}
 
         <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
-          <div className='mt-8 space-y-6'>
-            {/* Render all messages */}
-            {messages.map(message => {
-              if (message.sender === 'user') {
-                return (
-                  <ChatBubble
-                    key={message.message_id}
-                    message={message.text}
-                    avatar='https://i.pravatar.cc/40?img=12'
-                    side='right'
-                  />
-                );
-              }
-
-              // Assistant message
-              return (
-                <div
-                  key={message.message_id}
-                  className='flex flex-col md:flex-row md:items-start md:gap-3'
-                >
-                  {/* AI Icon */}
-                  <div className='w-6 h-6 md:block rounded-full bg-brand-default hidden items-center justify-center flex-shrink-0 mb-3 md:mb-0'>
-                    <Aichat />
-                  </div>
-
-                  {/* Content */}
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-2'>
-                      <Aichat className='shrink-0 md:hidden block' />
-                      <p className='text-neutral-900 text-sm mt-0.5'>
-                        {message.text}
-                      </p>
-                    </div>
-
-                    {/* Render InvoiceView if chart_content exists */}
-                    {message.chart_content && (
-                      <div className='mt-6'>
-                        <InvoiceView
-                          title={message.text}
-                          defaultView={
-                            message.chart_content.type as VisualizationType
-                          }
-                          data={message}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-
+          <div className='mt-8'>
+            <MessageList messages={messages} className='space-y-6' />
             {/* Feedback and Actions */}
             <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between pt-4'>
               <div className='flex items-center gap-3'>

@@ -22,50 +22,63 @@ interface AddToGroupProps {
   chatId: number | null;
 }
 
-// Mock data for demonstration - replace with actual data
-const mockGroups = [
-  { id: 1, name: 'Development Team', members: 5 },
-  { id: 2, name: 'Design Team', members: 3 },
-  { id: 3, name: 'Marketing Team', members: 8 },
-  { id: 4, name: 'Sales Team', members: 12 },
-  { id: 5, name: 'Support Team', members: 6 },
-];
-
-import { useAddToGroup } from '@/hooks/mutations/chat-groups/use-add-to-group';
+import { useAddToGroup } from '@/hooks/mutations';
+import { useGetChatGroups } from '@/hooks/queries';
+import type { ChatGroup } from '@/types/chat';
 
 const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const addToGroup = useAddToGroup();
+
+  const { data: chatGroupsData, isLoading: isLoadingGroups } =
+    useGetChatGroups();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<ChatGroup | null>(null);
 
-  const filteredGroups = mockGroups.filter(group =>
+  const groups = chatGroupsData?.data || [];
+  const filteredGroups = groups.filter((group: ChatGroup) =>
     group.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setShowSuggestions(value.trim().length > 0);
+    setShowSuggestions(true);
+    // Clear selected group if user is typing
+    if (selectedGroup && value !== selectedGroup.name) {
+      setSelectedGroup(null);
+    }
   };
 
-  const handleGroupToggle = (groupId: number, groupName: string) => {
-    if (!chatId) return;
+  const handleGroupSelect = (group: ChatGroup) => {
+    setSelectedGroup(group);
+    setSearchTerm(group.name);
+    setShowSuggestions(false);
+  };
+
+  const handleAddToGroup = () => {
+    if (!chatId || !selectedGroup) return;
 
     addToGroup.mutate(
       {
         chatId,
         payload: {
-          group_id: groupId,
-          group_name: groupName,
+          group_id: selectedGroup.group_id,
+          group_name: selectedGroup.name,
         },
       },
       {
         onSuccess: () => {
           setShowSuggestions(false);
           setSearchTerm('');
+          setSelectedGroup(null);
           onOpenChange(false);
+        },
+        onError: (error: unknown) => {
+          console.error('Failed to add chat to group:', error);
         },
       }
     );
@@ -73,13 +86,37 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
 
   const handleCreateGroup = () => {
     if (newGroupName.trim()) {
-      // Here you would typically make an API call to create the group
-      console.log('Creating group:', newGroupName);
-      // Reset form and go back to main view
-      setNewGroupName('');
-      setIsCreatingGroup(false);
-      // Close the modal or keep it open based on your requirements
-      // onOpenChange(false);
+      // Use addToGroup with group_id: 0 to create a new group
+      // If chatId is provided, it will create group and add chat to it
+      // If chatId is 0 or null, it will just create the group
+      const targetChatId = chatId || 0;
+
+      addToGroup.mutate(
+        {
+          chatId: targetChatId,
+          payload: {
+            group_id: 0, // 0 indicates creating a new group
+            group_name: newGroupName.trim(),
+          },
+        },
+        {
+          onSuccess: (data: unknown) => {
+            console.log('Group created successfully:', data);
+
+            // Reset form and go back to main view
+            setNewGroupName('');
+            setIsCreatingGroup(false);
+
+            // If no chatId (creating group only), close the modal
+            if (!chatId) {
+              onOpenChange(false);
+            }
+          },
+          onError: (error: unknown) => {
+            console.error('Failed to create group:', error);
+          },
+        }
+      );
     }
   };
 
@@ -109,6 +146,7 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                 variant='secondary'
                 onClick={handleBackToGroups}
                 size={'xs'}
+                disabled={addToGroup.isPending}
               >
                 <ArrowLeft className='text-neutral-ct-primary' /> Back
               </Button>
@@ -116,9 +154,9 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                 type='submit'
                 size={'xs'}
                 onClick={handleCreateGroup}
-                disabled={!newGroupName.trim()}
+                disabled={!newGroupName.trim() || addToGroup.isPending}
               >
-                Create group
+                {addToGroup.isPending ? 'Creating...' : 'Create group'}
               </Button>
             </DialogFooter>
           </>
@@ -139,7 +177,7 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                   placeholder='Search groups...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+                  onFocus={() => setShowSuggestions(true)}
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
@@ -147,15 +185,21 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                 {showSuggestions && (
                   <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>
                     <div className='max-h-60 overflow-y-auto space-y-1'>
-                      {filteredGroups.length > 0 ? (
-                        filteredGroups.map(group => (
+                      {isLoadingGroups ? (
+                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                          Loading groups...
+                        </div>
+                      ) : filteredGroups.length > 0 ? (
+                        filteredGroups.map((group: ChatGroup) => (
                           <div
-                            key={group.id}
+                            key={group.group_id}
                             onMouseDown={e => e.preventDefault()}
-                            className='group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition'
-                            onClick={() =>
-                              handleGroupToggle(group.id, group.name)
-                            }
+                            className={`group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition ${
+                              selectedGroup?.group_id === group.group_id
+                                ? 'bg-blue-50 border border-blue-200'
+                                : ''
+                            }`}
+                            onClick={() => handleGroupSelect(group)}
                           >
                             <div className='flex items-center space-x-3'>
                               <Folder size={16} color='#6B7280' />
@@ -174,7 +218,7 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                                 onClick={e => {
                                   e.stopPropagation();
                                   console.log('Delete group:', group.name);
-                                  // TODO: Add your delete logic here
+                                  // TODO: Implement delete group functionality
                                 }}
                               />
                             </div>
@@ -202,9 +246,10 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
               <Button
                 type='submit'
                 size={'xs'}
-                onClick={() => onOpenChange(false)}
+                onClick={handleAddToGroup}
+                disabled={!selectedGroup || addToGroup.isPending}
               >
-                Done
+                {addToGroup.isPending ? 'Adding...' : 'Done'}
               </Button>
             </div>
           </>
