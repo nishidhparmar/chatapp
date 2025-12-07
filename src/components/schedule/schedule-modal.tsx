@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import Input from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -22,38 +21,201 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthInput } from '../auth/common/auth-input';
+import { Email, Trash } from '../icons';
+import {
+  convertTo12Hour,
+  convertTo24Hour,
+  formatDateToISO,
+  parseWeeklyDays,
+  WEEK_DAYS,
+} from '../../lib/utils/helper';
+import type { CreateSchedulePayload, ScheduleListItem } from '@/types/schedule';
 import WhatsApp from '../icons/Whatsapp';
-import { GoMail } from 'react-icons/go';
-import { Play, Trash } from '../icons';
+import { useCurrentUser } from '../../hooks/use-current-user';
+import TimeCombobox from './time-combobox';
 
-interface ScheduleModalProps {
+interface CreateScheduleModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  messageId?: number;
+  title?: string;
+  questions: string[];
+  chatId?: number;
+  isLoading?: boolean;
+  onScheduleCreate: (payload: CreateSchedulePayload) => void;
 }
 
-const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
+interface EditScheduleModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  scheduleData: ScheduleListItem;
+  isLoading?: boolean;
+  onScheduleUpdate: (payload: CreateSchedulePayload) => void;
+}
+
+type ScheduleModalProps = CreateScheduleModalProps | EditScheduleModalProps;
+
+// Helper function to check if props are for editing
+const isEditMode = (
+  props: ScheduleModalProps
+): props is EditScheduleModalProps => {
+  return 'scheduleData' in props && 'onScheduleUpdate' in props;
+};
+
+const ScheduleModal = (props: ScheduleModalProps) => {
+  const { open, onOpenChange, isLoading = false } = props;
+  const isEditing = isEditMode(props);
+  const { user } = useCurrentUser();
   const [repeatEvery, setRepeatEvery] = useState('1');
-  const [repeatUnit, setRepeatUnit] = useState('day');
+  const [repeatUnit, setRepeatUnit] = useState('daily');
   const [time, setTime] = useState('9:00 AM');
   const [ends, setEnds] = useState<'never' | 'on' | 'after'>('never');
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [afterTimes, setAfterTimes] = useState('30');
+
+  // Helper function to format date consistently
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  // Default date for placeholder
+  const defaultDate = new Date('2025-10-17');
+
+  const [afterTimes, setAfterTimes] = useState(30);
+  const [selectedDays, setSelectedDays] = useState<string[]>(['monday']);
+  const [monthlyOption, setMonthlyOption] = useState('same-date');
+  const [notifyChannels, setNotifyChannels] = useState<('in_app' | 'email')[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (isEditing) {
+      const scheduleData = props.scheduleData;
+      setRepeatEvery(String(scheduleData.frequency_value) || '1');
+      setRepeatUnit(scheduleData.frequency_type || 'daily');
+      setTime(convertTo12Hour(scheduleData.repeat_at || '09:00:00'));
+
+      if (scheduleData.frequency_type === 'weekly' && scheduleData.repeat_on) {
+        setSelectedDays(parseWeeklyDays(scheduleData.repeat_on));
+      }
+
+      if (scheduleData.frequency_type === 'monthly' && scheduleData.repeat_on) {
+        setMonthlyOption(scheduleData.repeat_on);
+      }
+
+      if (
+        scheduleData.notify_channels &&
+        Array.isArray(scheduleData.notify_channels)
+      ) {
+        setNotifyChannels(
+          scheduleData.notify_channels.filter(
+            (channel: string) => channel === 'in_app' || channel === 'email'
+          )
+        );
+      }
+
+      setEnds('never');
+    } else {
+      // Reset form for create mode
+      setRepeatEvery('1');
+      setRepeatUnit('daily');
+      setTime('9:00 AM');
+      setSelectedDays(['monday']);
+      setMonthlyOption('same-date');
+      setNotifyChannels([]);
+      setEnds('never');
+      setEndDate(undefined);
+      setAfterTimes(30);
+    }
+  }, [isEditing, props]);
+
+  const getQuestions = (): string[] => {
+    if (isEditing) {
+      const scheduleData = props.scheduleData;
+      return scheduleData.questions || [];
+    } else {
+      return props.questions;
+    }
+  };
+
+  // Get title based on mode
+  const getTitle = (): string => {
+    if (isEditing) {
+      return props.scheduleData.title;
+    } else {
+      const questions = getQuestions();
+      return (
+        props.title ||
+        (questions.length > 0 ? questions[0] : 'Scheduled Questions')
+      );
+    }
+  };
+
+  // Handle schedule creation/update
+  const handleScheduleSubmit = () => {
+    // Validation: Ensure at least one day is selected for weekly schedules
+    if (repeatUnit === 'weekly' && selectedDays.length === 0) {
+      alert('Please select at least one day for weekly schedules');
+      return;
+    }
+
+    const questionsArray = getQuestions();
+    const scheduleTitle = getTitle();
+
+    const basePayload: CreateSchedulePayload = {
+      message_id: isEditing ? undefined : props.messageId,
+      title: scheduleTitle,
+      questions: questionsArray,
+      frequency_type: repeatUnit as 'daily' | 'weekly' | 'monthly',
+      frequency_value: parseInt(repeatEvery),
+      repeat_at: convertTo24Hour(time),
+      repeat_on: '',
+      stopping_date: '',
+      stopping_threshold: 0,
+      notify_channels: notifyChannels,
+    };
+
+    if (repeatUnit === 'weekly') {
+      basePayload.repeat_on = selectedDays.join(',');
+    } else if (repeatUnit === 'monthly') {
+      basePayload.repeat_on = monthlyOption;
+    }
+
+    if (ends === 'on' && endDate) {
+      basePayload.stopping_date = formatDateToISO(endDate);
+    } else if (ends === 'after') {
+      basePayload.stopping_threshold = afterTimes;
+    }
+
+    if (isEditing) {
+      props.onScheduleUpdate(basePayload);
+    } else {
+      props.onScheduleCreate(basePayload);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[434px]'>
         <DialogHeader>
-          <DialogTitle>Set up recurring question</DialogTitle>
+          <DialogTitle>
+            {isEditing
+              ? 'Edit recurring question'
+              : 'Set up recurring question'}
+          </DialogTitle>
         </DialogHeader>
         <div className='space-y-6 mt-2'>
           {/* Repeat every */}
-          <div className='grid grid-cols-3 gap-2 items-center justify-between'>
+          <div className='grid grid-cols-4 gap-2 items-center justify-between'>
             <div className='text-sm text-neutral-ct-primary items-start col-span-1'>
               Repeat every
             </div>
-            <div className='col-span-2 grid grid-cols-2 gap-2'>
+            <div className='col-span-3 grid grid-cols-2 gap-2'>
               <AuthInput
                 label=''
                 value={repeatEvery}
@@ -63,19 +225,70 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
               />
               <Select value={repeatUnit} onValueChange={setRepeatUnit}>
                 <SelectTrigger className='w-full !h-11 col-span-1'>
-                  <SelectValue placeholder='day' />
+                  <SelectValue placeholder='daily' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='day'>day</SelectItem>
-                  <SelectItem value='week'>week</SelectItem>
-                  <SelectItem value='month'>month</SelectItem>
+                  <SelectItem value='daily'>daily</SelectItem>
+                  <SelectItem value='weekly'>weekly</SelectItem>
+                  <SelectItem value='monthly'>monthly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
+          {/* Conditional rendering based on repeat unit */}
+          {repeatUnit === 'weekly' && (
+            <div className='grid grid-cols-4 items-center'>
+              <div className='text-sm text-neutral-ct-primary'>Repeat on</div>
+              <div className='flex gap-2 col-span-3'>
+                {WEEK_DAYS.map(day => (
+                  <button
+                    key={day.key}
+                    onClick={() => {
+                      setSelectedDays(prev => {
+                        const newDays = prev.includes(day.key)
+                          ? prev.filter(d => d !== day.key)
+                          : [...prev, day.key];
+                        // Ensure at least one day is selected for weekly
+                        return newDays.length === 0 ? [day.key] : newDays;
+                      });
+                    }}
+                    className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${
+                      selectedDays.includes(day.key)
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {repeatUnit === 'monthly' && (
+            <div className=''>
+              <Select value={monthlyOption} onValueChange={setMonthlyOption}>
+                <SelectTrigger className='w-full !h-11'>
+                  <SelectValue placeholder='Select monthly option' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='same-date'>
+                    On the same date each month
+                  </SelectItem>
+                  <SelectItem value='same-weekday'>
+                    On the same weekday each month
+                  </SelectItem>
+                  <SelectItem value='last-day'>
+                    On the last day of the month
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* At time (Combobox) */}
-          <div className='grid grid-cols-3 gap-2 items-center justify-between'>
+          <div className='grid grid-cols-4 gap-2 items-center justify-between'>
             <div className='text-sm text-neutral-ct-primary grid-cols-1'>
               at
             </div>
@@ -111,17 +324,13 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <button
-                        className='flex items-center justify-between w-full h-11 px-3 rounded-md border border-neutral-br-primary text-sm text-neutral-ct-primary'
+                        className='flex items-center disabled:text-neutral-ct-placeholder justify-between w-full h-11 px-3 rounded-md border border-neutral-br-primary text-sm text-neutral-ct-primary'
                         disabled={ends !== 'on'}
                       >
                         {endDate
-                          ? endDate.toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })
-                          : 'October 17, 2025'}
-                        <CalendarIcon className='h-4 w-4 opacity-50' />
+                          ? formatDate(endDate)
+                          : formatDate(defaultDate)}
+                        <CalendarIcon className='h-4 w-4 opacity-50 ' />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent align='start' className='w-auto p-0'>
@@ -141,20 +350,25 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
                   onClick={() => setEnds('after')}
                 >
                   <RadioGroupItem value='after' />
-                  <span className='text-neutral-ct-primary text-sm'>After</span>
+                  <span className='text-neutral-ct-primary text-sm'>
+                    After(Times)
+                  </span>
                 </div>
                 <div className='col-span-2'>
-                  <AuthInput
-                    label=''
-                    value={`${afterTimes} times`}
-                    onChange={e => {
-                      const value = e.target.value.replace(' times', '');
-                      setAfterTimes(value);
-                    }}
-                    className='!h-11 -mt-1.5 w-full'
-                    type='text'
-                    placeholder='30 times'
-                  />
+                  <div className='relative'>
+                    <AuthInput
+                      label=''
+                      value={afterTimes.toString()}
+                      onChange={e => {
+                        const value = parseInt(e.target.value) || 0;
+                        setAfterTimes(value);
+                      }}
+                      className='!h-11 -mt-1.5 w-full disabled:bg-transparent :disabled:text-neutral-ct-placeholder'
+                      type='number'
+                      placeholder='30'
+                      disabled={ends !== 'after'}
+                    />
+                  </div>
                 </div>
               </div>
             </RadioGroup>
@@ -166,19 +380,80 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
               Get updates (optional)
             </div>
             <div className='mt-3 space-y-2'>
-              <div className='p-3 text-xs rounded-xl bg-neutral-secondary flex items-center gap-2'>
-                <WhatsApp size={16} />
-                <p className='font-semibold text-neutral-ct-primary'>
-                  WhatsApp
-                </p>
-                <p className='text-neutral-ct-disabled'>+16472198232</p>
+              {/* WhatsApp Channel */}
+              <div
+                className={`p-3 text-xs rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                  notifyChannels.includes('in_app')
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-neutral-secondary hover:bg-neutral-tertiary'
+                }`}
+                onClick={() => {
+                  setNotifyChannels(prev =>
+                    prev.includes('in_app')
+                      ? prev.filter(channel => channel !== 'in_app')
+                      : [...prev, 'in_app']
+                  );
+                }}
+              >
+                <div className='flex items-center gap-2'>
+                  <WhatsApp size={16} />
+                  <p className='font-semibold text-neutral-ct-primary'>
+                    WhatsApp
+                  </p>
+                  <p className='text-neutral-ct-disabled'>+16472198232</p>
+                </div>
+                {notifyChannels.includes('in_app') && (
+                  <div className='w-5 h-5 rounded-full bg-green-500 flex items-center justify-center'>
+                    <svg
+                      className='w-3 h-3 text-white'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
-              <div className='p-3 text-xs rounded-xl bg-neutral-secondary flex items-center gap-2'>
-                <GoMail size={16} className='text-neutral-ct-tertiary' />
-                <p className='font-semibold text-neutral-ct-primary'>Email</p>
-                <p className='text-neutral-ct-disabled'>
-                  johnwick@acmecorp.com
-                </p>
+
+              {/* Email Channel */}
+              <div
+                className={`p-3 text-xs rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                  notifyChannels.includes('email')
+                    ? 'bg-blue-50 border border-blue-200'
+                    : 'bg-neutral-secondary hover:bg-neutral-tertiary'
+                }`}
+                onClick={() => {
+                  setNotifyChannels(prev =>
+                    prev.includes('email')
+                      ? prev.filter(channel => channel !== 'email')
+                      : [...prev, 'email']
+                  );
+                }}
+              >
+                <div className='flex items-center gap-2'>
+                  <Email size={18} className='text-neutral-ct-tertiary' />
+                  <p className='font-semibold text-neutral-ct-primary'>Email</p>
+                  <p className='text-neutral-ct-disabled'>{user?.email}</p>
+                </div>
+                {notifyChannels.includes('email') && (
+                  <div className='w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center'>
+                    <svg
+                      className='w-3 h-3 text-white'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -186,30 +461,45 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
 
         <div className='mt-6 '>
           <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-2'>
-              <Button
-                variant='outline'
-                className='!p-2 border-none  max-h-8 text-xs text-error-ct-error hover:!text-error-ct-error hover:bg-transparent'
-              >
-                <Trash size={16} className='-mr-1' />
-                Cancel
-              </Button>
-              <Button
+            <div />
+            {isEditing && (
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='outline'
+                  className='!p-2 border-none  max-h-8 text-xs text-error-ct-error hover:!text-error-ct-error hover:bg-transparent'
+                >
+                  <Trash size={16} className='-mr-1' />
+                  Cancel
+                </Button>
+                {/* <Button
                 variant='outline'
                 className='!p-2 border-none max-h-8 text-xs text-brand-ct-brand hover:!text-brand-ct-brand hover:bg-transparent'
               >
                 <Play size={16} className='text-brand-ct-brand -mr-1' />
                 Pause
-              </Button>
-            </div>
+              </Button> */}
+              </div>
+            )}
             <div className='flex items-center gap-2'>
-              <Button
+              {/* <Button
                 variant='secondary'
                 className='!px-4 !py-2 max-h-8 text-xs '
               >
                 Back
+              </Button> */}
+              <Button
+                className='!px-4 !py-2 max-h-8 text-xs'
+                onClick={handleScheduleSubmit}
+                disabled={isLoading}
+              >
+                {isLoading
+                  ? isEditing
+                    ? 'Updating...'
+                    : 'Creating...'
+                  : isEditing
+                    ? 'Update Schedule'
+                    : 'Schedule'}
               </Button>
-              <Button className='!px-4 !py-2 max-h-8 text-xs'>Schedule</Button>
             </div>
           </div>
         </div>
@@ -220,89 +510,3 @@ const ScheduleModal = ({ open, onOpenChange }: ScheduleModalProps) => {
 };
 
 export default ScheduleModal;
-
-// Local combobox for selecting time using existing Popover + Input
-interface TimeComboboxProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-const TIMES = [
-  '8:00 AM',
-  '8:30 AM',
-  '9:00 AM',
-  '9:30 AM',
-  '10:00 AM',
-  '10:30 AM',
-  '11:00 AM',
-  '11:30 AM',
-  '12:00 PM',
-  '12:30 PM',
-  '1:00 PM',
-  '1:30 PM',
-  '2:00 PM',
-  '2:30 PM',
-  '3:00 PM',
-  '3:30 PM',
-];
-
-function TimeCombobox({ value, onChange }: TimeComboboxProps) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const filtered = TIMES.filter(t =>
-    t.toLowerCase().includes(query.toLowerCase())
-  );
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button className='flex col-span-2 w-full items-center justify-between h-11 px-3 rounded-md border border-neutral-br-primary text-sm text-neutral-ct-primary'>
-          {value || 'Select time'}
-          <svg
-            className='size-4 opacity-50'
-            viewBox='0 0 24 24'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              d='M6 9l6 6 6-6'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          </svg>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align='start' className='p-0 w-64'>
-        <div className='p-2 border-b'>
-          <Input
-            placeholder='Search time...'
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            className='h-9'
-          />
-        </div>
-        <div className='max-h-56 overflow-y-auto p-1'>
-          {filtered.map(t => (
-            <button
-              key={t}
-              className={`w-full text-left text-sm px-2 py-2 rounded-md hover:bg-accent ${t === value ? 'bg-accent' : ''}`}
-              onClick={() => {
-                onChange(t);
-                setOpen(false);
-              }}
-            >
-              {t}
-            </button>
-          ))}
-          {filtered.length === 0 && (
-            <div className='text-sm text-neutral-ct-secondary px-3 py-4'>
-              No results
-            </div>
-          )}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}

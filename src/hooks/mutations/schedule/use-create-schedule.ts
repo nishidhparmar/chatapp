@@ -14,19 +14,8 @@ export function useCreateSchedule() {
       );
       return response.data;
     },
-    onSuccess: (data, payload) => {
-      console.log('Schedule created successfully:', data);
-      console.log('Schedule ID:', data.data.id);
-      console.log('Title:', payload.title);
-      console.log('Frequency:', payload.frequency_type);
-      console.log('Repeat at:', payload.repeat_at);
-      console.log('Repeat on:', payload.repeat_on);
-
-      // Invalidate schedules list to show the new schedule
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
-
-      // Invalidate chat-related queries if needed
-      queryClient.invalidateQueries({ queryKey: ['chat', payload.chat_id] });
     },
     onError: (error: unknown) => {
       console.error('Create schedule error:', error);

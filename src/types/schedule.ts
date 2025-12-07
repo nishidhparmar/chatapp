@@ -1,21 +1,21 @@
 export interface CreateSchedulePayload {
-  chat_id: number;
   title: string;
-  question: string;
-  frequency_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  questions: string[];
+  frequency_type: 'daily' | 'weekly' | 'monthly';
   frequency_value: number;
   repeat_at: string; // Time format "HH:MM:SS"
   repeat_on: string; // Comma-separated days like "monday,wednesday,friday"
   stopping_date: string; // ISO date string
   stopping_threshold: number;
-  notify_channels: Array<'in_app' | 'email' | 'sms' | 'slack'>;
+  notify_channels: Array<'in_app' | 'email'>;
+  message_id?: number;
 }
 
 export interface Schedule {
   id: number;
   chat_id: number;
   title: string;
-  question: string;
+  questions: string[];
   frequency_type: string;
   frequency_value: number;
   repeat_at: string;
@@ -30,13 +30,14 @@ export interface Schedule {
 
 export interface ScheduleListItem {
   schedule_id: number;
+  frequency_value: number;
   user_id: number;
   client_id: number;
-  chat_id: number;
   title: string;
-  question: string;
+  questions: string[];
   frequency_type: string;
   repeat_at: string;
+  repeat_on?: string; // Optional field for weekly/monthly schedules
   notify_channels: Array<'in_app' | 'email' | 'sms' | 'slack'>;
   is_active: boolean;
   next_run_at: string;
@@ -58,7 +59,8 @@ export interface ScheduleResult {
   run_at: string;
   status: 'success' | 'failed' | 'pending';
   visualization_type: string;
-  report_url: string;
+  report_url: string | null;
+  error_message: string | null;
   created_at: string;
 }
 
@@ -66,11 +68,14 @@ export interface ScheduleDetail {
   schedule_id: number;
   user_id: number;
   client_id: number;
-  chat_id: number;
   title: string;
-  question: string;
+  questions: string[];
   frequency_type: string;
+  frequency_value: number;
   repeat_at: string;
+  repeat_on: string | null;
+  stopping_date: string;
+  stopping_threshold: number | null;
   notify_channels: Array<'in_app' | 'email' | 'sms' | 'slack'>;
   is_active: boolean;
   next_run_at: string;
@@ -84,7 +89,7 @@ export interface ScheduleDetail {
 
 export interface UpdateSchedulePayload {
   title: string;
-  question: string;
+  questions: string[];
   frequency_type: string;
   frequency_value: number;
   repeat_at: string;
@@ -101,7 +106,7 @@ export interface RunScheduleData {
   client_id: number;
   chat_id: number;
   title: string;
-  question: string;
+  questions: string[];
   frequency_type: string;
   frequency_value: number;
   repeat_at: string;

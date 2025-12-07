@@ -9,33 +9,37 @@ import { Edit, Play, Stop } from '../icons';
 import ScheduleModal from './schedule-modal';
 import { Button } from '../ui/button';
 import DeleteRecurrence from './delete-recurrence';
+import { useCreateSchedule } from '../../hooks/mutations/schedule/use-create-schedule';
+import { useUpdateSchedule } from '../../hooks/mutations/schedule/use-update-schedule';
+import { useDeleteSchedule } from '../../hooks/mutations/schedule/use-delete-schedule';
+import { useGetScheduleById } from '../../hooks/queries/schedule/use-get-schedule-by-id';
+import type {
+  CreateSchedulePayload,
+  ScheduleListItem,
+  UpdateSchedulePayload,
+} from '../../types/schedule';
+import { useGetSchedules } from '../../hooks/queries/schedule/use-get-schedules';
 
 const Schedule = () => {
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      question: 'Show me the sales data for California',
-      schedule: 'Daily at 9:00am',
-      isPaused: false,
-    },
-    {
-      id: 2,
-      question: 'Provide the quarterly revenue report',
-      schedule: 'Weekly on Mondays at 10:30am',
-      isPaused: false,
-    },
-    {
-      id: 3,
-      question: 'Update me on customer feedback trends',
-      schedule: 'Monthly on the first Thursday at 2:00pm',
-      isPaused: false,
-    },
-  ]);
+  const createScheduleMutation = useCreateSchedule();
+  const updateScheduleMutation = useUpdateSchedule();
+  const deleteScheduleMutation = useDeleteSchedule();
+  const { data: schedules } = useGetSchedules();
 
   const [newQuestions, setNewQuestions] = useState(['']);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [openDeleteRecurrence, setOpenDeleteRecurrence] = useState(false);
+  const [editingScheduleId, setEditingScheduleId] = useState<number | null>(
+    null
+  );
+  const [scheduleToDelete, setScheduleToDelete] = useState<number | null>(null);
+
+  // Get schedule details when editing
+  const { data: scheduleDetails } = useGetScheduleById(
+    editingScheduleId || 0,
+    !!editingScheduleId
+  );
 
   const handleAddQuestionField = () => {
     setNewQuestions([...newQuestions, '']);
@@ -57,42 +61,150 @@ const Schedule = () => {
   };
 
   const handleSchedule = () => {
+    const validQuestions = newQuestions.filter(q => q.trim() !== '');
+
+    if (validQuestions.length === 0) {
+      setError('Please enter at least one question before scheduling');
+      return;
+    }
+
     setScheduleModalOpen(true);
-    console.log('Schedule questions:', newQuestions);
   };
 
-  // const handleSchedule = () => {
-  //   const validQuestions = newQuestions.filter(q => q.trim() !== '');
+  // Get valid questions for passing to modal
+  const getValidQuestions = () => {
+    return newQuestions.filter(q => q.trim() !== '');
+  };
 
-  //   if (validQuestions.length === 0) {
-  //     setError('Please enter at least one question before scheduling');
-  //     return;
-  //   }
+  // Check if schedule button should be enabled
+  const isScheduleEnabled = () => {
+    return newQuestions.some(q => q.trim() !== '');
+  };
 
-  //   const newScheduledQuestions = validQuestions.map((q, index) => ({
-  //     id: questions.length + index + 1,
-  //     question: q,
-  //     schedule: 'Not scheduled yet',
-  //     isPaused: false,
-  //   }));
-  //   setQuestions([...questions, ...newScheduledQuestions]);
-  //   setNewQuestions(['']);
-  //   setError('');
+  // Helper function to format time to AM/PM format
+  const formatTimeToAMPM = (timeString: string) => {
+    try {
+      // Parse the time string (assuming format like "14:30:00" or "14:30")
+      const [hours, minutes] = timeString.split(':').map(Number);
+
+      // Create a date object with the time
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+
+      // Format to 12-hour format with AM/PM
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch {
+      // Fallback to original time string if parsing fails
+      return timeString;
+    }
+  };
+
+  // Format frequency display based on frequency_type
+  const formatFrequencyDisplay = (item: ScheduleListItem) => {
+    const { frequency_type, repeat_at, repeat_on } = item;
+
+    switch (frequency_type?.toLowerCase()) {
+      case 'daily':
+        return `Daily ${formatTimeToAMPM(repeat_at)}`;
+      case 'weekly':
+        return `Weekly ${repeat_on || 'N/A'}`;
+      case 'monthly':
+        return `Monthly ${repeat_on || 'N/A'}`;
+      default:
+        return `${frequency_type} ${repeat_at}`;
+    }
+  };
+
+  // Handle schedule creation
+  const handleScheduleCreate = async (payload: CreateSchedulePayload) => {
+    try {
+      await createScheduleMutation.mutateAsync(payload);
+      console.log('Schedule created successfully!');
+
+      // Reset state
+      setNewQuestions(['']);
+      setScheduleModalOpen(false);
+      setError('');
+    } catch (error) {
+      console.error('Failed to create schedule:', error);
+      setError('Failed to create schedule. Please try again.');
+    }
+  };
+
+  // Handle schedule update
+  const handleScheduleUpdate = async (payload: CreateSchedulePayload) => {
+    try {
+      if (!editingScheduleId) return;
+
+      const updatePayload: UpdateSchedulePayload = {
+        title: payload.title,
+        questions: payload.questions,
+        frequency_type: payload.frequency_type,
+        frequency_value: payload.frequency_value,
+        repeat_at: payload.repeat_at,
+        repeat_on: payload.repeat_on,
+        stopping_date: payload.stopping_date,
+        stopping_threshold: payload.stopping_threshold,
+        notify_channels: payload.notify_channels,
+        is_active: true,
+      };
+
+      await updateScheduleMutation.mutateAsync({
+        scheduleId: editingScheduleId,
+        payload: updatePayload,
+      });
+
+      console.log('Schedule updated successfully!');
+
+      // Reset state
+      setScheduleModalOpen(false);
+      setEditingScheduleId(null);
+    } catch (error) {
+      console.error('Failed to update schedule:', error);
+      setError('Failed to update schedule. Please try again.');
+    }
+  };
+
+  // const handleTogglePause = (id: number) => {
+  //   setQuestions(
+  //     questions.map(q => (q.id === id ? { ...q, isPaused: !q.isPaused } : q))
+  //   );
   // };
 
-  const handleDelete = (id: number) => {
-    setQuestions(questions.filter(q => q.id !== id));
-  };
-
-  const handleTogglePause = (id: number) => {
-    setQuestions(
-      questions.map(q => (q.id === id ? { ...q, isPaused: !q.isPaused } : q))
-    );
-  };
-
   const handleEdit = (id: number) => {
-    // Edit functionality placeholder
-    console.log('Edit question:', id);
+    setEditingScheduleId(id);
+    setScheduleModalOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteClick = (id: number) => {
+    setScheduleToDelete(id);
+    setOpenDeleteRecurrence(true);
+  };
+
+  // Handle actual deletion
+  const handleDeleteConfirm = async () => {
+    if (scheduleToDelete) {
+      try {
+        await deleteScheduleMutation.mutateAsync(scheduleToDelete);
+        setOpenDeleteRecurrence(false);
+        setScheduleToDelete(null);
+        console.log('Schedule deleted successfully!');
+      } catch (error) {
+        console.error('Failed to delete schedule:', error);
+        // You might want to show an error message to the user
+      }
+    }
+  };
+
+  // Handle delete modal close
+  const handleDeleteCancel = () => {
+    setOpenDeleteRecurrence(false);
+    setScheduleToDelete(null);
   };
 
   return (
@@ -143,10 +255,10 @@ const Schedule = () => {
                 </div>
               ))}
 
-              {error && (
+              {(error || createScheduleMutation.isError) && (
                 <div className='text-error-ct-error text-sm font-medium flex items-center gap-2'>
                   <PiWarningFill className='h-4 w-4' />
-                  {error}
+                  {error || 'Failed to create schedule. Please try again.'}
                 </div>
               )}
             </div>
@@ -160,46 +272,51 @@ const Schedule = () => {
                 <Plus size={20} />
                 Add another question
               </Button>
-              <Button onClick={handleSchedule} className='md:w-max w-full'>
+              <Button
+                onClick={handleSchedule}
+                className='md:w-max w-full'
+                disabled={!isScheduleEnabled()}
+              >
                 <Clock size={20} />
                 Schedule
               </Button>
             </div>
           </div>
-
           {/* Scheduled Chats Section */}
-          {questions.length > 0 && (
+          {schedules?.data && schedules?.data?.length > 0 && (
             <div>
               <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
                 Schedule Chats
               </h2>
               <div className='space-y-2 sm:space-y-3'>
-                {questions.map(item => (
+                {schedules?.data.map(item => (
                   <div
-                    key={item.id}
+                    key={item.schedule_id}
                     className='bg-[#F5F5F5] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#EBEBE7] transition-colors'
                   >
                     <div className='flex-1 space-y-1 min-w-0'>
                       <div className='flex items-center gap-2 flex-wrap'>
-                        <h3 className='text-sm sm:text-base font-semibold text-gray-900 break-words'>
-                          {item.question}
+                        <h3 className='text-sm  font-semibold text-gray-900 break-words'>
+                          {item.title}
                         </h3>
-                        <span className='inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-error-ct-error text-white text-[10px] font-semibold flex-shrink-0'>
-                          {1}
-                        </span>
-                        {!item.isPaused && (
+                        {item.notification_count > 0 && (
+                          <span className='inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-error-ct-error text-white text-[10px] font-semibold flex-shrink-0'>
+                            {item.notification_count}
+                          </span>
+                        )}
+                        {!item.is_active && (
                           <span className='inline-flex items-center gap-1 rounded bg-gray-300 text-gray-900 text-xs font-semibold px-2 py-0.5 flex-shrink-0'>
                             Paused
                           </span>
                         )}
                       </div>
-                      <p className='text-xs sm:text-sm text-gray-600'>
-                        {item.schedule}
+                      <p className='text-xs text-gray-600'>
+                        {formatFrequencyDisplay(item)}
                       </p>
                     </div>
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
                       <button
-                        onClick={() => setOpenDeleteRecurrence(true)}
+                        onClick={() => handleDeleteClick(item.schedule_id)}
                         className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
                         title='Delete'
                         aria-label='Delete'
@@ -207,19 +324,19 @@ const Schedule = () => {
                         <Trash2 size={16} className='sm:w-4 sm:h-4' />
                       </button>
                       <button
-                        onClick={() => handleTogglePause(item.id)}
+                        // onClick={() => handleTogglePause(item.id)}
                         className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
-                        title={item.isPaused ? 'Resume' : 'Pause'}
-                        aria-label={item.isPaused ? 'Resume' : 'Pause'}
+                        title={item.is_active ? 'Resume' : 'Pause'}
+                        aria-label={item.is_active ? 'Resume' : 'Pause'}
                       >
-                        {item.isPaused ? (
+                        {item.is_active ? (
                           <Play size={18} className='sm:w-[18px] sm:h-[18px]' />
                         ) : (
                           <Stop size={18} className='sm:w-[18px] sm:h-[18px]' />
                         )}
                       </button>
                       <button
-                        onClick={() => handleEdit(item.id)}
+                        onClick={() => handleEdit(item.schedule_id)}
                         className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
                         title='Edit'
                         aria-label='Edit'
@@ -234,15 +351,40 @@ const Schedule = () => {
           )}
         </div>
       </div>
-      <ScheduleModal
-        open={scheduleModalOpen}
-        onOpenChange={setScheduleModalOpen}
-      />
+      {editingScheduleId && scheduleDetails ? (
+        <ScheduleModal
+          open={scheduleModalOpen}
+          onOpenChange={open => {
+            setScheduleModalOpen(open);
+            if (!open) {
+              setEditingScheduleId(null);
+            }
+          }}
+          scheduleData={scheduleDetails as ScheduleListItem}
+          onScheduleUpdate={handleScheduleUpdate}
+          isLoading={updateScheduleMutation.isPending}
+        />
+      ) : (
+        <ScheduleModal
+          open={scheduleModalOpen}
+          onOpenChange={open => {
+            setScheduleModalOpen(open);
+            if (!open) {
+              setEditingScheduleId(null);
+            }
+          }}
+          questions={getValidQuestions()}
+          onScheduleCreate={handleScheduleCreate}
+          isLoading={createScheduleMutation.isPending}
+          messageId={0}
+          title=''
+        />
+      )}
       <DeleteRecurrence
         open={openDeleteRecurrence}
-        onOpenChange={() => {
-          setOpenDeleteRecurrence(false);
-        }}
+        onOpenChange={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        isLoading={deleteScheduleMutation.isPending}
       />
     </DashboardLayout>
   );
