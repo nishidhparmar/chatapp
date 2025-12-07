@@ -25,7 +25,12 @@ const Sidebar = ({
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/' || pathname.startsWith('/invoice');
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <div className='w-20 bg-white border-r border-neutral-br-secondary hidden flex-col items-center py-6 md:flex '>

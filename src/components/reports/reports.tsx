@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { Skeleton } from '../ui/skeleton';
+import { ReportsListSkeleton } from '@/components/common/skeletons';
 import { useGetDashboards } from '@/hooks/queries/dashboard/use-get-dashboards';
 import type { DashboardListItem } from '@/types/dashboard';
 
@@ -57,20 +57,11 @@ const Reports = () => {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                // Skeleton loading rows
-                [...Array(6)].map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton className='h-4 w-48' />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className='h-4 w-12' />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className='h-4 w-24' />
-                    </TableCell>
-                  </TableRow>
-                ))
+                <TableRow>
+                  <TableCell colSpan={3} className='p-0'>
+                    <ReportsListSkeleton count={6} />
+                  </TableCell>
+                </TableRow>
               ) : error ? (
                 <TableRow>
                   <TableCell

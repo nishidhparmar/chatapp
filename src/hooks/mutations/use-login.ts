@@ -2,8 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import axiosInstance from '@/lib/axios';
 import type { LoginPayload, AuthResponse } from '@/types/auth';
-import { toast } from 'sonner';
 import { setCookie } from '@/lib/cookie-utils';
+import { showToast } from '@/components/common/toast';
 
 export function useLogin() {
   const searchParams = useSearchParams();
@@ -21,14 +21,13 @@ export function useLogin() {
       localStorage.setItem('refresh_token', data.data.refresh_token);
       localStorage.setItem('expires_in', data.data.expires_in.toString());
       setCookie('access_token', data.data.access_token, data.data.expires_in);
+      showToast.success({
+        title: 'Login successful',
+        description: 'Welcome back! You have been logged in successfully.',
+      });
       const redirectUrl = searchParams.get('redirect') || '/';
       window.location.href = redirectUrl;
     },
-    onError: (error: unknown) => {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } }).response?.data
-          ?.message || 'Login failed. Please try again.';
-      toast.error(errorMessage);
-    },
+    // onError is removed because errors are now handled globally by axios interceptor
   });
 }

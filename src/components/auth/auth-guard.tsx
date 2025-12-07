@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
+import Loading from '@/components/common/loading';
 
 const publicRoutes = [
   '/login',
@@ -40,7 +41,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className='flex h-screen items-center justify-center'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900' />
+        <Loading size='lg' />
       </div>
     );
   }

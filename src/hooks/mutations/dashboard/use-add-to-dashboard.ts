@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { AddToDashboardPayload } from '@/types/dashboard';
+import { showToast } from '@/components/common/toast';
 
 interface AddToDashboardParams {
   chatId: number;
@@ -27,6 +28,10 @@ export function useAddToDashboard() {
       queryClient.invalidateQueries({ queryKey: ['dashboards'] });
       queryClient.invalidateQueries({
         queryKey: ['dashboard', payload.dashboard_id],
+      });
+      showToast.success({
+        title: 'Chart added to dashboard',
+        description: 'The chart has been successfully added to your dashboard.',
       });
     },
   });

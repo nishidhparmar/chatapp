@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
+import Loading from '@/components/common/loading';
 
 const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
@@ -24,10 +25,7 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
     return (
       <DashboardLayout>
         <div className='flex items-center justify-center min-h-screen'>
-          <div className='text-center space-y-4'>
-            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto'></div>
-            <p className='text-neutral-ct-secondary'>Loading...</p>
-          </div>
+          <Loading size='lg' />
         </div>
       </DashboardLayout>
     );

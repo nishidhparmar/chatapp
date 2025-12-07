@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
+import { showToast } from '@/components/common/toast';
 
 interface CreateGroupPayload {
   name: string;
@@ -19,6 +20,10 @@ export function useCreateGroup() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
+      showToast.success({
+        title: 'Group created',
+        description: 'The chat group has been created successfully.',
+      });
     },
   });
 }

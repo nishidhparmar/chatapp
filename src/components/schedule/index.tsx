@@ -19,12 +19,13 @@ import type {
   UpdateSchedulePayload,
 } from '../../types/schedule';
 import { useGetSchedules } from '../../hooks/queries/schedule/use-get-schedules';
+import { ScheduleListSkeleton } from '@/components/common/skeletons';
 
 const Schedule = () => {
   const createScheduleMutation = useCreateSchedule();
   const updateScheduleMutation = useUpdateSchedule();
   const deleteScheduleMutation = useDeleteSchedule();
-  const { data: schedules } = useGetSchedules();
+  const { data: schedules, isLoading: isLoadingSchedules } = useGetSchedules();
 
   const [newQuestions, setNewQuestions] = useState(['']);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
@@ -123,7 +124,6 @@ const Schedule = () => {
   const handleScheduleCreate = async (payload: CreateSchedulePayload) => {
     try {
       await createScheduleMutation.mutateAsync(payload);
-      console.log('Schedule created successfully!');
 
       // Reset state
       setNewQuestions(['']);
@@ -158,8 +158,6 @@ const Schedule = () => {
         payload: updatePayload,
       });
 
-      console.log('Schedule updated successfully!');
-
       // Reset state
       setScheduleModalOpen(false);
       setEditingScheduleId(null);
@@ -193,7 +191,6 @@ const Schedule = () => {
         await deleteScheduleMutation.mutateAsync(scheduleToDelete);
         setOpenDeleteRecurrence(false);
         setScheduleToDelete(null);
-        console.log('Schedule deleted successfully!');
       } catch (error) {
         console.error('Failed to delete schedule:', error);
         // You might want to show an error message to the user
@@ -283,7 +280,14 @@ const Schedule = () => {
             </div>
           </div>
           {/* Scheduled Chats Section */}
-          {schedules?.data && schedules?.data?.length > 0 && (
+          {isLoadingSchedules ? (
+            <div>
+              <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
+                Schedule Chats
+              </h2>
+              <ScheduleListSkeleton count={3} />
+            </div>
+          ) : schedules?.data && schedules?.data?.length > 0 ? (
             <div>
               <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
                 Schedule Chats
@@ -348,7 +352,7 @@ const Schedule = () => {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
       {editingScheduleId && scheduleDetails ? (

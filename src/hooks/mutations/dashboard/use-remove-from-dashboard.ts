@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
+import { showToast } from '@/components/common/toast';
 
 interface RemoveFromDashboardParams {
   dashboardId: number;
@@ -20,6 +21,11 @@ export function useRemoveFromDashboard() {
       queryClient.invalidateQueries({ queryKey: ['dashboards'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', dashboardId] });
       queryClient.removeQueries({ queryKey: ['dashboard-chart', chartId] });
+      showToast.success({
+        title: 'Chart removed from dashboard',
+        description:
+          'The chart has been successfully removed from your dashboard.',
+      });
     },
   });
 }

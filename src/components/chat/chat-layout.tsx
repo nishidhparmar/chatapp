@@ -12,6 +12,7 @@ import MessageList from '../common/message/message-list';
 import { ChatDetailMessage } from '../../types/chat';
 import DashboardView from '../reports/dashboard-view';
 import ChatDataView from './chat-data-view';
+import Loading from '../common/loading';
 
 interface ChatLayoutProps {
   title?: string;
@@ -95,7 +96,15 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
         <ChatSidebar activeChat={activeChat} setActiveChat={setActiveChat} />
       )}
 
-      {!activeChat ? null : (
+      {!activeChat ? (
+        <div className='flex-1 flex items-center justify-center'>
+          <div className='text-center'>
+            <p className='text-neutral-ct-secondary text-sm'>
+              Select a chat to start messaging
+            </p>
+          </div>
+        </div>
+      ) : (
         <div
           className={`flex h-full ${dashboardView.visible ? 'w-full' : 'flex-1'}`}
         >
@@ -120,8 +129,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
                   <div className='flex flex-col h-[calc(100vh-155px)] justify-between'>
                     <div className='flex-1 overflow-y-auto h-full'>
                       {isLoadingChat ? (
-                        <div className='flex justify-center items-center h-full'>
-                          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-brand-default'></div>
+                        <div className='flex items-center justify-center h-full'>
+                          <Loading />
                         </div>
                       ) : (
                         <MessageList

@@ -3,6 +3,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../ui/button';
+import Loading from '@/components/common/loading';
 import { useGetDashboardById } from '@/hooks/queries/dashboard/use-get-dashboard-by-id';
 import { InvoiceView } from '../common';
 import { ChatDetailMessage } from '../../types/chat';
@@ -42,9 +43,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Content */}
       <div className='bg-neutral-ct-tertiary md:h-[calc(100vh-121px)] h-[calc(100vh-56px)] overflow-y-auto'>
         {isLoading ? (
-          <div className='text-center'>
-            <div className='w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4'></div>
-            <p className='text-neutral-ct-secondary'>Loading dashboard...</p>
+          <div className='flex items-center justify-center py-12'>
+            <Loading size='lg' />
           </div>
         ) : error ? (
           <div className='text-center'>

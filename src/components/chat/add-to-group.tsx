@@ -24,6 +24,7 @@ interface AddToGroupProps {
 import { useAddToGroup } from '@/hooks/mutations';
 import { useGetChatGroups } from '@/hooks/queries';
 import type { ChatGroup } from '@/types/chat';
+import { showToast } from '../common/toast';
 
 const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const addToGroup = useAddToGroup();
@@ -45,7 +46,8 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setShowSuggestions(true);
+    // Only show suggestions if there's text in the input
+    setShowSuggestions(value.trim().length > 0);
     // Clear selected group if user is typing
     if (selectedGroup && value !== selectedGroup.name) {
       setSelectedGroup(null);
@@ -71,14 +73,17 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
       },
       {
         onSuccess: () => {
+          showToast.success({
+            title: 'Chat added to group',
+            description:
+              'Chat has been successfully added to Pricing Experiments',
+          });
           setShowSuggestions(false);
           setSearchTerm('');
           setSelectedGroup(null);
           onOpenChange(false);
         },
-        onError: (error: unknown) => {
-          console.error('Failed to add chat to group:', error);
-        },
+        // onError removed - handled automatically by global error handler
       }
     );
   };
@@ -99,20 +104,13 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
           },
         },
         {
-          onSuccess: (data: unknown) => {
-            console.log('Group created successfully:', data);
-
-            // Reset form and go back to main view
+          onSuccess: () => {
             setNewGroupName('');
             setIsCreatingGroup(false);
 
-            // If no chatId (creating group only), close the modal
             if (!chatId) {
               onOpenChange(false);
             }
-          },
-          onError: (error: unknown) => {
-            console.error('Failed to create group:', error);
           },
         }
       );
@@ -170,13 +168,15 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
               <div className='relative'>
                 <AuthInput
                   icon={IoSearchOutline}
-                  iconClassName='text-neutral-ct-primary -mt-[1.5px]  text-neutral-ct-tertiary !h-4 !w-4'
+                  iconClassName='text-neutral-ct-primary -mt-[1px]  text-neutral-ct-tertiary !h-4 !w-4'
                   className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
                   label=''
                   placeholder='Search groups...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(true)}
+                  onFocus={() =>
+                    setShowSuggestions(searchTerm.trim().length > 0)
+                  }
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }

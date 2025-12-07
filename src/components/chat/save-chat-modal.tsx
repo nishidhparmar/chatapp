@@ -12,7 +12,7 @@ import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
 import { useSaveChat } from '@/hooks/mutations/use-save-chat';
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { showToast } from '../common/toast';
 
 interface SaveChatModalProps {
   open: { visible: boolean; id: number };
@@ -32,12 +32,18 @@ const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
 
   const handleSave = () => {
     if (!chatTitle.trim()) {
-      toast.error('Please enter a chat title');
+      showToast.error({
+        title: 'Title required',
+        description: 'Please enter a chat title',
+      });
       return;
     }
 
     if (!open.id) {
-      toast.error('Invalid chat ID');
+      showToast.error({
+        title: 'Invalid chat',
+        description: 'Invalid chat ID',
+      });
       return;
     }
 
@@ -48,11 +54,17 @@ const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
       },
       {
         onSuccess: () => {
-          toast.success('Chat saved successfully');
+          showToast.success({
+            title: 'Chat saved',
+            description: 'The chat has been saved successfully.',
+          });
           onOpenChange();
         },
         onError: () => {
-          toast.error('Failed to save chat');
+          showToast.error({
+            title: 'Save failed',
+            description: 'Failed to save chat. Please try again.',
+          });
         },
       }
     );

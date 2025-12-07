@@ -19,6 +19,7 @@ import type {
   AddToDashboardPayload,
   DashboardListItem,
 } from '@/types/dashboard';
+import { showToast } from '../common/toast';
 
 interface AddToDashboardProps {
   open: boolean;
@@ -60,14 +61,38 @@ const AddToDashboard = ({
     const value = e.target.value;
     setSearchTerm(value);
     setShowSuggestions(value.trim().length > 0);
+
+    // Clear selections if user is typing and the value doesn't match selected items
+    const selectedNames = selectedDashboards
+      .map(
+        id =>
+          dashboards.find((d: DashboardListItem) => d.dashboard_id === id)?.name
+      )
+      .filter(Boolean)
+      .join(', ');
+
+    if (selectedDashboards.length > 0 && value !== selectedNames) {
+      setSelectedDashboards([]);
+    }
   };
 
   const handleDashboardToggle = (dashboardId: number) => {
-    setSelectedDashboards(prev =>
-      prev.includes(dashboardId)
-        ? prev.filter(id => id !== dashboardId)
-        : [...prev, dashboardId]
-    );
+    const updatedSelection = selectedDashboards.includes(dashboardId)
+      ? selectedDashboards.filter(id => id !== dashboardId)
+      : [...selectedDashboards, dashboardId];
+
+    setSelectedDashboards(updatedSelection);
+
+    // Update search term to show selected dashboard names
+    const selectedNames = updatedSelection
+      .map(
+        id =>
+          dashboards.find((d: DashboardListItem) => d.dashboard_id === id)?.name
+      )
+      .filter(Boolean)
+      .join(', ');
+
+    setSearchTerm(selectedNames);
     setShowSuggestions(false);
   };
 
@@ -133,6 +158,9 @@ const AddToDashboard = ({
       // Call onSuccess with the last dashboard ID
       if (onSuccess && lastDashboardId) {
         onSuccess(lastDashboardId);
+        showToast.success({
+          title: 'Graph added to the dashboard',
+        });
       }
 
       // Reset and close modal
@@ -199,13 +227,15 @@ const AddToDashboard = ({
               <div className='relative'>
                 <AuthInput
                   icon={IoSearchOutline}
-                  iconClassName='text-neutral-ct-primary -mt-[1.5px]  text-neutral-ct-tertiary !h-4 !w-4'
+                  iconClassName='text-neutral-ct-primary -mt-[1px]  text-neutral-ct-tertiary !h-4 !w-4'
                   className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
                   label=''
                   placeholder='Search dashboards...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(true)}
+                  onFocus={() =>
+                    setShowSuggestions(searchTerm.trim().length > 0)
+                  }
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }

@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types/api';
 import { VisualizationType, InvoiceViewProps } from './types';
 import Toolbar from './toolbar';
 import ViewRenderer from './view-renderer';
-import { toast } from 'sonner';
+import { showToast } from '../toast';
 import { AddToDashboardPayload } from '../../../types/dashboard';
 
 const InvoiceView: React.FC<InvoiceViewProps> = ({
@@ -46,7 +46,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
 
   const handleDeleteChart = () => {
     if (!dashboardId || !chartId) {
-      toast.error('Cannot delete chart: Dashboard ID or Chart ID not found');
+      showToast.error({
+        title: 'Cannot delete chart',
+        description: 'Dashboard ID or Chart ID not found.',
+      });
       return;
     }
 
@@ -54,13 +57,14 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
       { dashboardId, chartId },
       {
         onSuccess: () => {
-          toast.success('Chart removed from dashboard successfully');
           setOpenDeleteModal(false);
         },
         onError: () => {
-          toast.error(
-            'Failed to remove chart from dashboard. Please try again.'
-          );
+          showToast.error({
+            title: 'Failed to remove chart',
+            description:
+              'Unable to remove chart from dashboard. Please try again.',
+          });
         },
       }
     );
@@ -96,7 +100,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
           setOpenViewAsPopover(false);
         },
         onError: () => {
-          toast.error('Failed to change visualization. Please try again.');
+          showToast.error({
+            title: 'Failed to change visualization',
+            description: 'Unable to change the chart view. Please try again.',
+          });
         },
       }
     );

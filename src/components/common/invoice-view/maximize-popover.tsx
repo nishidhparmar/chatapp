@@ -32,7 +32,6 @@ const MaximizePopover: React.FC<MaximizePopoverProps> = ({
       title: 'Expand view',
       icon: <Maximize2 className='h-4 w-4' />,
       onClick: () => {
-        console.log('Expand view');
         onOpenChange(false);
       },
     },

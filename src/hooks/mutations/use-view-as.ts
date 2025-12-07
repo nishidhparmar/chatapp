@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ChartContentData, ViewAsPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
+import { showToast } from '@/components/common/toast';
 
 interface ViewAsParams {
   messageId: number;
@@ -16,6 +17,12 @@ export function useViewAs() {
         payload
       );
       return response.data;
+    },
+    onSuccess: (_, { payload }) => {
+      showToast.success({
+        title: 'View changed',
+        description: `Chart view has been changed to ${payload.view_as}.`,
+      });
     },
   });
 }

@@ -5,6 +5,7 @@ import { useGetChatCharts } from '../../hooks/queries/use-get-chat-charts';
 import { InvoiceView } from '../common';
 import { VisualizationType } from '../common/invoice-view/types';
 import NoDataFound from '../icons/no-data-found';
+import Loading from '@/components/common/loading';
 
 interface ChatDataViewProps {
   chatId: number;
@@ -15,16 +16,12 @@ const ChatDataView: React.FC<ChatDataViewProps> = ({
   chatId,
   handleOpenDashboardView,
 }) => {
-  const {
-    data: chartsData,
-    isLoading,
-    error,
-  } = useGetChatCharts(chatId, !!chatId);
+  const { data: chartsData, isLoading } = useGetChatCharts(chatId, !!chatId);
 
   if (isLoading) {
     return (
       <div className='flex justify-center items-center h-full'>
-        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
+        <Loading />
       </div>
     );
   }

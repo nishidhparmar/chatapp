@@ -7,6 +7,8 @@ import { AuthInput } from '../../auth/common/auth-input';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../ui/button';
 import { useChatAsk } from '../../../hooks/mutations';
+import SearchSuggestions from './search-suggestions';
+import { useSuggestedQuestions } from '../../../hooks/queries';
 
 interface ConversationTabProps {
   placeholder?: string;
@@ -16,6 +18,11 @@ const ConversationTab = ({
   placeholder = 'Show me the sales data for California?',
 }: ConversationTabProps) => {
   const [searchConversationQuery, setSearchConversationQuery] = useState('');
+  const [onFocus, setOnFocus] = useState(false);
+  const { data: suggestedData } = useSuggestedQuestions({
+    enabled: onFocus && !searchConversationQuery,
+  });
+
   const { mutate: createChat } = useChatAsk();
   const router = useRouter();
 
@@ -24,6 +31,18 @@ const ConversationTab = ({
   ) => {
     const value = e.target.value;
     setSearchConversationQuery(value);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    createChat(
+      { chat_id: 0, mode: 'conversational', text: suggestion },
+      {
+        onSuccess: response => {
+          router.push(`/invoice/conversations/${response.data.chat_id}`);
+        },
+      }
+    );
+    setSearchConversationQuery(suggestion);
   };
 
   const handleAskQuestion = () => {
@@ -45,6 +64,13 @@ const ConversationTab = ({
         <AuthInput
           value={searchConversationQuery}
           onChange={handleSearchConversationChange}
+          onFocus={() => setOnFocus(true)}
+          onBlur={() => setTimeout(() => setOnFocus(false), 200)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && searchConversationQuery.length > 0) {
+              handleSuggestionClick(searchConversationQuery);
+            }
+          }}
           label=''
           type='text'
           placeholder={placeholder}
@@ -68,6 +94,13 @@ const ConversationTab = ({
             </Button>
           }
         />
+        {onFocus && !searchConversationQuery && suggestedData && (
+          <SearchSuggestions
+            recentQuestions={suggestedData.data.recent_questions}
+            roleBasedQuestions={suggestedData.data.role_based_questions}
+            onSuggestionClick={handleSuggestionClick}
+          />
+        )}
       </div>
     </div>
   );

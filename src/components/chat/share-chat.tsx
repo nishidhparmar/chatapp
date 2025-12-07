@@ -35,7 +35,6 @@ const ShareChatModal = ({ open, onOpenChange }: ShareChatModalProps) => {
 
   const handleInvite = () => {
     if (email) {
-      console.log('Inviting:', email);
       setEmail('');
     }
   };

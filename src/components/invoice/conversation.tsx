@@ -9,6 +9,7 @@ import SaveChatModal from '../chat/save-chat-modal';
 import { useChatAsk } from '../../hooks/mutations';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import { useRouter } from 'next/navigation';
+import Loading from '@/components/common/loading';
 
 const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
@@ -55,10 +56,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
     return (
       <DashboardLayout>
         <div className='flex items-center justify-center min-h-screen'>
-          <div className='text-center space-y-4'>
-            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto'></div>
-            <p className='text-neutral-ct-secondary'>Loading...</p>
-          </div>
+          <Loading size='lg' />
         </div>
       </DashboardLayout>
     );

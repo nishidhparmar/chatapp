@@ -3,12 +3,13 @@
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/lib/utils/user-helpers';
 import UserAvatar from './user-avatar';
+import Loading from './loading';
 
 export function UserProfile() {
   const { user, isLoading, error, isAuthenticated } = useCurrentUser();
 
   if (isLoading) {
-    return <div>Loading user...</div>;
+    return <Loading size='sm' />;
   }
 
   if (error) {

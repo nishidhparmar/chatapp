@@ -57,6 +57,11 @@ const SearchTab = ({
           onChange={handleSearchChange}
           onFocus={() => setOnFocus(true)}
           onBlur={() => setTimeout(() => setOnFocus(false), 200)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && searchQuery.length > 0) {
+              handleSuggestionClick(searchQuery);
+            }
+          }}
           placeholder={placeholder}
           className='h-16 !px-4'
           rightIcon={

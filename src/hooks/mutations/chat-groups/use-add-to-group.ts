@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { AddToGroupPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
+import { showToast } from '@/components/common/toast';
 
 interface AddToGroupParams {
   chatId: number;
@@ -22,12 +23,19 @@ export function useAddToGroup() {
       );
       return response.data;
     },
-    onSuccess: (_, { chatId }) => {
+    onSuccess: (_, { chatId, payload }) => {
       if (chatId !== 0) {
         queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
       }
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['chat-groups'] });
+      showToast.success({
+        title: 'Chat added to group',
+        description:
+          payload.group_id === 0
+            ? 'New group created and chat added successfully.'
+            : 'Chat has been added to the group successfully.',
+      });
     },
     onError: (error: unknown) => {
       console.error('Add to group error:', error);

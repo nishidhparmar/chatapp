@@ -2,7 +2,7 @@
 
 import { useSuggestedQuestions } from '../../hooks/queries';
 // import { useSuggestedQuestions } from '@/hooks/queries';
-import { Skeleton } from '../ui/skeleton';
+import Loading from './loading';
 
 interface SuggestedQuestionsProps {
   onQuestionClick?: (question: string) => void;
@@ -15,10 +15,8 @@ export function SuggestedQuestions({
 
   if (isLoading) {
     return (
-      <div className='space-y-2'>
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className='h-12 w-full' />
-        ))}
+      <div className='flex justify-center py-8'>
+        <Loading />
       </div>
     );
   }

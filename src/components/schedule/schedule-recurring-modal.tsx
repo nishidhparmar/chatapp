@@ -73,10 +73,10 @@ const ScheduleRecurring = ({ open, onOpenChange }: ScheduleRecurringProps) => {
               <div className='relative'>
                 <AuthInput
                   icon={IoSearchOutline}
-                  iconClassName='text-neutral-ct-primary -mt-[1.5px]  text-neutral-ct-tertiary !h-4 !w-4'
+                  iconClassName='text-neutral-ct-primary -mt-[1px]  text-neutral-ct-tertiary !h-4 !w-4'
                   className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
                   label=''
-                  placeholder='Search dashboards...'
+                  placeholder='Search recurring...'
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSuggestions(searchTerm.length > 0)}

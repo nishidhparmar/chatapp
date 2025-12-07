@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { Filter, ChevronDown, ChevronUp, Folder, Trash } from '../icons';
 import { AuthInput } from '../auth/common/auth-input';
 import { BsThreeDots } from 'react-icons/bs';
@@ -18,6 +18,10 @@ import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
 import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
 import { useRemoveFromGroup, useDeleteGroup } from '../../hooks/mutations';
 import type { ChatGroup } from '@/types/chat';
+import {
+  ChatListSkeleton,
+  GroupListSkeleton,
+} from '@/components/common/skeletons';
 
 interface ChatItem {
   id: string;
@@ -38,14 +42,15 @@ const ChatSidebar = ({
   activeChat: string;
   setActiveChat: Dispatch<SetStateAction<string>>;
 }) => {
-  const { data } = useGetChatList();
-  const { data: chatGroupsData } = useGetChatGroups();
+  const { data, isLoading: isLoadingChats } = useGetChatList();
+  const { data: chatGroupsData, isLoading: isLoadingGroups } =
+    useGetChatGroups();
   const deleteChat = useDeleteChat();
   const deleteGroup = useDeleteGroup();
   const renameChat = useRenameChat();
   const removeFromGroup = useRemoveFromGroup();
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
-  const [isChatsExpanded, setIsChatsExpanded] = useState(false);
+  const [isChatsExpanded, setIsChatsExpanded] = useState(true);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [deleteChatModal, setDeleteChatModal] = useState(false);
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
@@ -81,6 +86,27 @@ const ChatSidebar = ({
         })),
       };
     }) || [];
+
+  // Auto-select first available chat when data loads
+  useEffect(() => {
+    if (!activeChat && !isLoadingChats && !isLoadingGroups) {
+      // First try to select from regular chats
+      if (chats.length > 0) {
+        setActiveChat(chats[0].id);
+      }
+      // If no regular chats, try first chat from first group
+      else if (groups.length > 0 && groups[0].chats.length > 0) {
+        setActiveChat(groups[0].chats[0].id);
+      }
+    }
+  }, [
+    chats,
+    groups,
+    activeChat,
+    isLoadingChats,
+    isLoadingGroups,
+    setActiveChat,
+  ]);
 
   const handleRename = (itemId: string) => {
     const item = chats.find(chat => chat.id === itemId);
@@ -144,7 +170,6 @@ const ChatSidebar = ({
       },
       {
         onSuccess: () => {
-          console.log(`Chat ${chatId} removed from group ${groupId}`);
           setOpenPopover(null);
         },
         onError: (error: unknown) => {
@@ -203,7 +228,6 @@ const ChatSidebar = ({
             <GoShareAndroid className='h-4 w-4 text-neutral-ct-secondary' />
           ),
           onClick: () => {
-            console.log('Share', item.id);
             setOpenPopover(null);
           },
         },
@@ -337,7 +361,7 @@ const ChatSidebar = ({
           <div className='flex-1'>
             <AuthInput
               icon={IoSearchOutline}
-              iconClassName='text-neutral-ct-tertiary -mt-[1.5px] !h-4 !w-4'
+              iconClassName='text-neutral-ct-tertiary -mt-[1px] !h-4 !w-4'
               className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
               label=''
               placeholder='Search'
@@ -351,81 +375,113 @@ const ChatSidebar = ({
 
       {/* Content */}
       <div className='flex-1 overflow-y-auto md:px-4 px-6 pb-4'>
-        {/* Groups Section */}
-        <div className='mb-6'>
-          <button
-            onClick={() => setIsGroupsExpanded(!isGroupsExpanded)}
-            className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
-          >
-            <span>Groups</span>
-            {isGroupsExpanded ? (
-              <ChevronUp size={16} className='text-neutral-ct-tertiary' />
-            ) : (
-              <ChevronDown size={16} className='text-neutral-ct-tertiary' />
-            )}
-          </button>
-
-          {isGroupsExpanded && (
-            <div className='space-y-1 mt-2'>
-              {groups.map((group, index) => (
-                <div key={index}>
-                  {/* Group Header */}
-                  <div className='group/group flex items-center justify-between py-1 text-sm text-neutral-ct-primary mb-1'>
-                    <div className='flex items-center gap-2'>
-                      <Folder size={14} className='text-neutral-ct-tertiary' />
-                      <span>{group.title}</span>
-                    </div>
-                    {group.group_id && (
-                      <button
-                        className='opacity-0 group-hover/group:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-disabled'
-                        onClick={e => {
-                          e.stopPropagation();
-                          setGroupToDelete({
-                            id: group.group_id!,
-                            name: group.title,
-                          });
-                          setDeleteGroupModal(true);
-                        }}
-                        type='button'
-                        title='Delete group'
-                      >
-                        <Trash className='h-3.5 w-3.5 text-error-active' />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Group Items */}
-                  <div className='ml-1.5 px-1.5 space-y-1 border-l border-neutral-br-primary'>
-                    {group.chats.map(item =>
-                      renderChatItem(item, true, group.title, group.group_id)
-                    )}
-                  </div>
-                </div>
-              ))}
+        {/* Empty State */}
+        {!isLoadingChats &&
+          !isLoadingGroups &&
+          chats.length === 0 &&
+          groups.length === 0 && (
+            <div className='flex items-center justify-center h-full text-center'>
+              <p className='text-neutral-ct-secondary text-sm'>
+                You don't have any chats right now. Please create one.
+              </p>
             </div>
           )}
-        </div>
+
+        {/* Groups Section */}
+        {(groups.length > 0 || isLoadingGroups) && (
+          <div className='mb-6'>
+            <button
+              onClick={() => setIsGroupsExpanded(!isGroupsExpanded)}
+              className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
+            >
+              <span>Groups</span>
+              {isGroupsExpanded ? (
+                <ChevronUp size={16} className='text-neutral-ct-tertiary' />
+              ) : (
+                <ChevronDown size={16} className='text-neutral-ct-tertiary' />
+              )}
+            </button>
+
+            {isGroupsExpanded && (
+              <div className='space-y-1 mt-2'>
+                {isLoadingGroups ? (
+                  <GroupListSkeleton count={3} />
+                ) : (
+                  groups.map((group, index) => (
+                    <div key={index}>
+                      {/* Group Header */}
+                      <div className='group/group flex items-center justify-between py-1 text-sm text-neutral-ct-primary mb-1'>
+                        <div className='flex items-center gap-2'>
+                          <Folder
+                            size={14}
+                            className='text-neutral-ct-tertiary'
+                          />
+                          <span>{group.title}</span>
+                        </div>
+                        {group.group_id && (
+                          <button
+                            className='opacity-0 group-hover/group:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-disabled'
+                            onClick={e => {
+                              e.stopPropagation();
+                              setGroupToDelete({
+                                id: group.group_id!,
+                                name: group.title,
+                              });
+                              setDeleteGroupModal(true);
+                            }}
+                            type='button'
+                            title='Delete group'
+                          >
+                            <Trash className='h-3.5 w-3.5 text-error-active' />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Group Items */}
+                      <div className='ml-1.5 px-1.5 space-y-1 border-l border-neutral-br-primary'>
+                        {group.chats.map(item =>
+                          renderChatItem(
+                            item,
+                            true,
+                            group.title,
+                            group.group_id
+                          )
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Chats Section */}
-        <div>
-          <button
-            onClick={() => setIsChatsExpanded(!isChatsExpanded)}
-            className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
-          >
-            <span>Chats</span>
-            {isChatsExpanded ? (
-              <ChevronUp size={16} className='text-neutral-ct-tertiary' />
-            ) : (
-              <ChevronDown size={16} className='text-neutral-ct-tertiary' />
-            )}
-          </button>
+        {(chats.length > 0 || isLoadingChats) && (
+          <div>
+            <button
+              onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+              className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
+            >
+              <span>Chats</span>
+              {isChatsExpanded ? (
+                <ChevronUp size={16} className='text-neutral-ct-tertiary' />
+              ) : (
+                <ChevronDown size={16} className='text-neutral-ct-tertiary' />
+              )}
+            </button>
 
-          {isChatsExpanded && (
-            <div className='space-y-1 mt-2'>
-              {chats.map(chat => renderChatItem(chat, false))}
-            </div>
-          )}
-        </div>
+            {isChatsExpanded && (
+              <div className='space-y-1 mt-2'>
+                {isLoadingChats ? (
+                  <ChatListSkeleton count={4} />
+                ) : (
+                  chats.map(chat => renderChatItem(chat, false))
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <DeleteChat
         open={deleteChatModal}

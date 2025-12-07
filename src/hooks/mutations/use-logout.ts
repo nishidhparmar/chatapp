@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import axiosInstance from '@/lib/axios';
 import { useUserStore } from '@/lib/stores/user-store';
 import { deleteCookie } from '@/lib/cookie-utils';
-import { toast } from 'sonner';
+import { showToast } from '@/components/common/toast';
 
 interface LogoutPayload {
   refresh_token: string;
@@ -42,7 +42,10 @@ export function useLogout() {
     },
     onSuccess: data => {
       clearAuthData();
-      toast.success(data.message || 'Logged out successfully');
+      showToast.success({
+        title: 'Logged out',
+        description: data.message || 'You have been logged out successfully.',
+      });
       router.push('/login');
     },
     onError: (error: unknown) => {
@@ -51,7 +54,10 @@ export function useLogout() {
         (error as { response?: { data?: { message?: string } } }).response?.data
           ?.message || 'Logout completed';
 
-      toast.error(errorMessage);
+      showToast.error({
+        title: 'Logout error',
+        description: errorMessage,
+      });
       router.push('/login');
     },
   });
