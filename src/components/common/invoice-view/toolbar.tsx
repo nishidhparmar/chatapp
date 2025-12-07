@@ -6,6 +6,7 @@ import AddPopover from './add-popover';
 import CopyPopover from './copy-popover';
 import DownloadPopover from './download-popover';
 import MaximizePopover from './maximize-popover';
+import DeleteChart from './delete-chart';
 import { VisualizationType } from './types';
 
 interface ToolbarProps {
@@ -40,6 +41,10 @@ interface ToolbarProps {
 
   // Delete props
   showDelete: boolean;
+  openDeleteModal: boolean;
+  setOpenDeleteModal: (open: boolean) => void;
+  onDeleteChart?: () => void;
+  isDeleting?: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -63,6 +68,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
   contentRef,
   hideExtentView,
   showDelete,
+  openDeleteModal,
+  setOpenDeleteModal,
+  onDeleteChart,
+  isDeleting,
 }) => {
   return (
     <div className='flex items-center'>
@@ -98,13 +107,23 @@ const Toolbar: React.FC<ToolbarProps> = ({
       />
 
       {showDelete && (
-        <button
-          className={cn(
-            'h-8 w-8 cursor-pointer flex items-center justify-center text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md transition-colors'
-          )}
-        >
-          <Trash size={12} className='text-sm text-error-ct-error' />
-        </button>
+        <>
+          <button
+            className={cn(
+              'h-8 w-8 cursor-pointer flex items-center justify-center text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md transition-colors'
+            )}
+            onClick={() => setOpenDeleteModal(true)}
+          >
+            <Trash size={12} className='text-sm text-error-ct-error' />
+          </button>
+
+          <DeleteChart
+            open={openDeleteModal}
+            onOpenChange={setOpenDeleteModal}
+            onConfirm={onDeleteChart}
+            isDeleting={isDeleting}
+          />
+        </>
       )}
     </div>
   );

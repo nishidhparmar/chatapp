@@ -3,11 +3,13 @@ import AddToDashboard from '../../reports/add-to-dashboard';
 import ScheduleRecurring from '../../schedule/schedule-recurring-modal';
 import { ChatDetailMessage, ChartContentData } from '../../../types/chat';
 import { useViewAs } from '@/hooks/mutations/use-view-as';
+import { useRemoveFromDashboard } from '@/hooks/mutations/dashboard/use-remove-from-dashboard';
 import { ApiResponse } from '@/types/api';
 import { VisualizationType, InvoiceViewProps } from './types';
 import Toolbar from './toolbar';
 import ViewRenderer from './view-renderer';
 import { toast } from 'sonner';
+import { AddToDashboardPayload } from '../../../types/dashboard';
 
 const InvoiceView: React.FC<InvoiceViewProps> = ({
   data,
@@ -17,6 +19,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   showDelete = false,
   hideExtentView = false,
   title,
+  chatId,
+  onOpenDashboardView,
+  dashboardId,
+  chartId,
 }) => {
   const [defaultView, setDefaultView] =
     useState<VisualizationType>(propDefaultView);
@@ -31,9 +37,34 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   const [openAddTodashboardModal, setOpenAddTodashboard] = useState(false);
   const [openScheduleRecurringModal, setOpenScheduleRecurringModal] =
     useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { mutate: changeView, isPending: isChangingView } = useViewAs();
+  const { mutate: removeFromDashboard, isPending: isDeleting } =
+    useRemoveFromDashboard();
+
+  const handleDeleteChart = () => {
+    if (!dashboardId || !chartId) {
+      toast.error('Cannot delete chart: Dashboard ID or Chart ID not found');
+      return;
+    }
+
+    removeFromDashboard(
+      { dashboardId, chartId },
+      {
+        onSuccess: () => {
+          toast.success('Chart removed from dashboard successfully');
+          setOpenDeleteModal(false);
+        },
+        onError: () => {
+          toast.error(
+            'Failed to remove chart from dashboard. Please try again.'
+          );
+        },
+      }
+    );
+  };
 
   useEffect(() => {
     if (data?.chart_content) {
@@ -47,7 +78,6 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
       setOpenViewAsPopover(false);
       return;
     }
-
     changeView(
       {
         messageId: data?.message_id,
@@ -101,6 +131,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
           contentRef={contentRef}
           hideExtentView={hideExtentView}
           showDelete={showDelete}
+          openDeleteModal={openDeleteModal}
+          setOpenDeleteModal={setOpenDeleteModal}
+          onDeleteChart={handleDeleteChart}
+          isDeleting={isDeleting}
         />
       </div>
       <div className='md:px-4 pt-2 pb-4' ref={contentRef}>
@@ -109,6 +143,15 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
       <AddToDashboard
         open={openAddTodashboardModal}
         onOpenChange={() => setOpenAddTodashboard(false)}
+        chatId={chatId || 0}
+        messageId={data?.message_id || 0}
+        chartTitle={title || ''}
+        chartType={defaultView as AddToDashboardPayload['chart_type']}
+        onSuccess={dashboardId => {
+          if (onOpenDashboardView && dashboardId) {
+            onOpenDashboardView(dashboardId);
+          }
+        }}
       />
       <ScheduleRecurring
         open={openScheduleRecurringModal}

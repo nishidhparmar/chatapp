@@ -1,9 +1,11 @@
 'use client';
 
-import { notFound, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import InvoiceView from '@/components/common/invoice-view';
 import Link from 'next/link';
+import { useGetDashboardById } from '../../../hooks/queries';
+import { ChatDetailMessage } from '../../../types/chat';
 
 // Mock data for individual reports
 const reportsData = {
@@ -47,14 +49,12 @@ const reportsData = {
 
 export default function ReportDetailPage() {
   const params = useParams();
-  // Handle if params.id may be string or string[]
-  const reportId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const numericReportId = parseInt(reportId || '0');
-  const report = reportsData[numericReportId as keyof typeof reportsData];
-
-  if (!report) {
-    notFound();
-  }
+  const { id } = params;
+  const {
+    data: dashboardData,
+    isLoading,
+    error,
+  } = useGetDashboardById(Number(id)!, !!id);
 
   return (
     <DashboardLayout>
@@ -67,67 +67,33 @@ export default function ReportDetailPage() {
             Back to All
           </Link>
           <h1 className='text-2xl font-bold text-neutral-ct-primary mt-1'>
-            {report.name}
+            {dashboardData?.data.name}
           </h1>
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-          <InvoiceView
-            defaultView='table'
-            title='Data Table'
-            hideViewAs
-            HideAddToDashboard
-            hideExtentView
-            showDelete
-          />
-          <InvoiceView
-            defaultView='bar_chart'
-            title='Bar Chart'
-            hideViewAs
-            hideExtentView
-            HideAddToDashboard
-            showDelete
-          />
-          <InvoiceView
-            defaultView='line_chart'
-            title='Line Chart'
-            hideViewAs
-            HideAddToDashboard
-            hideExtentView
-            showDelete
-          />
-          <InvoiceView
-            defaultView='pie_chart'
-            title='Pie Chart'
-            hideViewAs
-            hideExtentView
-            HideAddToDashboard
-            showDelete
-          />
-          <InvoiceView
-            defaultView='stacked_chart'
-            title='Stacked Chart'
-            hideViewAs
-            hideExtentView
-            HideAddToDashboard
-            showDelete
-          />
-          <InvoiceView
-            defaultView='grouped_chart'
-            title='Grouped Chart'
-            hideViewAs
-            hideExtentView
-            HideAddToDashboard
-            showDelete
-          />
-          <InvoiceView
-            defaultView='multi_line'
-            title='Multi Line Chart'
-            hideViewAs
-            hideExtentView
-            HideAddToDashboard
-            showDelete
-          />
+          {dashboardData?.data.charts.map(chart => {
+            const refinedata = {
+              message_id: chart.message_id,
+              text: chart.title,
+              chart_content: chart.chart_config,
+              created_at: chart.created_at,
+              sender: 'user',
+            };
+            return (
+              <InvoiceView
+                key={chart.widget_id}
+                hideViewAs
+                HideAddToDashboard
+                hideExtentView
+                showDelete
+                data={refinedata as ChatDetailMessage}
+                title={chart.title}
+                dashboardId={dashboardData.data.dashboard_id}
+                chartId={chart.widget_id}
+              />
+            );
+          })}
         </div>
       </div>
     </DashboardLayout>

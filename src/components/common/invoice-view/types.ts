@@ -18,6 +18,10 @@ export interface InvoiceViewProps {
   showDelete?: boolean;
   hideExtentView?: boolean;
   data?: ChatDetailMessage;
+  chatId?: number;
+  onOpenDashboardView?: (dashboardId: number) => void;
+  dashboardId?: number;
+  chartId?: number;
 }
 
 export interface MenuItemProps {

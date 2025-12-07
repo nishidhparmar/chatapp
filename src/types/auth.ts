@@ -23,7 +23,7 @@ export interface ForgotPasswordResponse {
 }
 
 export interface User {
-  id: string | number;
+  user_id: string | number;
   email: string;
   name?: string;
   firstName?: string;

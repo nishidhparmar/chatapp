@@ -1,12 +1,9 @@
 'use client';
 
-import { PiThumbsUp } from 'react-icons/pi';
 import { Button } from '../ui/button';
-import { Message } from '../icons';
 import DashboardLayout from '../layout/dashboard-layout';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import ProvideFeedbackModal from './provice-feedback-modal';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
@@ -20,13 +17,6 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   }>({
     visible: false,
     id: 0,
-  });
-  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState<{
-    visible: boolean;
-    type: 'POSITIVE' | 'NAGETIVE';
-  }>({
-    visible: false,
-    type: 'POSITIVE',
   });
 
   // Loading state
@@ -75,49 +65,15 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
 
         <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
           <div className='mt-8'>
-            <MessageList messages={messages} className='space-y-6' />
-            {/* Feedback and Actions */}
-            <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between pt-4'>
-              <div className='flex items-center gap-3'>
-                <span className='text-sm text-neutral-ct-tertiary'>
-                  Was this answer helpful?
-                </span>
-                <PiThumbsUp
-                  className='text-neutral-ct-secondary cursor-pointer hover:text-neutral-ct-primary'
-                  onClick={() =>
-                    setOpenProvideFeedbackModal({
-                      type: 'POSITIVE',
-                      visible: true,
-                    })
-                  }
-                />
-                <PiThumbsUp
-                  className='rotate-180 text-neutral-ct-secondary cursor-pointer hover:text-neutral-ct-primary'
-                  onClick={() =>
-                    setOpenProvideFeedbackModal({
-                      type: 'NAGETIVE',
-                      visible: true,
-                    })
-                  }
-                />
-              </div>
-              <Button
-                variant={'secondary'}
-                onClick={() => router.push(`/invoice/conversations/${chatId}`)}
-                className='w-max'
-              >
-                <Message /> Switch to Conversation Mode
-              </Button>
-            </div>
+            <MessageList
+              messages={messages}
+              className='space-y-6'
+              showFeedback={true}
+              chatId={chatId}
+            />
           </div>
         </div>
       </div>
-      <ProvideFeedbackModal
-        open={provideFeedbackModal}
-        onOpenChange={() =>
-          setOpenProvideFeedbackModal({ type: 'POSITIVE', visible: false })
-        }
-      />
       <SaveChatModal
         open={openSaveChatModal}
         onOpenChange={() => {

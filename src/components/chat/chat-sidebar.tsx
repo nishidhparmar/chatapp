@@ -10,12 +10,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import TurnArrow from './TurnArrow';
 import { GoShareAndroid } from 'react-icons/go';
 import DeleteChat from './delete-chat';
+import DeleteGroup from './delete-group';
 import AddToGroup from './add-to-group';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useGetChatList, useGetChatGroups } from '../../hooks/queries';
 import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
 import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
-import { useRemoveFromGroup } from '../../hooks/mutations';
+import { useRemoveFromGroup, useDeleteGroup } from '../../hooks/mutations';
 import type { ChatGroup } from '@/types/chat';
 
 interface ChatItem {
@@ -40,6 +41,7 @@ const ChatSidebar = ({
   const { data } = useGetChatList();
   const { data: chatGroupsData } = useGetChatGroups();
   const deleteChat = useDeleteChat();
+  const deleteGroup = useDeleteGroup();
   const renameChat = useRenameChat();
   const removeFromGroup = useRemoveFromGroup();
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
@@ -47,6 +49,11 @@ const ChatSidebar = ({
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [deleteChatModal, setDeleteChatModal] = useState(false);
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+  const [deleteGroupModal, setDeleteGroupModal] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const [openAddToGroupModal, setOpenAddToGroupModal] = useState(false);
   const [chatToAddToGroup, setChatToAddToGroup] = useState<string | null>(null);
   const [renamingItem, setRenamingItem] = useState<string | null>(null);
@@ -145,6 +152,20 @@ const ChatSidebar = ({
         },
       }
     );
+  };
+
+  const handleDeleteGroup = () => {
+    if (groupToDelete) {
+      deleteGroup.mutate(groupToDelete.id, {
+        onSuccess: () => {
+          setDeleteGroupModal(false);
+          setGroupToDelete(null);
+        },
+        onError: (error: unknown) => {
+          console.error('Failed to delete group:', error);
+        },
+      });
+    }
   };
 
   const getMenuForItem = (
@@ -349,9 +370,28 @@ const ChatSidebar = ({
               {groups.map((group, index) => (
                 <div key={index}>
                   {/* Group Header */}
-                  <div className='flex items-center gap-2 py-1 text-sm text-neutral-ct-primary mb-1'>
-                    <Folder size={14} className='text-neutral-ct-tertiary' />
-                    <span>{group.title}</span>
+                  <div className='group/group flex items-center justify-between py-1 text-sm text-neutral-ct-primary mb-1'>
+                    <div className='flex items-center gap-2'>
+                      <Folder size={14} className='text-neutral-ct-tertiary' />
+                      <span>{group.title}</span>
+                    </div>
+                    {group.group_id && (
+                      <button
+                        className='opacity-0 group-hover/group:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-disabled'
+                        onClick={e => {
+                          e.stopPropagation();
+                          setGroupToDelete({
+                            id: group.group_id!,
+                            name: group.title,
+                          });
+                          setDeleteGroupModal(true);
+                        }}
+                        type='button'
+                        title='Delete group'
+                      >
+                        <Trash className='h-3.5 w-3.5 text-error-active' />
+                      </button>
+                    )}
                   </div>
 
                   {/* Group Items */}
@@ -395,6 +435,16 @@ const ChatSidebar = ({
         }}
         onConfirm={handleDeleteChat}
         isDeleting={deleteChat.isPending}
+      />
+      <DeleteGroup
+        open={deleteGroupModal}
+        onOpenChange={() => {
+          setDeleteGroupModal(false);
+          setGroupToDelete(null);
+        }}
+        onConfirm={handleDeleteGroup}
+        isDeleting={deleteGroup.isPending}
+        groupName={groupToDelete?.name}
       />
       <AddToGroup
         open={openAddToGroupModal}

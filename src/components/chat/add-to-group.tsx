@@ -14,7 +14,6 @@ import { AuthInput } from '../auth/common/auth-input';
 import Folder from '../icons/Folder';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
-import { Trash } from '../icons';
 
 interface AddToGroupProps {
   open: boolean;
@@ -208,19 +207,6 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                                   {group.name}
                                 </p>
                               </div>
-                            </div>
-
-                            <div className='flex items-center space-x-2'>
-                              {/* Trash icon - visible only on hover */}
-                              <Trash
-                                size={16}
-                                className=' opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-error-active '
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  console.log('Delete group:', group.name);
-                                  // TODO: Implement delete group functionality
-                                }}
-                              />
                             </div>
                           </div>
                         ))

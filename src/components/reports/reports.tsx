@@ -10,53 +10,27 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-
-// Mock data for reports
-const reportsData = [
-  {
-    id: 1,
-    name: 'Sales Dashboard',
-    lastViewed: 'Aug 10, 2025',
-    dateCreated: 'Aug 15, 2025',
-  },
-  {
-    id: 2,
-    name: 'Weekly Marketing',
-    lastViewed: 'Jul 5, 2025',
-    dateCreated: 'Aug 28, 2025',
-  },
-  {
-    id: 3,
-    name: 'Monthly Report Dashboard',
-    lastViewed: 'Jun 18, 2025',
-    dateCreated: 'Sep 2, 2025',
-  },
-  {
-    id: 4,
-    name: 'Daily Marketing Dashboard',
-    lastViewed: 'May 30, 2025',
-    dateCreated: 'Sep 5, 2025',
-  },
-  {
-    id: 5,
-    name: 'Monthly Marketing Dashboard',
-    lastViewed: 'May 12, 2025',
-    dateCreated: 'Sep 2, 2025',
-  },
-  {
-    id: 6,
-    name: 'Yearly Marketing Dashboard',
-    lastViewed: 'May 9, 2025',
-    dateCreated: 'Aug 25, 2025',
-  },
-];
+import { Skeleton } from '../ui/skeleton';
+import { useGetDashboards } from '@/hooks/queries/dashboard/use-get-dashboards';
+import type { DashboardListItem } from '@/types/dashboard';
 
 const Reports = () => {
   const router = useRouter();
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const { data: dashboardsResponse, isLoading, error } = useGetDashboards();
+
+  const dashboards = dashboardsResponse?.data || [];
 
   const handleRowClick = (id: number) => {
     router.push(`/reports/${id}`);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -71,10 +45,10 @@ const Reports = () => {
             <TableHeader>
               <TableRow className='bg-neutral-disabled hover:bg-neutral-disabled'>
                 <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
-                  Name
+                  ID
                 </TableHead>
                 <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
-                  Last Viewed
+                  Name
                 </TableHead>
                 <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
                   Date Created
@@ -82,29 +56,66 @@ const Reports = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reportsData.map((report, index) => (
-                <TableRow
-                  key={report.id}
-                  className={`cursor-pointer transition-colors ${
-                    hoveredRow === index
-                      ? 'bg-neutral-tertiary'
-                      : 'hover:bg-neutral-tertiary'
-                  }`}
-                  onClick={() => handleRowClick(report.id)}
-                  onMouseEnter={() => setHoveredRow(index)}
-                  onMouseLeave={() => setHoveredRow(null)}
-                >
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.name}
-                  </TableCell>
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.lastViewed}
-                  </TableCell>
-                  <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                    {report.dateCreated}
+              {isLoading ? (
+                // Skeleton loading rows
+                [...Array(6)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className='h-4 w-48' />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className='h-4 w-12' />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className='h-4 w-24' />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className='text-center py-8 text-red-500'
+                  >
+                    Failed to load dashboards. Please try again.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : dashboards.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className='text-center py-8 text-neutral-ct-secondary'
+                  >
+                    No dashboards found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                dashboards.map(
+                  (dashboard: DashboardListItem, index: number) => (
+                    <TableRow
+                      key={dashboard.dashboard_id}
+                      className={`cursor-pointer transition-colors ${
+                        hoveredRow === index
+                          ? 'bg-neutral-tertiary'
+                          : 'hover:bg-neutral-tertiary'
+                      }`}
+                      onClick={() => handleRowClick(dashboard.dashboard_id)}
+                      onMouseEnter={() => setHoveredRow(index)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                    >
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {dashboard.dashboard_id}
+                      </TableCell>
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {dashboard.name}
+                      </TableCell>
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
+                        {formatDate(dashboard.created_at)}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )
+              )}
             </TableBody>
           </Table>
         </div>

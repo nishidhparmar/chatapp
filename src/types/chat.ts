@@ -1,3 +1,5 @@
+import { VisualizationType } from '../components/common/invoice-view/types';
+
 // Chart data structures from API
 export interface BarChartData {
   type: 'bar_chart';
@@ -56,9 +58,9 @@ export interface ChatDetailMessage {
   message_id: number;
   sender: 'user' | 'assistant';
   text: string;
-  sql_query: string | null;
   chart_content?: ChartContentData;
   created_at: string;
+  visualization_type?: VisualizationType;
 }
 
 export interface ChatDetail {
@@ -123,4 +125,30 @@ export interface AddToGroupPayload {
 
 export interface ChatGroupsData {
   groups: ChatGroup[];
+}
+
+// Chart data for data tab
+export interface ChartDataFormat {
+  data_type: string;
+  label_key?: string;
+  value_key?: string;
+  columns?: string[];
+}
+
+export interface ChartContent {
+  type: string;
+  data_format: ChartDataFormat;
+  raw_data: Array<Record<string, string | number>>;
+}
+
+export interface ChatChart {
+  message_id: number;
+  visualization_type: string;
+  chart_content: ChartContent;
+}
+
+export interface ChatChartsResponse {
+  status: string;
+  data: ChatDetailMessage[];
+  message: string;
 }
