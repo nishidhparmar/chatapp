@@ -1,12 +1,15 @@
 import { useMutation } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import axiosInstance from '@/lib/axios';
-import type { LoginPayload, AuthResponse } from '@/types/auth';
-import { toast } from 'sonner';
+import type { LoginPayload, AuthResponse, User } from '@/types/auth';
+import type { ApiResponse } from '@/types/api';
 import { setCookie } from '@/lib/cookie-utils';
+import { showToast } from '@/components/common/toast';
+import { useUserStore } from '@/lib/stores/user-store';
 
 export function useLogin() {
   const searchParams = useSearchParams();
+  const { setUser, setInitialized } = useUserStore();
 
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
@@ -16,28 +19,32 @@ export function useLogin() {
       );
       return response.data;
     },
-    onSuccess: data => {
-      // Store tokens in localStorage
+    onSuccess: async data => {
       localStorage.setItem('access_token', data.data.access_token);
       localStorage.setItem('refresh_token', data.data.refresh_token);
       localStorage.setItem('expires_in', data.data.expires_in.toString());
-
-      // Set cookie for middleware
       setCookie('access_token', data.data.access_token, data.data.expires_in);
 
-      toast.success(data.message || 'Login successful');
+      // Fetch and store user details immediately after login
+      try {
+        const userResponse = await axiosInstance.get<ApiResponse<User>>(
+          '/api/v1/auth/current-user'
+        );
+        if (userResponse.data?.data) {
+          setUser(userResponse.data.data);
+          setInitialized(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user details after login:', error);
+      }
 
-      // Get redirect URL from query params or default to home
+      showToast.success({
+        title: 'Login successful',
+        description: 'Welcome back! You have been logged in successfully.',
+      });
       const redirectUrl = searchParams.get('redirect') || '/';
-
-      // Force a full page reload to trigger middleware
       window.location.href = redirectUrl;
     },
-    onError: (error: unknown) => {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } }).response?.data
-          ?.message || 'Login failed. Please try again.';
-      toast.error(errorMessage);
-    },
+    // onError is removed because errors are now handled globally by axios interceptor
   });
 }

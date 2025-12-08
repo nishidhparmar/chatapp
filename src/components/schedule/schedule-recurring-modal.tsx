@@ -8,11 +8,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
 import { Plus } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
-import ScheduleModal from './schedule-modal';
 
 interface ScheduleRecurringProps {
   open: boolean;
@@ -57,12 +56,14 @@ const ScheduleRecurring = ({ open, onOpenChange }: ScheduleRecurringProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         {isCreatingDashboard ? (
-          // Create Group View
-          <ScheduleModal
-            open={isCreatingDashboard}
-            onOpenChange={() => setIsCreatingDashboard(false)}
-          />
+          <></>
         ) : (
+          // Create Group View
+          // <ScheduleModal
+          //   open={isCreatingDashboard}
+          //   onOpenChange={() => setIsCreatingDashboard(false)}
+
+          // />
           // Add to Group View
           <>
             <DialogHeader>
@@ -73,10 +74,10 @@ const ScheduleRecurring = ({ open, onOpenChange }: ScheduleRecurringProps) => {
               <div className='relative'>
                 <AuthInput
                   icon={IoSearchOutline}
-                  iconClassName='text-neutral-ct-primary -mt-[1.5px]  text-neutral-ct-tertiary !h-4 !w-4'
+                  iconClassName='text-neutral-ct-primary -mt-[1px]  text-neutral-ct-tertiary !h-4 !w-4'
                   className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
                   label=''
-                  placeholder='Search dashboards...'
+                  placeholder='Search recurring...'
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSuggestions(searchTerm.length > 0)}

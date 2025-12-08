@@ -4,7 +4,7 @@ import type {
   ForgotPasswordPayload,
   ForgotPasswordResponse,
 } from '@/types/auth';
-import { toast } from 'sonner';
+import { showToast } from '@/components/common/toast';
 
 export function useForgotPassword() {
   return useMutation({
@@ -16,13 +16,11 @@ export function useForgotPassword() {
       return response.data;
     },
     onSuccess: data => {
-      toast.success(data.message || 'Password reset email sent successfully');
-    },
-    onError: (error: unknown) => {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } }).response?.data
-          ?.message || 'Failed to send reset email. Please try again.';
-      toast.error(errorMessage);
+      showToast.success({
+        title: 'Password reset email sent',
+        description:
+          data.message || 'Please check your email for reset instructions.',
+      });
     },
   });
 }

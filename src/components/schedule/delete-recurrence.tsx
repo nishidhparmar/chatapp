@@ -8,14 +8,21 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 
 interface DeleteRecurrenceProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  isLoading?: boolean;
 }
 
-const DeleteRecurrence = ({ open, onOpenChange }: DeleteRecurrenceProps) => {
+const DeleteRecurrence = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  isLoading = false,
+}: DeleteRecurrenceProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px] space-y-2'>
@@ -36,8 +43,10 @@ const DeleteRecurrence = ({ open, onOpenChange }: DeleteRecurrenceProps) => {
             size={'xs'}
             variant={'destructive'}
             className='px-4 py-2'
+            onClick={onConfirm}
+            disabled={isLoading}
           >
-            Yes, cancel recurrence
+            {isLoading ? 'Deleting...' : 'Yes, cancel recurrence'}
           </Button>
         </DialogFooter>
       </DialogContent>

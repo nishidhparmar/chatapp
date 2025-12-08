@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import SearchSuggestions from './search-suggestions';
 import { useRouter } from 'next/navigation';
-import { Button } from '../../ui/Button';
+import { Button } from '../../ui/button';
 import { useSuggestedQuestions } from '../../../hooks/queries';
 import { useChatAsk } from '../../../hooks/mutations';
 
@@ -40,7 +40,7 @@ const SearchTab = ({
       { chat_id: 0, mode: 'search', text: suggestion },
       {
         onSuccess: response => {
-          router.push(`/invoice/chat/${response.data.chat_id}`);
+          router.push(`/chat/${response.data.chat_id}`);
         },
       }
     );
@@ -57,6 +57,11 @@ const SearchTab = ({
           onChange={handleSearchChange}
           onFocus={() => setOnFocus(true)}
           onBlur={() => setTimeout(() => setOnFocus(false), 200)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && searchQuery.length > 0) {
+              handleSuggestionClick(searchQuery);
+            }
+          }}
           placeholder={placeholder}
           className='h-16 !px-4'
           rightIcon={

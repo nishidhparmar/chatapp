@@ -8,9 +8,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
-import { toast } from 'sonner';
+import { showToast } from '../common/toast';
 import { useChatAsk } from '@/hooks/mutations/use-chat-ask';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,10 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
 
   const handleCreate = () => {
     if (!value.trim()) {
-      toast.error('Please enter a chat name');
+      showToast.error({
+        title: 'Chat name required',
+        description: 'Please enter a chat name to continue.',
+      });
       return;
     }
 
@@ -39,20 +42,15 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
       },
       {
         onSuccess: response => {
-          toast.custom(() => (
-            <div className='bg-neutral-primary-inverse text-white rounded-2xl p-4 shadow-lg w-[380px]'>
-              <p className='text-xs font-semibold'>Chat created</p>
-              <p className='text-xs mt-1 '>
-                Your new chat has been successfully created.
-              </p>
-            </div>
-          ));
-          router.push(`/invoice/conversations/${response.data.chat_id}`);
+          router.push(`/conversations/${response.data.chat_id}`);
           setValue('');
           onOpenChange(false);
         },
         onError: () => {
-          toast.error('Failed to create chat');
+          showToast.error({
+            title: 'Failed to create chat',
+            description: 'Unable to create the chat. Please try again.',
+          });
         },
       }
     );

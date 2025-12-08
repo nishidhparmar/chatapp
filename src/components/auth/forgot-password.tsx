@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { ForgotPasswordSchema } from '@/lib/validation';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { BackToLoginButton } from './common/back-to-login-button';
 import { useRouter } from 'next/navigation';
 import { useForgotPassword } from '@/hooks/mutations/use-forgot-password';

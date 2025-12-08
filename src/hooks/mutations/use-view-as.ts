@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
-import type { ViewAsPayload } from '@/types/chat';
+import type { ChartContentData, ViewAsPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
 
 interface ViewAsParams {
@@ -11,7 +11,7 @@ interface ViewAsParams {
 export function useViewAs() {
   return useMutation({
     mutationFn: async ({ messageId, payload }: ViewAsParams) => {
-      const response = await axiosInstance.post<ApiResponse>(
+      const response = await axiosInstance.post<ApiResponse<ChartContentData>>(
         `/api/v1/chat/messages/${messageId}/view-as`,
         payload
       );

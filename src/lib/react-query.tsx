@@ -18,6 +18,10 @@ export function ReactQueryProvider({
             refetchOnWindowFocus: false,
             retry: 1,
           },
+          mutations: {
+            // Error handling should be done in individual mutation hooks
+            // or using error boundaries
+          },
         },
       })
   );

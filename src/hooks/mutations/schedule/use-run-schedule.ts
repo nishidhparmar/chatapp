@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
+import { showToast } from '@/components/common/toast';
 
 export function useRunSchedule() {
   const queryClient = useQueryClient();
@@ -12,17 +13,12 @@ export function useRunSchedule() {
       return response.data;
     },
     onSuccess: (data, scheduleId) => {
-      console.log('Schedule run triggered successfully:', data);
-      console.log('Schedule ID:', scheduleId);
-      console.log('Updated run count:', data.data.run_count);
-      console.log('Last run at:', data.data.last_run_at);
-      console.log('Next run at:', data.data.next_run_at);
-
-      // Invalidate schedules list to show updated run statistics
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
-
-      // Invalidate specific schedule to refetch updated data with new run info
       queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
+      showToast.success({
+        title: 'Schedule executed',
+        description: 'The schedule has been run successfully.',
+      });
     },
     onError: (error: unknown) => {
       console.error('Run schedule error:', error);

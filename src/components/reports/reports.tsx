@@ -10,16 +10,27 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { useGetDashboards } from '../../hooks/queries/dashboard/use-get-dashboards';
+import { ReportsListSkeleton } from '@/components/common/skeletons';
+import { useGetDashboards } from '@/hooks/queries/dashboard/use-get-dashboards';
+import type { DashboardListItem } from '@/types/dashboard';
 
 const Reports = () => {
   const router = useRouter();
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const { data: dashboardsResponse, isLoading, error } = useGetDashboards();
 
-  const getDashBoardListQuery = useGetDashboards();
+  const dashboards = dashboardsResponse?.data || [];
 
   const handleRowClick = (id: number) => {
     router.push(`/reports/${id}`);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -33,43 +44,71 @@ const Reports = () => {
           <Table className='min-w-[600px] overflow-auto'>
             <TableHeader>
               <TableRow className='bg-neutral-disabled hover:bg-neutral-disabled'>
-                <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
+                <TableHead className='text-xs font-semibold text-neutral-ct-primary w-[50%]'>
                   Name
                 </TableHead>
-                <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
+                <TableHead className='text-xs font-semibold text-neutral-ct-primary w-[25%]'>
                   Last Viewed
                 </TableHead>
-                <TableHead className='text-xs font-semibold text-neutral-ct-primary'>
+                <TableHead className='text-xs font-semibold text-neutral-ct-primary w-[25%]'>
                   Date Created
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {getDashBoardListQuery.isLoading
-                ? 'Loading...'
-                : getDashBoardListQuery.data?.data.map((report, index) => (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className='p-0'>
+                    <ReportsListSkeleton count={6} />
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className='text-center py-8 text-red-500'
+                  >
+                    Failed to load dashboards. Please try again.
+                  </TableCell>
+                </TableRow>
+              ) : dashboards.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className='text-center py-8 text-neutral-ct-secondary'
+                  >
+                    No dashboards found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                dashboards.map(
+                  (dashboard: DashboardListItem, index: number) => (
                     <TableRow
-                      key={report.dashboard_id}
+                      key={dashboard.dashboard_id}
                       className={`cursor-pointer transition-colors ${
                         hoveredRow === index
                           ? 'bg-neutral-tertiary'
                           : 'hover:bg-neutral-tertiary'
                       }`}
-                      onClick={() => handleRowClick(report.dashboard_id)}
+                      onClick={() => handleRowClick(dashboard.dashboard_id)}
                       onMouseEnter={() => setHoveredRow(index)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                        {report.name}
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary w-[50%]'>
+                        {dashboard.name}
                       </TableCell>
-                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                        {report.updated_at}
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary w-[25%]'>
+                        {dashboard.updated_at
+                          ? formatDate(dashboard.updated_at)
+                          : '-'}
                       </TableCell>
-                      <TableCell className='text-sm font-normal text-neutral-ct-primary'>
-                        {report.created_at}
+                      <TableCell className='text-sm font-normal text-neutral-ct-primary w-[25%]'>
+                        {formatDate(dashboard.created_at)}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )
+                )
+              )}
             </TableBody>
           </Table>
         </div>

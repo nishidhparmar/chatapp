@@ -1,14 +1,16 @@
-import Image from 'next/image';
 import React from 'react';
+import UserAvatar from '../user-avatar';
 
 const ChatBubble = ({
   message,
   side,
   avatar,
+  userName,
 }: {
   message: string;
   side: 'left' | 'right';
-  avatar: string;
+  avatar?: string;
+  userName?: string;
 }) => {
   const isRight = side === 'right';
 
@@ -18,13 +20,9 @@ const ChatBubble = ({
     >
       {/* Left Avatar */}
       {!isRight && (
-        <Image
-          src={avatar}
-          alt='avatar'
-          className='rounded-full mr-2'
-          height={8}
-          width={8}
-        />
+        <div className='mr-2'>
+          <UserAvatar name={userName} avatar={avatar} size='sm' />
+        </div>
       )}
 
       {/* Message Bubble */}
@@ -40,13 +38,9 @@ const ChatBubble = ({
 
       {/* Right Avatar */}
       {isRight && (
-        <Image
-          src={avatar}
-          alt='avatar'
-          className='rounded-full ml-2'
-          height={24}
-          width={24}
-        />
+        <div className='ml-2'>
+          <UserAvatar name={userName} avatar={avatar} size='sm' />
+        </div>
       )}
     </div>
   );

@@ -1,3 +1,45 @@
+import { VisualizationType } from '../components/common/invoice-view/types';
+
+// Chart data structures from API
+export interface BarChartData {
+  type: 'bar_chart';
+  data: Array<{
+    month: string;
+    value: number;
+    fullMonth: string;
+  }>;
+}
+
+export interface LineChartData {
+  type: 'line_chart';
+  data: Array<{
+    date: string;
+    fullDate: string;
+    value: number;
+  }>;
+}
+
+export interface PieChartData {
+  type: 'pie_chart';
+  data: Array<{
+    name: string;
+    value: number;
+    percent: number;
+  }>;
+}
+
+export interface TableData {
+  type: 'table';
+  data: Array<Record<string, unknown>>;
+  columns: string[];
+}
+
+export type ChartContentData =
+  | BarChartData
+  | LineChartData
+  | PieChartData
+  | TableData;
+
 export interface ChatAskPayload {
   chat_id: number;
   text: string;
@@ -9,72 +51,16 @@ export interface ChatMessage {
   sender: 'user' | 'assistant';
   answer: string;
   viz_hint?: string;
-  chart_content?: {
-    type: string;
-    data_format: {
-      columns: string[];
-      data_type: string;
-    };
-    raw_data: Array<Record<string, unknown>>;
-  };
+  chart_content?: ChartContentData;
 }
-
-// Chart data structures from API
-export interface BarChartData {
-  type: 'bar_chart';
-  data: {
-    labels: Array<string | number>;
-    values: Array<string | number>;
-  };
-  config: {
-    x_axis: string;
-    y_axis: string;
-  };
-}
-
-export interface LineChartData {
-  type: 'line_chart';
-  data: {
-    x_axis: Array<string | number>;
-    y_axis: Array<string | number>;
-  };
-  config: {
-    x_axis: string;
-    y_axis: string;
-  };
-}
-
-export interface PieChartData {
-  type: 'pie_chart';
-  data: Array<{
-    label: string | number;
-    value: string | number;
-  }>;
-  config: {
-    label_column: string;
-    value_column: string;
-  };
-}
-
-export type ChartContentData = BarChartData | LineChartData | PieChartData;
 
 export interface ChatDetailMessage {
   message_id: number;
   sender: 'user' | 'assistant';
   text: string;
-  sql_query: string | null;
-  chart_content?:
-    | {
-        type: string;
-        raw_data: Array<Record<string, unknown>>;
-        data_format: {
-          columns: string[];
-          data_type: string;
-        };
-      }
-    | ChartContentData
-    | null;
+  chart_content?: ChartContentData;
   created_at: string;
+  visualization_type?: VisualizationType;
 }
 
 export interface ChatDetail {
@@ -101,9 +87,22 @@ export interface ChatListItem {
   updated_at: string;
 }
 
-export interface ChatListData {
-  groups: Array<unknown>; // Based on your response, groups is empty array
+export interface ChatListGroup {
+  group_id?: number;
+  title: string;
   chats: ChatListItem[];
+}
+
+export interface ChatListData {
+  groups: ChatListGroup[];
+  chats: ChatListItem[];
+}
+
+export interface ChatGroup {
+  group_id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ChatListParams {
@@ -120,6 +119,36 @@ export interface ViewAsPayload {
 }
 
 export interface AddToGroupPayload {
-  group_id: number;
+  group_id: number; // Use 0 to create a new group, or existing group_id to add to existing group
   group_name: string;
+}
+
+export interface ChatGroupsData {
+  groups: ChatGroup[];
+}
+
+// Chart data for data tab
+export interface ChartDataFormat {
+  data_type: string;
+  label_key?: string;
+  value_key?: string;
+  columns?: string[];
+}
+
+export interface ChartContent {
+  type: string;
+  data_format: ChartDataFormat;
+  raw_data: Array<Record<string, string | number>>;
+}
+
+export interface ChatChart {
+  message_id: number;
+  visualization_type: string;
+  chart_content: ChartContent;
+}
+
+export interface ChatChartsResponse {
+  status: string;
+  data: ChatDetailMessage[];
+  message: string;
 }

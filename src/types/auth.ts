@@ -23,6 +23,14 @@ export interface ForgotPasswordResponse {
 }
 
 export interface User {
+  user_id: string | number;
   email: string;
-  // Add other user fields as needed
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // Add other user fields as needed based on your API response
 }

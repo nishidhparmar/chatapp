@@ -18,7 +18,6 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
     return String(value);
   };
 
-  // Capitalize column headers
   const formatColumnHeader = (column: string): string => {
     return column
       .split('_')

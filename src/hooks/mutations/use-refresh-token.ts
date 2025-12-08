@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { AuthResponse } from '@/types/auth';
+import { showToast } from '@/components/common/toast';
 
 interface RefreshTokenPayload {
   refresh_token: string;
@@ -19,6 +20,10 @@ export function useRefreshToken() {
       localStorage.setItem('access_token', data.data.access_token);
       localStorage.setItem('refresh_token', data.data.refresh_token);
       localStorage.setItem('expires_in', data.data.expires_in.toString());
+      showToast.success({
+        title: 'Session refreshed',
+        description: 'Your session has been refreshed successfully.',
+      });
     },
     onError: () => {
       localStorage.removeItem('access_token');

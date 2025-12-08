@@ -18,16 +18,20 @@ import ShareChatModal from './share-chat';
 import { FiCheck, FiX } from 'react-icons/fi';
 import Edit from '../icons/Edit';
 import FolderOpen from '../icons/FolderOpen';
-import Input from '../ui/Input';
+import Input from '../ui/input';
 import AddToGroup from './add-to-group';
 import { useIsMobile } from '../../hooks/use-mobile';
+import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
+import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
 
 interface ChatHeaderProps {
   title?: string;
   activeTab?: 'chat' | 'data';
   onTabChange?: (tab: 'chat' | 'data') => void;
   handleBack: () => void;
-  // Optionally, add onDelete?: () => void here if needed for delete action
+  chatId?: number;
+  onTitleChange?: (newTitle: string) => void;
+  onDelete?: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -35,7 +39,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   activeTab = 'chat',
   onTabChange,
   handleBack,
-  // onDelete,
+  chatId,
+  onTitleChange,
+  onDelete,
 }) => {
   const [deleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [shareChatModal, setOpenShareChatModal] = useState(false);
@@ -45,6 +51,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const deleteChat = useDeleteChat();
+  const renameChat = useRenameChat();
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -58,9 +66,23 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   };
 
   const handleSave = () => {
-    if (editedTitle.trim()) {
-      // onTitleChange?.(editedTitle.trim());
-      setIsEditing(false);
+    if (editedTitle.trim() && chatId) {
+      renameChat.mutate(
+        {
+          chatId,
+          payload: { title: editedTitle.trim() },
+        },
+        {
+          onSuccess: () => {
+            onTitleChange?.(editedTitle.trim());
+            setIsEditing(false);
+          },
+          onError: (error: unknown) => {
+            console.error('Failed to rename chat:', error);
+            // Optionally show error message to user
+          },
+        }
+      );
     }
   };
 
@@ -74,6 +96,21 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       handleSave();
     } else if (e.key === 'Escape') {
       handleCancel();
+    }
+  };
+
+  const handleDeleteChat = () => {
+    if (chatId) {
+      deleteChat.mutate(chatId, {
+        onSuccess: () => {
+          setOpenDeleteChatModal(false);
+          onDelete?.();
+        },
+        onError: (error: unknown) => {
+          console.error('Failed to delete chat:', error);
+          // Optionally show error message to user
+        },
+      });
     }
   };
 
@@ -98,7 +135,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             />
             <button
               onClick={handleSave}
-              className='p-1.5 rounded-md border border-neutral-br-secondary cursor-pointer text-success-ct-success'
+              disabled={renameChat.isPending}
+              className='p-1.5 rounded-md border border-neutral-br-secondary cursor-pointer text-success-ct-success disabled:opacity-50 disabled:cursor-not-allowed'
               title='Save'
             >
               <FiCheck className='h-5 w-5' />
@@ -204,6 +242,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       <DeleteChat
         open={deleteChatModal}
         onOpenChange={() => setOpenDeleteChatModal(false)}
+        onConfirm={handleDeleteChat}
+        isDeleting={deleteChat.isPending}
       />
       <ShareChatModal
         open={shareChatModal}
@@ -212,6 +252,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       <AddToGroup
         open={addToGroupModal}
         onOpenChange={() => setAddToGroupModal(false)}
+        chatId={chatId || null}
       />
     </div>
   );

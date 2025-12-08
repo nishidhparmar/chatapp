@@ -1,3 +1,5 @@
+import { ChartContentData } from './chat';
+
 export interface AddToDashboardPayload {
   chart_title: string;
   dashboard_id: number;
@@ -59,7 +61,9 @@ export interface DashboardWidget {
   message_id: number;
   title: string;
   chart_type: string;
-  chart_config: ChartConfig;
+  chart_config: ChartContentData;
+  position: number;
+  created_at: string;
 }
 
 export interface DashboardDetail {
@@ -68,4 +72,6 @@ export interface DashboardDetail {
   client_id: number;
   name: string;
   charts: DashboardWidget[];
+  created_at: string;
+  updated_at: string;
 }

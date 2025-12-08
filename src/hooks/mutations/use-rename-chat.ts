@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { RenameChatPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
+import { showToast } from '@/components/common/toast';
 
 interface RenameChatParams {
   chatId: number;
@@ -19,12 +20,13 @@ export function useRenameChat() {
       );
       return response.data;
     },
-    onSuccess: (data, { chatId }) => {
+    onSuccess: (_, { chatId }) => {
       queryClient.invalidateQueries({ queryKey: ['chats', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
-    },
-    onError: (error: unknown) => {
-      console.error('Rename chat error:', error);
+      showToast.success({
+        title: 'Chat renamed',
+        description: 'The chat name has been updated successfully.',
+      });
     },
   });
 }

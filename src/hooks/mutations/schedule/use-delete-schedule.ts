@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
+import { showToast } from '@/components/common/toast';
 
 export function useDeleteSchedule() {
   const queryClient = useQueryClient();
@@ -12,14 +13,16 @@ export function useDeleteSchedule() {
       return response.data;
     },
     onSuccess: (data, scheduleId) => {
-      console.log('Schedule deleted successfully:', data);
-      console.log('Deleted schedule ID:', scheduleId);
-
       // Invalidate schedules list to remove deleted schedule
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
 
       // Remove the specific schedule from cache
       queryClient.removeQueries({ queryKey: ['schedule', scheduleId] });
+
+      showToast.success({
+        title: 'Schedule deleted',
+        description: 'The schedule has been deleted successfully.',
+      });
     },
     onError: (error: unknown) => {
       console.error('Delete schedule error:', error);

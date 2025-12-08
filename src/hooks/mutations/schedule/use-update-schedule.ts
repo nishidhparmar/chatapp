@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { UpdateSchedulePayload } from '@/types/schedule';
+import { showToast } from '@/components/common/toast';
 
 interface UpdateScheduleParams {
   scheduleId: number;
@@ -19,12 +20,12 @@ export function useUpdateSchedule() {
       return response.data;
     },
     onSuccess: (data, { scheduleId, payload }) => {
-      console.log('Schedule updated successfully:', data);
-      console.log('Schedule ID:', scheduleId);
-      console.log('Updated title:', payload.title);
-      console.log('Active status:', payload.is_active);
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
+      showToast.success({
+        title: 'Schedule updated',
+        description: 'The schedule has been updated successfully.',
+      });
     },
     onError: (error: unknown) => {
       console.error('Update schedule error:', error);

@@ -28,6 +28,7 @@ import { default as Png } from './Png';
 import { default as Svg } from './Svg';
 import { default as Play } from './Play';
 import { default as Stop } from './Stop';
+import { default as Email } from './Email';
 
 export {
   Chat,
@@ -60,4 +61,5 @@ export {
   Svg,
   Play,
   Stop,
+  Email,
 };
