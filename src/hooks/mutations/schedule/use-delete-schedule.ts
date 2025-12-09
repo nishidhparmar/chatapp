@@ -20,8 +20,8 @@ export function useDeleteSchedule() {
       queryClient.removeQueries({ queryKey: ['schedule', scheduleId] });
 
       showToast.success({
-        title: 'Schedule deleted',
-        description: 'The schedule has been deleted successfully.',
+        title: 'Schedule canceled',
+        description: 'Schedule canceled successfully',
       });
     },
     onError: (error: unknown) => {

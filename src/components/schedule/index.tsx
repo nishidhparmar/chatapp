@@ -147,7 +147,7 @@ const Schedule = () => {
         frequency_value: payload.frequency_value,
         repeat_at: payload.repeat_at,
         repeat_on: payload.repeat_on,
-        stopping_date: payload.stopping_date,
+        stopping_date: payload.stopping_date as string,
         stopping_threshold: payload.stopping_threshold,
         notify_channels: payload.notify_channels,
         is_active: true,

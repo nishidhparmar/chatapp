@@ -1,6 +1,12 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { Filter, ChevronDown, ChevronUp, Folder, Trash } from '../icons';
 import { AuthInput } from '../auth/common/auth-input';
 import { BsThreeDots } from 'react-icons/bs';
@@ -23,6 +29,7 @@ import {
   GroupListSkeleton,
 } from '@/components/common/skeletons';
 import { useIsMobile } from '../../hooks/use-mobile';
+import { Pagination } from '../ui/pagination';
 
 interface ChatItem {
   id: string;
@@ -43,7 +50,26 @@ const ChatSidebar = ({
   activeChat: string;
   setActiveChat: Dispatch<SetStateAction<string>>;
 }) => {
-  const { data, isLoading: isLoadingChats } = useGetChatList();
+  // Search and pagination state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to first page when searching
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const { data, isLoading: isLoadingChats } = useGetChatList({
+    page: currentPage,
+    per_page: 25,
+    search: debouncedSearch || undefined,
+  });
   const { data: chatGroupsData, isLoading: isLoadingGroups } =
     useGetChatGroups();
   const deleteChat = useDeleteChat();
@@ -65,6 +91,13 @@ const ChatSidebar = ({
   const [chatToAddToGroup, setChatToAddToGroup] = useState<string | null>(null);
   const [renamingItem, setRenamingItem] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+
+  // Pagination metadata
+  const pagination = data?.pagination;
+  const hasNextPage = pagination?.has_next || false;
+  const hasPrevPage = pagination?.has_prev || false;
+  const totalPages = pagination?.total_pages || 1;
+  const totalChats = pagination?.total || 0;
 
   const chats: ChatItem[] =
     data?.data?.chats?.map(chat => ({
@@ -88,6 +121,19 @@ const ChatSidebar = ({
         })),
       };
     }) || [];
+
+  // Pagination handlers
+  const handleNextPage = useCallback(() => {
+    if (hasNextPage) {
+      setCurrentPage(prev => prev + 1);
+    }
+  }, [hasNextPage]);
+
+  const handlePrevPage = useCallback(() => {
+    if (hasPrevPage) {
+      setCurrentPage(prev => prev - 1);
+    }
+  }, [hasPrevPage]);
 
   // Auto-select first available chat when data loads (desktop only)
   useEffect(() => {
@@ -359,14 +405,34 @@ const ChatSidebar = ({
         </h2>
 
         <div className='flex gap-3 w-full items-center'>
-          <div className='flex-1'>
+          <div className='flex-1 relative'>
             <AuthInput
               icon={IoSearchOutline}
-              iconClassName='text-neutral-ct-tertiary -mt-[1px] !h-4 !w-4'
-              className='pr-3 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
+              iconClassName={`text-neutral-ct-tertiary -mt-[1px] !h-4 !w-4 ${isLoadingChats && debouncedSearch ? 'animate-pulse' : ''}`}
+              className='pr-8 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
               label=''
-              placeholder='Search'
+              placeholder='Search chats...'
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className='absolute right-2 top-1/2 -translate-y-1/2 text-neutral-ct-tertiary hover:text-neutral-ct-primary transition-colors'
+                type='button'
+                title='Clear search'
+              >
+                <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                  <path
+                    d='M9 3L3 9M3 3L9 9'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              </button>
+            )}
           </div>
           <div className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center mt-1'>
             <Filter className='h-4 w-4 text-neutral-ct-primary' />
@@ -383,7 +449,9 @@ const ChatSidebar = ({
           groups.length === 0 && (
             <div className='flex items-center justify-center h-full text-center'>
               <p className='text-neutral-ct-secondary text-sm'>
-                You don't have any chats right now. Please create one.
+                {debouncedSearch
+                  ? `No chats found for "${debouncedSearch}"`
+                  : "You don't have any chats right now. Please create one."}
               </p>
             </div>
           )}
@@ -464,7 +532,10 @@ const ChatSidebar = ({
               onClick={() => setIsChatsExpanded(!isChatsExpanded)}
               className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
             >
-              <span>Chats</span>
+              <span>
+                {debouncedSearch ? 'Search Results' : 'Chats'}
+                {totalChats > 0 && ` (${totalChats})`}
+              </span>
               {isChatsExpanded ? (
                 <ChevronUp size={16} className='text-neutral-ct-tertiary' />
               ) : (
@@ -477,7 +548,20 @@ const ChatSidebar = ({
                 {isLoadingChats ? (
                   <ChatListSkeleton count={4} />
                 ) : (
-                  chats.map(chat => renderChatItem(chat, false))
+                  <>
+                    {chats.map(chat => renderChatItem(chat, false))}
+
+                    {/* Pagination Controls */}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      hasNextPage={hasNextPage}
+                      hasPrevPage={hasPrevPage}
+                      onNextPage={handleNextPage}
+                      onPrevPage={handlePrevPage}
+                      size='sm'
+                    />
+                  </>
                 )}
               </div>
             )}

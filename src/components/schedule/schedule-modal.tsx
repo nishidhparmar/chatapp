@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -23,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { AuthInput } from '../auth/common/auth-input';
-import { Email, Trash } from '../icons';
+import { Email } from '../icons';
 import {
   convertTo12Hour,
   convertTo24Hour,
@@ -35,6 +34,7 @@ import type { CreateSchedulePayload, ScheduleListItem } from '@/types/schedule';
 import WhatsApp from '../icons/Whatsapp';
 import { useCurrentUser } from '../../hooks/use-current-user';
 import TimeCombobox from './time-combobox';
+import { Button } from '../ui/button';
 
 interface CreateScheduleModalProps {
   open: boolean;
@@ -119,7 +119,19 @@ const ScheduleModal = (props: ScheduleModalProps) => {
         );
       }
 
-      setEnds('never');
+      // Handle ends radio button prefilling based on API data
+      if (
+        scheduleData.stopping_threshold &&
+        scheduleData.stopping_threshold > 0
+      ) {
+        setEnds('after');
+        setAfterTimes(scheduleData.stopping_threshold);
+      } else if (scheduleData.stopping_date) {
+        setEnds('on');
+        setEndDate(new Date(scheduleData.stopping_date));
+      } else {
+        setEnds('never');
+      }
     } else {
       // Reset form for create mode
       setRepeatEvery('1');
@@ -175,7 +187,6 @@ const ScheduleModal = (props: ScheduleModalProps) => {
       frequency_value: parseInt(repeatEvery),
       repeat_at: convertTo24Hour(time),
       repeat_on: '',
-      stopping_date: '',
       stopping_threshold: 0,
       notify_channels: notifyChannels,
     };
@@ -302,7 +313,13 @@ const ScheduleModal = (props: ScheduleModalProps) => {
             </div>
             <RadioGroup
               value={ends}
-              onValueChange={(v: 'never' | 'on' | 'after') => setEnds(v)}
+              onValueChange={(v: 'never' | 'on' | 'after') => {
+                setEnds(v);
+                // Set today's date when "on" is selected and no date is currently set
+                if (v === 'on' && !endDate) {
+                  setEndDate(new Date());
+                }
+              }}
             >
               <div
                 className='flex items-center gap-2 cursor-pointer mb-2'
@@ -315,7 +332,13 @@ const ScheduleModal = (props: ScheduleModalProps) => {
               <div className='grid grid-cols-3 items-center gap-2'>
                 <div
                   className='col-span-1 flex gap-2 items-center cursor-pointer'
-                  onClick={() => setEnds('on')}
+                  onClick={() => {
+                    setEnds('on');
+                    // Set today's date when "on" is selected and no date is currently set
+                    if (!endDate) {
+                      setEndDate(new Date());
+                    }
+                  }}
                 >
                   <RadioGroupItem value='on' />
                   <span className='text-neutral-ct-primary text-sm'>On</span>
@@ -329,7 +352,9 @@ const ScheduleModal = (props: ScheduleModalProps) => {
                       >
                         {endDate
                           ? formatDate(endDate)
-                          : formatDate(defaultDate)}
+                          : ends === 'on'
+                            ? formatDate(new Date())
+                            : formatDate(defaultDate)}
                         <CalendarIcon className='h-4 w-4 opacity-50 ' />
                       </button>
                     </PopoverTrigger>
@@ -338,6 +363,9 @@ const ScheduleModal = (props: ScheduleModalProps) => {
                         mode='single'
                         selected={endDate}
                         onSelect={setEndDate}
+                        disabled={date =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
                       />
                     </PopoverContent>
                   </Popover>
@@ -464,13 +492,13 @@ const ScheduleModal = (props: ScheduleModalProps) => {
             <div />
             {isEditing && (
               <div className='flex items-center gap-2'>
-                <Button
+                {/* <Button
                   variant='outline'
                   className='!p-2 border-none  max-h-8 text-xs text-error-ct-error hover:!text-error-ct-error hover:bg-transparent'
                 >
                   <Trash size={16} className='-mr-1' />
                   Cancel
-                </Button>
+                </Button> */}
                 {/* <Button
                 variant='outline'
                 className='!p-2 border-none max-h-8 text-xs text-brand-ct-brand hover:!text-brand-ct-brand hover:bg-transparent'
