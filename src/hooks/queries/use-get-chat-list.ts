@@ -4,10 +4,10 @@ import type { ChatListData, ChatListParams } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
 
 export function useGetChatList(params: ChatListParams = {}) {
-  const { page = 1, per_page = 25 } = params;
+  const { page = 1, per_page = 25, search } = params;
 
   return useQuery({
-    queryKey: ['chats', 'list', { page, per_page }],
+    queryKey: ['chats', 'list', { page, per_page, search }],
     queryFn: async () => {
       const response = await axiosInstance.get<ApiResponse<ChatListData>>(
         '/api/v1/chat/list',
@@ -15,6 +15,7 @@ export function useGetChatList(params: ChatListParams = {}) {
           params: {
             page,
             per_page,
+            ...(search && { search }),
           },
         }
       );

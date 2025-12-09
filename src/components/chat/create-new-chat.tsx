@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
 import { showToast } from '../common/toast';
 import { useChatAsk } from '@/hooks/mutations/use-chat-ask';

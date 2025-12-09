@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { AuthInput } from '../../auth/common/auth-input';
 import SearchSuggestions from './search-suggestions';
 import { useRouter } from 'next/navigation';
-import { Button } from '../../ui/Button';
+import { Button } from '../../ui/button';
 import { useSuggestedQuestions } from '../../../hooks/queries';
 import { useChatAsk } from '../../../hooks/mutations';
 

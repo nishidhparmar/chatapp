@@ -18,7 +18,7 @@ import ShareChatModal from './share-chat';
 import { FiCheck, FiX } from 'react-icons/fi';
 import Edit from '../icons/Edit';
 import FolderOpen from '../icons/FolderOpen';
-import Input from '../ui/Input';
+import Input from '../ui/input';
 import AddToGroup from './add-to-group';
 import { useIsMobile } from '../../hooks/use-mobile';
 import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';

@@ -5,6 +5,8 @@ import { Toaster } from '../components/ui/sonner';
 import { ReactQueryProvider } from '@/lib/react-query';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { UserProvider } from '@/components/providers/user-provider';
+import { PageTracker } from '@/components/analytics/page-tracker';
+import '@/lib/mixpanel'; // Initialize Mixpanel
 
 const inter = Inter({
   subsets: ['latin'],
@@ -26,6 +28,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <UserProvider>
             <AuthGuard>
+              <PageTracker />
               <Toaster />
               {children}
             </AuthGuard>

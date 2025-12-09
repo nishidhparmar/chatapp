@@ -108,6 +108,7 @@ export interface ChatGroup {
 export interface ChatListParams {
   page?: number;
   per_page?: number;
+  search?: string;
 }
 
 export interface RenameChatPayload {

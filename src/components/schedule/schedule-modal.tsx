@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/Button';
 import {
   Select,
   SelectContent,
@@ -35,6 +34,7 @@ import type { CreateSchedulePayload, ScheduleListItem } from '@/types/schedule';
 import WhatsApp from '../icons/Whatsapp';
 import { useCurrentUser } from '../../hooks/use-current-user';
 import TimeCombobox from './time-combobox';
+import { Button } from '../ui/button';
 
 interface CreateScheduleModalProps {
   open: boolean;

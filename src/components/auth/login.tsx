@@ -7,11 +7,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { LoginSchema } from '@/lib/validation';
-import { Button } from '../ui/Button';
-import ILink from '../ui/Link';
+import { Button } from '../ui/button';
+import ILink from '../ui/link';
 import { useLogin } from '@/hooks/mutations/use-login';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const LoginPage = () => {
+  const { track } = useAnalytics();
+
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -23,7 +26,26 @@ const LoginPage = () => {
   const loginMutation = useLogin();
 
   const onSubmit = (data: z.infer<typeof LoginSchema>) => {
-    loginMutation.mutate(data);
+    track('Login Attempted', {
+      email: data.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        track('Login Successful', {
+          email: data.email,
+          timestamp: new Date().toISOString(),
+        });
+      },
+      onError: error => {
+        track('Login Failed', {
+          email: data.email,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+      },
+    });
   };
 
   return (

@@ -6,13 +6,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { ForgotPasswordSchema } from '@/lib/validation';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { BackToLoginButton } from './common/back-to-login-button';
 import { useRouter } from 'next/navigation';
 import { useForgotPassword } from '@/hooks/mutations/use-forgot-password';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
+  const { track } = useAnalytics();
   const forgotPasswordMutation = useForgotPassword();
 
   const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
@@ -23,9 +25,25 @@ const ForgotPasswordPage = () => {
   });
 
   const onSubmit = (data: z.infer<typeof ForgotPasswordSchema>) => {
+    track('Forgot Password Attempted', {
+      email: data.email,
+      timestamp: new Date().toISOString(),
+    });
+
     forgotPasswordMutation.mutate(data, {
       onSuccess: () => {
+        track('Forgot Password Successful', {
+          email: data.email,
+          timestamp: new Date().toISOString(),
+        });
         router.push('/send-mail');
+      },
+      onError: error => {
+        track('Forgot Password Failed', {
+          email: data.email,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
       },
     });
   };
