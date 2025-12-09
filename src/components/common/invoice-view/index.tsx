@@ -163,6 +163,8 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
       <ScheduleRecurring
         open={openScheduleRecurringModal}
         onOpenChange={() => setOpenScheduleRecurringModal(false)}
+        messageId={data?.message_id}
+        title={title?.split(':').slice(1).join(':').split('.')[0].trim()}
       />
     </div>
   );

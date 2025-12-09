@@ -5,7 +5,7 @@ export interface CreateSchedulePayload {
   frequency_value: number;
   repeat_at: string; // Time format "HH:MM:SS"
   repeat_on: string; // Comma-separated days like "monday,wednesday,friday"
-  stopping_date: string; // ISO date string
+  stopping_date?: string; // ISO date string
   stopping_threshold: number;
   notify_channels: Array<'in_app' | 'email'>;
   message_id?: number;
@@ -20,7 +20,7 @@ export interface Schedule {
   frequency_value: number;
   repeat_at: string;
   repeat_on: string;
-  stopping_date: string;
+  stopping_date?: string;
   stopping_threshold: number;
   notify_channels: string[];
   is_active: boolean;
@@ -42,6 +42,8 @@ export interface ScheduleListItem {
   is_active: boolean;
   next_run_at: string;
   last_run_at: string | null;
+  stopping_date: string;
+  stopping_threshold: number;
   run_count: number;
   notification_count: number;
   created_at: string;
