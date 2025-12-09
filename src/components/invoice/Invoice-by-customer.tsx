@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import DashboardLayout from '../layout/dashboard-layout';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';

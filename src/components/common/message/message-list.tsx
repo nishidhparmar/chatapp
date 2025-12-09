@@ -8,7 +8,7 @@ import { VisualizationType } from '../invoice-view/types';
 import { useUserStore } from '../../../lib/stores/user-store';
 import { getDisplayName } from '@/lib/utils/user-helpers';
 import { PiThumbsUp } from 'react-icons/pi';
-import { Button } from '../../ui/button';
+import { Button } from '../../ui/Button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProvideFeedbackModal from '../../invoice/provice-feedback-modal';

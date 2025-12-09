@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import DashboardLayout from '../layout/dashboard-layout';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { AuthInput } from '../auth/common/auth-input';
 import { useState, useRef } from 'react';
 

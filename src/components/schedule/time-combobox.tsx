@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TIMES } from '../../lib/utils/helper';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import Input from '../ui/input';
+import Input from '../ui/Input';
 
 interface TimeComboboxProps {
   value: string;

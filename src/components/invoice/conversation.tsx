@@ -1,7 +1,7 @@
 'use client';
 
 import DashboardLayout from '../layout/dashboard-layout';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import MessageList from '../common/message/message-list';
 import SendInput from '../common/message/send-input';
 import { useState, useRef, useEffect } from 'react';

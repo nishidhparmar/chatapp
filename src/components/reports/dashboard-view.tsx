@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import Loading from '@/components/common/loading';
 import { useGetDashboardById } from '@/hooks/queries/dashboard/use-get-dashboard-by-id';
 import { InvoiceView } from '../common';

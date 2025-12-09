@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { Textarea } from '../ui/textarea';
 import { useGetSuggestedFeedback } from '../../hooks/queries';
 import { useCreateFeedback } from '../../hooks/mutations';
