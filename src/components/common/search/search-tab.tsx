@@ -27,7 +27,7 @@ const SearchTab = ({
     enabled: onFocus && !searchQuery,
   });
 
-  const { mutate: createChat } = useChatAsk();
+  const { mutate: createChat, isPending } = useChatAsk();
   const router = useRouter();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +35,7 @@ const SearchTab = ({
     setSearchQuery(value);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSearchClick = (suggestion: string) => {
     createChat(
       { chat_id: 0, mode: 'search', text: suggestion },
       {
@@ -46,6 +46,12 @@ const SearchTab = ({
     );
     setSearchQuery(suggestion);
   };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+  };
+
+  console.log(isPending);
 
   return (
     <div className={cn('bg-white rounded-b-lg relative', className)}>
@@ -59,7 +65,7 @@ const SearchTab = ({
           onBlur={() => setTimeout(() => setOnFocus(false), 200)}
           onKeyDown={e => {
             if (e.key === 'Enter' && searchQuery.length > 0) {
-              handleSuggestionClick(searchQuery);
+              handleSearchClick(searchQuery);
             }
           }}
           placeholder={placeholder}
@@ -68,9 +74,12 @@ const SearchTab = ({
             <Button
               size={'icon'}
               variant={searchQuery.length > 0 ? 'default' : 'secondary'}
-              onClick={() => handleSuggestionClick(searchQuery)}
+              onClick={() => handleSearchClick(searchQuery)}
+              disabled={isPending}
             >
-              {searchQuery.length > 0 ? (
+              {isPending ? (
+                <div className='animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent' />
+              ) : searchQuery.length > 0 ? (
                 <IoSearchOutline className='h-4 w-4' />
               ) : (
                 <GoArrowUp className='w-4 h-4 text-neutral-ct-disabled' />

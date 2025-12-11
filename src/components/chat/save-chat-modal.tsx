@@ -13,6 +13,7 @@ import { AuthInput } from '../auth/common/auth-input';
 import { useSaveChat } from '@/hooks/mutations/use-save-chat';
 import { useState, useEffect } from 'react';
 import { showToast } from '../common/toast';
+import { useRouter } from 'next/navigation';
 
 interface SaveChatModalProps {
   open: { visible: boolean; id: number };
@@ -22,6 +23,7 @@ interface SaveChatModalProps {
 const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
   const [chatTitle, setChatTitle] = useState('');
   const { mutate: saveChat, isPending } = useSaveChat();
+  const router = useRouter();
 
   // Reset title when modal opens
   useEffect(() => {
@@ -59,6 +61,8 @@ const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
             description: 'The chat has been saved successfully.',
           });
           onOpenChange();
+          // Redirect to chats page with the chat ID
+          router.push(`/chats?id=${open.id}`);
         },
         onError: () => {
           showToast.error({

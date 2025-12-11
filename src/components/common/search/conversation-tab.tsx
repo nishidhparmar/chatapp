@@ -23,7 +23,7 @@ const ConversationTab = ({
     enabled: onFocus && !searchConversationQuery,
   });
 
-  const { mutate: createChat } = useChatAsk();
+  const { mutate: createChat, isPending: isCreatingChat } = useChatAsk();
   const router = useRouter();
 
   const handleSearchConversationChange = (
@@ -33,7 +33,9 @@ const ConversationTab = ({
     setSearchConversationQuery(value);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSearchClick = (suggestion: string) => {
+    if (isCreatingChat) return;
+
     createChat(
       { chat_id: 0, mode: 'conversational', text: suggestion },
       {
@@ -46,7 +48,7 @@ const ConversationTab = ({
   };
 
   const handleAskQuestion = () => {
-    if (!searchConversationQuery.trim()) return;
+    if (!searchConversationQuery.trim() || isCreatingChat) return;
 
     createChat(
       { chat_id: 0, mode: 'conversational', text: searchConversationQuery },
@@ -58,6 +60,10 @@ const ConversationTab = ({
     );
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchConversationQuery(suggestion);
+  };
+
   return (
     <div className='bg-white rounded-b-lg mb-6 mt-4'>
       <div className='relative'>
@@ -67,40 +73,53 @@ const ConversationTab = ({
           onFocus={() => setOnFocus(true)}
           onBlur={() => setTimeout(() => setOnFocus(false), 200)}
           onKeyDown={e => {
-            if (e.key === 'Enter' && searchConversationQuery.length > 0) {
-              handleSuggestionClick(searchConversationQuery);
+            if (
+              e.key === 'Enter' &&
+              searchConversationQuery.length > 0 &&
+              !isCreatingChat
+            ) {
+              handleSearchClick(searchConversationQuery);
             }
           }}
           label=''
           type='text'
           placeholder={placeholder}
           className='h-16 !px-4'
+          disabled={isCreatingChat}
           rightIcon={
             <Button
               size={'icon'}
               onClick={handleAskQuestion}
+              disabled={isCreatingChat || searchConversationQuery.length === 0}
               variant={
                 searchConversationQuery.length > 0 ? 'default' : 'secondary'
               }
             >
-              <GoArrowUp
-                className={cn(
-                  'w-4 h-4',
-                  searchConversationQuery
-                    ? 'text-white'
-                    : 'text-neutral-ct-disabled'
-                )}
-              />
+              {isCreatingChat ? (
+                <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
+              ) : (
+                <GoArrowUp
+                  className={cn(
+                    'w-4 h-4',
+                    searchConversationQuery
+                      ? 'text-white'
+                      : 'text-neutral-ct-disabled'
+                  )}
+                />
+              )}
             </Button>
           }
         />
-        {onFocus && !searchConversationQuery && suggestedData && (
-          <SearchSuggestions
-            recentQuestions={suggestedData.data.recent_questions}
-            roleBasedQuestions={suggestedData.data.role_based_questions}
-            onSuggestionClick={handleSuggestionClick}
-          />
-        )}
+        {onFocus &&
+          !searchConversationQuery &&
+          suggestedData &&
+          !isCreatingChat && (
+            <SearchSuggestions
+              recentQuestions={suggestedData.data.recent_questions}
+              roleBasedQuestions={suggestedData.data.role_based_questions}
+              onSuggestionClick={handleSuggestionClick}
+            />
+          )}
       </div>
     </div>
   );

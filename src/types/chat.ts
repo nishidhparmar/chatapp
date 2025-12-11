@@ -77,6 +77,7 @@ export interface ChatAskResponse {
   is_saved: boolean;
   chat_id: number;
   chat_title: string;
+  followup_questions: string[];
 }
 
 export interface ChatListItem {

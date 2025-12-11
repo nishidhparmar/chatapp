@@ -31,7 +31,6 @@ import {
   WEEK_DAYS,
 } from '../../lib/utils/helper';
 import type { CreateSchedulePayload, ScheduleListItem } from '@/types/schedule';
-import WhatsApp from '../icons/Whatsapp';
 import { useCurrentUser } from '../../hooks/use-current-user';
 import TimeCombobox from './time-combobox';
 import { Button } from '../ui/button';
@@ -88,7 +87,7 @@ const ScheduleModal = (props: ScheduleModalProps) => {
 
   const [afterTimes, setAfterTimes] = useState(30);
   const [selectedDays, setSelectedDays] = useState<string[]>(['monday']);
-  const [monthlyOption, setMonthlyOption] = useState('same-date');
+  const [monthlyDate, setMonthlyDate] = useState(1); // Store the day of month (1-31)
   const [notifyChannels, setNotifyChannels] = useState<('in_app' | 'email')[]>(
     []
   );
@@ -105,7 +104,11 @@ const ScheduleModal = (props: ScheduleModalProps) => {
       }
 
       if (scheduleData.frequency_type === 'monthly' && scheduleData.repeat_on) {
-        setMonthlyOption(scheduleData.repeat_on);
+        // Parse the monthly date from repeat_on (expecting a number string like "15")
+        const dateNum = parseInt(scheduleData.repeat_on);
+        if (!isNaN(dateNum) && dateNum >= 1 && dateNum <= 31) {
+          setMonthlyDate(dateNum);
+        }
       }
 
       if (
@@ -138,7 +141,7 @@ const ScheduleModal = (props: ScheduleModalProps) => {
       setRepeatUnit('daily');
       setTime('9:00 AM');
       setSelectedDays(['monday']);
-      setMonthlyOption('same-date');
+      setMonthlyDate(1);
       setNotifyChannels([]);
       setEnds('never');
       setEndDate(undefined);
@@ -194,7 +197,7 @@ const ScheduleModal = (props: ScheduleModalProps) => {
     if (repeatUnit === 'weekly') {
       basePayload.repeat_on = selectedDays.join(',');
     } else if (repeatUnit === 'monthly') {
-      basePayload.repeat_on = monthlyOption;
+      basePayload.repeat_on = monthlyDate.toString();
     }
 
     if (ends === 'on' && endDate) {
@@ -278,23 +281,35 @@ const ScheduleModal = (props: ScheduleModalProps) => {
           )}
 
           {repeatUnit === 'monthly' && (
-            <div className=''>
-              <Select value={monthlyOption} onValueChange={setMonthlyOption}>
-                <SelectTrigger className='w-full !h-11'>
-                  <SelectValue placeholder='Select monthly option' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='same-date'>
-                    On the same date each month
-                  </SelectItem>
-                  <SelectItem value='same-weekday'>
-                    On the same weekday each month
-                  </SelectItem>
-                  <SelectItem value='last-day'>
-                    On the last day of the month
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <div className='grid grid-cols-4 gap-2 items-center justify-between'>
+              <div className='text-sm text-neutral-ct-primary col-span-1'>
+                On day
+              </div>
+              <div className='col-span-3'>
+                <Select
+                  value={monthlyDate.toString()}
+                  onValueChange={value => setMonthlyDate(parseInt(value))}
+                >
+                  <SelectTrigger className='w-full !h-11'>
+                    <SelectValue placeholder='Select day of month' />
+                  </SelectTrigger>
+                  <SelectContent className='max-h-60'>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                      <SelectItem key={day} value={day.toString()}>
+                        {day}
+                        {day === 1
+                          ? 'st'
+                          : day === 2
+                            ? 'nd'
+                            : day === 3
+                              ? 'rd'
+                              : 'th'}{' '}
+                        of each month
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
 
@@ -408,45 +423,6 @@ const ScheduleModal = (props: ScheduleModalProps) => {
               Get updates (optional)
             </div>
             <div className='mt-3 space-y-2'>
-              {/* WhatsApp Channel */}
-              <div
-                className={`p-3 text-xs rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-colors ${
-                  notifyChannels.includes('in_app')
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-neutral-secondary hover:bg-neutral-tertiary'
-                }`}
-                onClick={() => {
-                  setNotifyChannels(prev =>
-                    prev.includes('in_app')
-                      ? prev.filter(channel => channel !== 'in_app')
-                      : [...prev, 'in_app']
-                  );
-                }}
-              >
-                <div className='flex items-center gap-2'>
-                  <WhatsApp size={16} />
-                  <p className='font-semibold text-neutral-ct-primary'>
-                    WhatsApp
-                  </p>
-                  <p className='text-neutral-ct-disabled'>+16472198232</p>
-                </div>
-                {notifyChannels.includes('in_app') && (
-                  <div className='w-5 h-5 rounded-full bg-green-500 flex items-center justify-center'>
-                    <svg
-                      className='w-3 h-3 text-white'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-
               {/* Email Channel */}
               <div
                 className={`p-3 text-xs rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-colors ${

@@ -12,6 +12,7 @@ import { Button } from '../../ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProvideFeedbackModal from '../../invoice/provice-feedback-modal';
+import FollowUpQuestions from './follow-up-questions';
 
 interface MessageListProps {
   messages: ChatDetailMessage[];
@@ -20,6 +21,9 @@ interface MessageListProps {
   showFeedback?: boolean;
   chatId?: number;
   onOpenDashboardView?: (dashboardId: number) => void;
+  followUpQuestions?: string[];
+  onFollowUpQuestionClick?: (question: string) => void;
+  isLoadingFollowUp?: boolean;
 }
 
 const MessageList = ({
@@ -29,6 +33,9 @@ const MessageList = ({
   showFeedback = false,
   chatId,
   onOpenDashboardView,
+  followUpQuestions = [],
+  onFollowUpQuestionClick,
+  isLoadingFollowUp = false,
 }: MessageListProps) => {
   const { user } = useUserStore();
   const displayName = getDisplayName(user);
@@ -49,11 +56,15 @@ const MessageList = ({
   return (
     <>
       <div className={className}>
-        {messages.map(message => {
+        {messages.map((message, index) => {
           const isLastAiMessage =
             showFeedback &&
             message.sender === 'assistant' &&
             message.message_id === lastAiMessage?.message_id;
+
+          const isLastMessage = index === messages.length - 1;
+          const isLastAssistantMessage =
+            message.sender === 'assistant' && isLastMessage;
 
           if (message.sender === 'user') {
             return (
@@ -81,25 +92,33 @@ const MessageList = ({
               <div className='flex-1'>
                 <div className='flex items-center gap-2'>
                   <Aichat className='shrink-0 md:hidden block' />
-                  <p className='text-neutral-900 text-sm mt-0.5'>
-                    {message.text}
-                  </p>
+                  {showInvoiceView && message.chart_content && (
+                    <div>
+                      <InvoiceView
+                        title={message.text}
+                        defaultView={
+                          message.chart_content.type as VisualizationType
+                        }
+                        data={message}
+                        chatId={chatId}
+                        onOpenDashboardView={onOpenDashboardView}
+                      />
+                    </div>
+                  )}
                 </div>
-
+                <p className='text-neutral-900 text-sm  mt-6'>{message.text}</p>
                 {/* Render InvoiceView if chart_content exists and showInvoiceView is true */}
-                {showInvoiceView && message.chart_content && (
-                  <div className='mt-6'>
-                    <InvoiceView
-                      title={message.text}
-                      defaultView={
-                        message.chart_content.type as VisualizationType
-                      }
-                      data={message}
-                      chatId={chatId}
-                      onOpenDashboardView={onOpenDashboardView}
+
+                {/* Follow-up questions - Show only on last assistant message */}
+                {isLastAssistantMessage &&
+                  followUpQuestions.length > 0 &&
+                  onFollowUpQuestionClick && (
+                    <FollowUpQuestions
+                      questions={followUpQuestions}
+                      onQuestionClick={onFollowUpQuestionClick}
+                      isLoading={isLoadingFollowUp}
                     />
-                  </div>
-                )}
+                  )}
 
                 {/* Feedback and Actions - Show only on last AI message */}
                 {isLastAiMessage && (

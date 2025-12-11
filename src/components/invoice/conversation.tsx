@@ -10,12 +10,19 @@ import { useChatAsk } from '../../hooks/mutations';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/common/loading';
+import BubbleLoader from '../common/message/bubble-loader';
+import { ChatDetailMessage } from '../../types/chat';
 
 const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
   const { data, isLoading, isError, refetch } = useGetChatById(Number(chatId));
   const { mutate, isPending } = useChatAsk();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [optimisticMessages, setOptimisticMessages] = useState<
+    ChatDetailMessage[]
+  >([]);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [openSaveChatModal, setOpenChatModal] = useState<{
     visible: boolean;
     id: number;
@@ -30,10 +37,32 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
 
   useEffect(() => {
     scrollToBottom();
+  }, [data?.data?.messages, optimisticMessages, isWaitingForResponse]);
+
+  // Reset optimistic messages when real messages update
+  useEffect(() => {
+    if (data?.data?.messages) {
+      setOptimisticMessages([]);
+      setIsWaitingForResponse(false);
+    }
   }, [data?.data?.messages]);
 
   const handleSendMessage = (message: string) => {
     if (!message.trim()) return;
+
+    // Create optimistic user message
+    const optimisticUserMessage: ChatDetailMessage = {
+      message_id: Date.now(), // Temporary ID
+      text: message.trim(),
+      sender: 'user',
+      created_at: new Date().toISOString(),
+    };
+
+    // Add optimistic message and show loading state
+    setOptimisticMessages([optimisticUserMessage]);
+    setIsWaitingForResponse(true);
+    // Clear previous follow-up questions when sending new message
+    setFollowUpQuestions([]);
 
     mutate(
       {
@@ -42,11 +71,19 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
         mode: 'conversational',
       },
       {
-        onSuccess: () => {
+        onSuccess: response => {
+          // Store follow-up questions from the response
+          if (response.data?.followup_questions) {
+            setFollowUpQuestions(response.data.followup_questions);
+          }
           refetch();
         },
         onError: error => {
           console.error('Failed to send message:', error);
+          // Reset optimistic state on error
+          setOptimisticMessages([]);
+          setIsWaitingForResponse(false);
+          setFollowUpQuestions([]);
         },
       }
     );
@@ -76,6 +113,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   }
 
   const messages = data.data.messages;
+  const displayMessages = [...messages, ...optimisticMessages];
 
   return (
     <DashboardLayout>
@@ -93,7 +131,18 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
         )}
 
         <div className='flex-1 overflow-y-auto'>
-          <MessageList messages={messages} />
+          <MessageList
+            messages={displayMessages}
+            chatId={chatId}
+            followUpQuestions={followUpQuestions}
+            onFollowUpQuestionClick={handleSendMessage}
+            isLoadingFollowUp={isPending}
+          />
+          {isWaitingForResponse && (
+            <div className='max-w-[758px] mx-auto w-full space-y-6 py-6 px-4'>
+              <BubbleLoader />
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 

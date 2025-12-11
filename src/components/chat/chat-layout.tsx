@@ -13,6 +13,8 @@ import { ChatDetailMessage } from '../../types/chat';
 import DashboardView from '../reports/dashboard-view';
 import ChatDataView from './chat-data-view';
 import Loading from '../common/loading';
+import BubbleLoader from '../common/message/bubble-loader';
+import { useSearchParams } from 'next/navigation';
 
 interface ChatLayoutProps {
   title?: string;
@@ -24,6 +26,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const [optimisticMessages, setOptimisticMessages] = useState<
+    ChatDetailMessage[]
+  >([]);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [dashboardView, setDashboardView] = useState<{
     dashboardId: number | null;
     visible: boolean;
@@ -50,17 +58,40 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const handleSendMessage = async (message: string) => {
     if (!activeChat || !message.trim()) return;
 
+    // Create optimistic user message
+    const optimisticUserMessage: ChatDetailMessage = {
+      message_id: Date.now(), // Temporary ID
+      text: message.trim(),
+      sender: 'user',
+      created_at: new Date().toISOString(),
+    };
+
+    // Add optimistic message and show loading state
+    setOptimisticMessages([optimisticUserMessage]);
+    setIsWaitingForResponse(true);
+    // Clear previous follow-up questions when sending new message
+    setFollowUpQuestions([]);
+
     try {
-      await chatAskMutation.mutateAsync({
+      const response = await chatAskMutation.mutateAsync({
         chat_id: Number(activeChat),
         text: message.trim(),
         mode: 'conversational',
       });
 
+      // Store follow-up questions from the response
+      if (response.data?.followup_questions) {
+        setFollowUpQuestions(response.data.followup_questions);
+      }
+
       // Refetch chat details to get the updated messages
       queryClient.invalidateQueries({ queryKey: ['chat', Number(activeChat)] });
     } catch (error) {
       console.error('Failed to send message:', error);
+      // Reset optimistic state on error
+      setOptimisticMessages([]);
+      setIsWaitingForResponse(false);
+      setFollowUpQuestions([]);
     }
   };
 
@@ -70,7 +101,30 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
 
   useEffect(() => {
     scrollToBottom();
+  }, [chatDetails?.data?.messages, optimisticMessages, isWaitingForResponse]);
+
+  // Reset optimistic messages when real messages update or chat changes
+  useEffect(() => {
+    if (chatDetails?.data?.messages) {
+      setOptimisticMessages([]);
+      setIsWaitingForResponse(false);
+    }
   }, [chatDetails?.data?.messages]);
+
+  // Clear optimistic messages and follow-up questions when switching chats
+  useEffect(() => {
+    setOptimisticMessages([]);
+    setIsWaitingForResponse(false);
+    setFollowUpQuestions([]);
+  }, [activeChat]);
+
+  // Auto-select chat based on query parameter
+  useEffect(() => {
+    const chatId = searchParams.get('id');
+    if (chatId && !activeChat) {
+      setActiveChat(chatId);
+    }
+  }, [searchParams, activeChat]);
 
   const handleOpenDashboardView = (dashboardId: number) => {
     setDashboardView({
@@ -133,15 +187,28 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
                           <Loading />
                         </div>
                       ) : (
-                        <MessageList
-                          messages={
-                            chatDetails?.data.messages as ChatDetailMessage[]
-                          }
-                          chatId={Number(activeChat)}
-                          onOpenDashboardView={handleOpenDashboardView}
-                        />
+                        <>
+                          <MessageList
+                            messages={[
+                              ...(chatDetails?.data
+                                .messages as ChatDetailMessage[]),
+                              ...optimisticMessages,
+                            ]}
+                            chatId={Number(activeChat)}
+                            onOpenDashboardView={handleOpenDashboardView}
+                            followUpQuestions={followUpQuestions}
+                            onFollowUpQuestionClick={handleSendMessage}
+                            isLoadingFollowUp={chatAskMutation.isPending}
+                          />
+
+                          {isWaitingForResponse && (
+                            <div className='max-w-[758px] mx-auto w-full space-y-6 py-6 px-4'>
+                              <BubbleLoader />
+                            </div>
+                          )}
+                        </>
                       )}
-                      {/* <div ref={messagesEndRef} /> */}
+                      <div ref={messagesEndRef} />
                     </div>
 
                     {/* Send input - Fixed at bottom */}

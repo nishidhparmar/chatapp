@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { TIMES } from '../../lib/utils/helper';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import Input from '../ui/input';
@@ -20,20 +21,7 @@ function TimeCombobox({ value, onChange }: TimeComboboxProps) {
       <PopoverTrigger asChild>
         <button className='flex col-span-3 w-full items-center justify-between h-11 px-3 rounded-md border border-neutral-br-primary text-sm text-neutral-ct-primary'>
           {value || 'Select time'}
-          <svg
-            className='size-4 opacity-50'
-            viewBox='0 0 24 24'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              d='M6 9l6 6 6-6'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          </svg>
+          <ChevronDown className='size-4 opacity-50' />
         </button>
       </PopoverTrigger>
       <PopoverContent align='start' className='p-0 w-64'>
@@ -45,7 +33,13 @@ function TimeCombobox({ value, onChange }: TimeComboboxProps) {
             className='h-9'
           />
         </div>
-        <div className='max-h-56 overflow-y-auto p-1'>
+        <div
+          className='max-h-56 overflow-y-auto p-1 focus:outline-none'
+          tabIndex={0}
+          onWheel={e => {
+            e.stopPropagation();
+          }}
+        >
           {filtered.map(t => (
             <button
               key={t}
