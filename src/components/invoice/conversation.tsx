@@ -56,6 +56,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
       text: message.trim(),
       sender: 'user',
       created_at: new Date().toISOString(),
+      title: '',
     };
 
     // Add optimistic message and show loading state

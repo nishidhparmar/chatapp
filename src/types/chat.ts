@@ -61,6 +61,7 @@ export interface ChatDetailMessage {
   chart_content?: ChartContentData;
   created_at: string;
   visualization_type?: VisualizationType;
+  title: string;
 }
 
 export interface ChatDetail {
