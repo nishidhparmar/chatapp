@@ -1,39 +1,123 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Download } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { cn } from '../../../lib/utils';
-import { Jpeg, Pdf, Png, Svg } from '../../icons';
+import { Jpeg, Pdf } from '../../icons';
 import { MenuItemProps } from './types';
+import domtoimage from 'dom-to-image';
+import jsPDF from 'jspdf';
+import FileSaver from 'file-saver';
 
 interface DownloadPopoverProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  contentRef: React.RefObject<HTMLDivElement | null>;
+  title?: string;
 }
 
 const DownloadPopover: React.FC<DownloadPopoverProps> = ({
   open,
   onOpenChange,
+  contentRef,
+  title = 'chart',
 }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const downloadAsJPEG = useCallback(async () => {
+    if (!contentRef.current) return;
+
+    setIsDownloading(true);
+    try {
+      const dataUrl = await domtoimage.toJpeg(contentRef.current, {
+        quality: 0.8,
+        bgcolor: '#ffffff',
+        width: contentRef.current.offsetWidth * 2,
+        height: contentRef.current.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+        },
+      });
+
+      // Convert data URL to blob and download
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+
+      FileSaver.saveAs(
+        blob,
+        `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpeg`
+      );
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error downloading JPEG:', error);
+      alert('Failed to download chart as JPEG. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [contentRef, title, onOpenChange]);
+
+  const downloadAsPDF = useCallback(async () => {
+    if (!contentRef.current) return;
+
+    setIsDownloading(true);
+    try {
+      const dataUrl = await domtoimage.toPng(contentRef.current, {
+        bgcolor: '#ffffff',
+        width: contentRef.current.offsetWidth * 2,
+        height: contentRef.current.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+        },
+      });
+
+      const pdf = new jsPDF();
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+
+      // Calculate image dimensions
+      const img = new Image();
+      img.onload = () => {
+        const imgHeight = (img.height * imgWidth) / img.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        // Add first page
+        pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // Add additional pages if needed
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save(`${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+      };
+      img.src = dataUrl;
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download chart as PDF. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [contentRef, title, onOpenChange]);
+
   const downloadMenuItems: MenuItemProps[] = [
-    {
-      title: 'SVG',
-      icon: <Svg />,
-      onClick: () => {},
-    },
-    {
-      title: 'PNG',
-      icon: <Png />,
-      onClick: () => {},
-    },
     {
       title: 'JPEG',
       icon: <Jpeg />,
-      onClick: () => {},
+      onClick: downloadAsJPEG,
     },
     {
       title: 'PDF',
       icon: <Pdf />,
-      onClick: () => {},
+      onClick: downloadAsPDF,
     },
   ];
 
@@ -56,6 +140,7 @@ const DownloadPopover: React.FC<DownloadPopoverProps> = ({
             className='w-full flex cursor-pointer items-center gap-2 px-3 py-2.5 hover:bg-neutral-secondary rounded-md transition-colors text-sm text-neutral-ct-primary disabled:opacity-50 disabled:cursor-not-allowed'
             onClick={item.onClick}
             type='button'
+            disabled={isDownloading}
           >
             <span className='text-neutral-ct-secondary flex items-center'>
               {item.icon}

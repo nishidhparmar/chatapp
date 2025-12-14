@@ -8,6 +8,7 @@ import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
 import Loading from '@/components/common/loading';
+import { SearchTab } from '../common';
 
 const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
@@ -50,17 +51,22 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   return (
     <DashboardLayout>
       <div className='bg-transparent'>
-        {!data.data.is_saved && (
-          <div className='bg-white flex items-center justify-end px-4 py-3 h-14 flex-shrink-0'>
-            <Button
-              className='text-xs py-2 px-4'
-              onClick={() => setOpenChatModal({ visible: true, id: chatId })}
-            >
-              Save
-            </Button>
+        <div className='flex items-center bg-white p-3 gap-2'>
+          <div className='md:flex-1'></div>
+          <div className='flex justify-cente max-w-[758px]  w-full'>
+            <SearchTab className='w-full max-w-[758px]' />
           </div>
-        )}
-
+          {!data.data.is_saved && (
+            <div className='md:flex-1 flex items-center justify-end'>
+              <Button
+                className='text-xs py-2 px-4'
+                onClick={() => setOpenChatModal({ visible: true, id: chatId })}
+              >
+                Save
+              </Button>
+            </div>
+          )}
+        </div>
         <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
           <div className='mt-8'>
             <MessageList

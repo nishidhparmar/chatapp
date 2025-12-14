@@ -8,6 +8,7 @@ import DownloadPopover from './download-popover';
 import MaximizePopover from './maximize-popover';
 import DeleteChart from './delete-chart';
 import { VisualizationType } from './types';
+import { ChatDetailMessage } from '../../../types/chat';
 
 interface ToolbarProps {
   // View As props
@@ -28,10 +29,12 @@ interface ToolbarProps {
   // Copy props
   openCopyPopover: boolean;
   setOpenCopyPopover: (open: boolean) => void;
+  chartContent?: ChatDetailMessage['chart_content']; // Chart data to copy
 
   // Download props
   openDownloadPopover: boolean;
   setOpenDownloadPopover: (open: boolean) => void;
+  title?: string;
 
   // Maximize props
   openMaximizePopover: boolean;
@@ -61,8 +64,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
   hideAddToDashboard,
   openCopyPopover,
   setOpenCopyPopover,
+  chartContent,
   openDownloadPopover,
   setOpenDownloadPopover,
+  title,
   openMaximizePopover,
   setOpenMaximizePopover,
   contentRef,
@@ -92,11 +97,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
         hideAddToDashboard={hideAddToDashboard}
       />
 
-      <CopyPopover open={openCopyPopover} onOpenChange={setOpenCopyPopover} />
+      <CopyPopover
+        open={openCopyPopover}
+        onOpenChange={setOpenCopyPopover}
+        chartContent={chartContent}
+      />
 
       <DownloadPopover
         open={openDownloadPopover}
         onOpenChange={setOpenDownloadPopover}
+        contentRef={contentRef}
+        title={title}
       />
 
       <MaximizePopover

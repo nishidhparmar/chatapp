@@ -50,7 +50,8 @@ const ScheduleRecurring = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setShowSuggestions(value.trim().length > 0);
+    // Always show suggestions when input is focused
+    setShowSuggestions(true);
   };
 
   const handleScheduleSelect = (schedule: ScheduleListItem) => {
@@ -127,7 +128,7 @@ const ScheduleRecurring = ({
                   placeholder='Search existing schedules...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+                  onFocus={() => setShowSuggestions(true)}
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
