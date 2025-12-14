@@ -142,7 +142,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
           setOpenMaximizePopover={setOpenMaximizePopover}
           contentRef={contentRef}
           hideExtentView={hideExtentView}
-          onFullscreenOpen={() => setOpenFullscreenModal(true)}
+          // onFullscreenOpen={() => setOpenFullscreenModal(true)}
           showDelete={showDelete}
           openDeleteModal={openDeleteModal}
           setOpenDeleteModal={setOpenDeleteModal}
