@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Clock, Trash2 } from 'lucide-react';
+import { Plus, Clock, Trash2, SquarePen } from 'lucide-react';
 import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';
@@ -9,9 +9,12 @@ import { Edit, Play, Stop } from '../icons';
 import ScheduleModal from './schedule-modal';
 import { Button } from '../ui/button';
 import DeleteRecurrence from './delete-recurrence';
+import EditQuestionsModal from './edit-questions-modal';
 import { useCreateSchedule } from '../../hooks/mutations/schedule/use-create-schedule';
 import { useUpdateSchedule } from '../../hooks/mutations/schedule/use-update-schedule';
 import { useDeleteSchedule } from '../../hooks/mutations/schedule/use-delete-schedule';
+import { useUpdateScheduleStatus } from '../../hooks/mutations/schedule/use-update-schedule-status';
+import { useUpdateScheduleQuestions } from '../../hooks/mutations/schedule/use-update-schedule-questions';
 import { useGetScheduleById } from '../../hooks/queries/schedule/use-get-schedule-by-id';
 import type {
   CreateSchedulePayload,
@@ -25,6 +28,8 @@ const Schedule = () => {
   const createScheduleMutation = useCreateSchedule();
   const updateScheduleMutation = useUpdateSchedule();
   const deleteScheduleMutation = useDeleteSchedule();
+  const updateScheduleStatusMutation = useUpdateScheduleStatus();
+  const updateScheduleQuestionsMutation = useUpdateScheduleQuestions();
   const { data: schedules, isLoading: isLoadingSchedules } = useGetSchedules();
 
   const [newQuestions, setNewQuestions] = useState(['']);
@@ -35,6 +40,9 @@ const Schedule = () => {
     null
   );
   const [scheduleToDelete, setScheduleToDelete] = useState<number | null>(null);
+  const [editQuestionsModalOpen, setEditQuestionsModalOpen] = useState(false);
+  const [editingQuestionsSchedule, setEditingQuestionsSchedule] =
+    useState<ScheduleListItem | null>(null);
 
   // Get schedule details when editing
   const { data: scheduleDetails } = useGetScheduleById(
@@ -167,11 +175,20 @@ const Schedule = () => {
     }
   };
 
-  // const handleTogglePause = (id: number) => {
-  //   setQuestions(
-  //     questions.map(q => (q.id === id ? { ...q, isPaused: !q.isPaused } : q))
-  //   );
-  // };
+  // Handle toggle pause/resume
+  const handleToggleStatus = async (
+    scheduleId: number,
+    currentStatus: boolean
+  ) => {
+    try {
+      await updateScheduleStatusMutation.mutateAsync({
+        scheduleId,
+        isActive: !currentStatus,
+      });
+    } catch (error) {
+      console.error('Failed to update schedule status:', error);
+    }
+  };
 
   const handleEdit = (id: number) => {
     setEditingScheduleId(id);
@@ -202,6 +219,34 @@ const Schedule = () => {
   const handleDeleteCancel = () => {
     setOpenDeleteRecurrence(false);
     setScheduleToDelete(null);
+  };
+
+  // Handle edit questions
+  const handleEditQuestions = (schedule: ScheduleListItem) => {
+    setEditingQuestionsSchedule(schedule);
+    setEditQuestionsModalOpen(true);
+  };
+
+  // Handle save questions
+  const handleSaveQuestions = async (questions: string[]) => {
+    if (!editingQuestionsSchedule) return;
+
+    try {
+      await updateScheduleQuestionsMutation.mutateAsync({
+        scheduleId: editingQuestionsSchedule.schedule_id,
+        questions,
+      });
+      setEditQuestionsModalOpen(false);
+      setEditingQuestionsSchedule(null);
+    } catch (error) {
+      console.error('Failed to update questions:', error);
+    }
+  };
+
+  // Handle edit questions modal close
+  const handleEditQuestionsCancel = () => {
+    setEditQuestionsModalOpen(false);
+    setEditingQuestionsSchedule(null);
   };
 
   return (
@@ -320,30 +365,45 @@ const Schedule = () => {
                     </div>
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
                       <button
-                        onClick={() => handleDeleteClick(item.schedule_id)}
-                        className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
-                        title='Delete'
-                        aria-label='Delete'
+                        onClick={() =>
+                          handleToggleStatus(item.schedule_id, item.is_active)
+                        }
+                        className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
+                        title={item.is_active ? 'Pause' : 'Resume'}
+                        aria-label={item.is_active ? 'Pause' : 'Resume'}
+                        disabled={updateScheduleStatusMutation.isPending}
                       >
-                        <Trash2 size={16} className='sm:w-4 sm:h-4' />
+                        {!item.is_active ? (
+                          <Stop size={18} className='sm:w-[18px] sm:h-[18px]' />
+                        ) : (
+                          <Play size={18} className='sm:w-[18px] sm:h-[18px]' />
+                        )}
                       </button>
                       <button
-                        // onClick={() => handleTogglePause(item.id)}
-                        className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
-                        title={item.is_active ? 'Resume' : 'Pause'}
-                        aria-label={item.is_active ? 'Resume' : 'Pause'}
+                        onClick={() => handleEditQuestions(item)}
+                        className='p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                        title='Edit Questions'
+                        aria-label='Edit Questions'
                       >
-                        {item.is_active ? (
-                          <Play size={18} className='sm:w-[18px] sm:h-[18px]' />
-                        ) : (
-                          <Stop size={18} className='sm:w-[18px] sm:h-[18px]' />
-                        )}
+                        <SquarePen size={16} className='sm:w-4 sm:h-4' />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(item.schedule_id)}
+                        className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                        title='Delete Schedule'
+                        aria-label='Delete Schedule'
+                      >
+                        <Trash2
+                          size={16}
+                          className='sm:w-4 sm:h-4'
+                          color='#75756F'
+                        />
                       </button>
                       <button
                         onClick={() => handleEdit(item.schedule_id)}
                         className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
-                        title='Edit'
-                        aria-label='Edit'
+                        title='Edit Schedule'
+                        aria-label='Edit Schedule'
                       >
                         <Edit size={16} className='sm:w-4 sm:h-4' />
                       </button>
@@ -389,6 +449,14 @@ const Schedule = () => {
         onOpenChange={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         isLoading={deleteScheduleMutation.isPending}
+      />
+      <EditQuestionsModal
+        open={editQuestionsModalOpen}
+        onOpenChange={handleEditQuestionsCancel}
+        questions={editingQuestionsSchedule?.questions || []}
+        onSave={handleSaveQuestions}
+        isLoading={updateScheduleQuestionsMutation.isPending}
+        title={editingQuestionsSchedule?.title || ''}
       />
     </DashboardLayout>
   );

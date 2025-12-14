@@ -60,7 +60,8 @@ const AddToDashboard = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setShowSuggestions(value.trim().length > 0);
+    // Always show suggestions when input is focused
+    setShowSuggestions(true);
 
     // Clear selections if user is typing and the value doesn't match selected items
     const selectedNames = selectedDashboards
@@ -233,9 +234,7 @@ const AddToDashboard = ({
                   placeholder='Search dashboards...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() =>
-                    setShowSuggestions(searchTerm.trim().length > 0)
-                  }
+                  onFocus={() => setShowSuggestions(true)}
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }

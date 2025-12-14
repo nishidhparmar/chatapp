@@ -51,8 +51,6 @@ const SearchTab = ({
     setSearchQuery(suggestion);
   };
 
-  console.log(isPending);
-
   return (
     <div className={cn('bg-white rounded-b-lg relative', className)}>
       <div className='relative'>

@@ -10,6 +10,8 @@ import Toolbar from './toolbar';
 import ViewRenderer from './view-renderer';
 import { showToast } from '../toast';
 import { AddToDashboardPayload } from '../../../types/dashboard';
+import { Dialog, DialogContent } from '../../ui/dialog';
+import { X } from 'lucide-react';
 
 const InvoiceView: React.FC<InvoiceViewProps> = ({
   data,
@@ -38,6 +40,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   const [openScheduleRecurringModal, setOpenScheduleRecurringModal] =
     useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openFullscreenModal, setOpenFullscreenModal] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { mutate: changeView, isPending: isChangingView } = useViewAs();
@@ -131,12 +134,15 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
           hideAddToDashboard={HideAddToDashboard}
           openCopyPopover={openCopyPopover}
           setOpenCopyPopover={setOpenCopyPopover}
+          chartContent={chartContent}
           openDownloadPopover={openDownloadPopover}
           setOpenDownloadPopover={setOpenDownloadPopover}
+          title={title}
           openMaximizePopover={openMaximizePopover}
           setOpenMaximizePopover={setOpenMaximizePopover}
           contentRef={contentRef}
           hideExtentView={hideExtentView}
+          // onFullscreenOpen={() => setOpenFullscreenModal(true)}
           showDelete={showDelete}
           openDeleteModal={openDeleteModal}
           setOpenDeleteModal={setOpenDeleteModal}
@@ -166,6 +172,36 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
         messageId={data?.message_id}
         title={title?.split(':').slice(1).join(':').split('.')[0].trim()}
       />
+
+      {/* Fullscreen Modal */}
+      <Dialog open={openFullscreenModal} onOpenChange={setOpenFullscreenModal}>
+        <DialogContent
+          className='max-w-none w-screen h-screen p-0 m-0 rounded-none border-none bg-white flex flex-col'
+          showCloseButton={false}
+        >
+          {/* Header with title and close button */}
+          <div className='flex items-center justify-between p-6 border-b border-neutral-br-disabled bg-white'>
+            <h3 className='text-xl font-semibold text-neutral-ct-primary'>
+              {title
+                ? title.split(':').slice(1).join(':').split('.')[0].trim()
+                : 'Chart View'}
+            </h3>
+            <button
+              onClick={() => setOpenFullscreenModal(false)}
+              className='h-8 w-8 cursor-pointer flex items-center justify-center text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md transition-colors'
+            >
+              <X className='w-4 h-4' />
+            </button>
+          </div>
+
+          {/* Content area with full height and centered content */}
+          <div className='flex-1 flex items-center justify-center p-6 bg-white overflow-auto'>
+            <div className='w-full h-full max-w-7xl'>
+              <ViewRenderer chartContent={chartContent} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

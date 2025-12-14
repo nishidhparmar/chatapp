@@ -42,7 +42,7 @@ const ChatDataView: React.FC<ChatDataViewProps> = ({
   }
 
   return (
-    <div className='grid lg:grid-cols-2 grid-cols-1 gap-4 p-6'>
+    <div className='grid lg:grid-cols-2 grid-cols-1 gap-4 p-6 overflow-auto'>
       {chartsData?.data.map(chart => {
         return (
           <InvoiceView
