@@ -106,7 +106,7 @@ const MessageList = ({
                     </div>
                   )}
                 </div>
-                <p className='text-neutral-900 text-sm  mt-6'>{message.text}</p>
+                {/* <p className='text-neutral-900 text-sm  mt-6'>{message.text}</p> */}
                 {/* Render InvoiceView if chart_content exists and showInvoiceView is true */}
 
                 {/* Follow-up questions - Show only on last assistant message */}
@@ -152,7 +152,8 @@ const MessageList = ({
                         onClick={() => router.push(`/conversations/${chatId}`)}
                         className='w-max'
                       >
-                        <Message /> Switch to Conversation Mode
+                        {/* <Message /> Switch to Conversation Mode */}
+                        <Message /> Ask follow up question
                       </Button>
                     )}
                   </div>
