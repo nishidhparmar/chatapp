@@ -15,6 +15,10 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
     const errorData = error.response?.data as ApiErrorResponse;
     const status = error.response?.status;
 
+    // Prioritize backend error message, then custom message, then fallback
+    const backendMessage = errorData?.message || errorData?.error;
+    const displayMessage = backendMessage || customMessage;
+
     // Handle different types of errors
     switch (status) {
       case 400:
@@ -23,13 +27,12 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
           const firstError = Object.values(errorData.errors)[0]?.[0];
           showToast.error({
             title: 'Validation Error',
-            description:
-              firstError || errorData.message || 'Invalid request data',
+            description: firstError || displayMessage || 'Invalid request data',
           });
         } else {
           showToast.error({
             title: 'Bad Request',
-            description: errorData?.message || 'Invalid request data',
+            description: displayMessage || 'Invalid request data',
           });
         }
         break;
@@ -38,7 +41,7 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         // Unauthorized - handled by axios interceptor, but show toast if needed
         showToast.error({
           title: 'Authentication Required',
-          description: 'Please log in to continue',
+          description: displayMessage || 'Please log in to continue',
         });
         break;
 
@@ -47,7 +50,7 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         showToast.error({
           title: 'Access Denied',
           description:
-            errorData?.message ||
+            displayMessage ||
             'You do not have permission to perform this action',
         });
         break;
@@ -56,8 +59,7 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         // Not Found
         showToast.error({
           title: 'Not Found',
-          description:
-            errorData?.message || 'The requested resource was not found',
+          description: displayMessage || 'The requested resource was not found',
         });
         break;
 
@@ -66,7 +68,7 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         showToast.error({
           title: 'Conflict',
           description:
-            errorData?.message || 'A conflict occurred with the current state',
+            displayMessage || 'A conflict occurred with the current state',
         });
         break;
 
@@ -77,12 +79,12 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
           showToast.error({
             title: 'Validation Failed',
             description:
-              firstError || errorData.message || 'Please check your input',
+              firstError || displayMessage || 'Please check your input',
           });
         } else {
           showToast.error({
             title: 'Validation Failed',
-            description: errorData?.message || 'Please check your input',
+            description: displayMessage || 'Please check your input',
           });
         }
         break;
@@ -91,7 +93,8 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         // Too Many Requests
         showToast.error({
           title: 'Rate Limited',
-          description: 'Too many requests. Please try again later',
+          description:
+            displayMessage || 'Too many requests. Please try again later',
         });
         break;
 
@@ -100,6 +103,7 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         showToast.error({
           title: 'Server Error',
           description:
+            displayMessage ||
             'An internal server error occurred. Please try again later',
         });
         break;
@@ -111,18 +115,16 @@ export const handleApiError = (error: unknown, customMessage?: string) => {
         showToast.error({
           title: 'Service Unavailable',
           description:
+            displayMessage ||
             'The service is temporarily unavailable. Please try again later',
         });
         break;
 
       default:
-        // Generic error
+        // Generic error - prioritize backend message over custom message
         showToast.error({
           title: 'Request Failed',
-          description:
-            customMessage ||
-            errorData?.message ||
-            'An unexpected error occurred',
+          description: displayMessage || 'An unexpected error occurred',
         });
     }
   } else if (error instanceof Error) {
@@ -156,12 +158,21 @@ export const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
     const errorData = error.response?.data as ApiErrorResponse;
 
-    if (errorData?.errors) {
-      const firstError = Object.values(errorData.errors)[0]?.[0];
-      return firstError || errorData.message || 'An error occurred';
+    // Prioritize backend message
+    if (errorData?.message) {
+      return errorData.message;
     }
 
-    return errorData?.message || error.message || 'An error occurred';
+    if (errorData?.error) {
+      return errorData.error;
+    }
+
+    if (errorData?.errors) {
+      const firstError = Object.values(errorData.errors)[0]?.[0];
+      return firstError || 'Validation error occurred';
+    }
+
+    return error.message || 'An error occurred';
   }
 
   if (error instanceof Error) {

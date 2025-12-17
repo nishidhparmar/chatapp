@@ -47,10 +47,6 @@ const SearchTab = ({
     setSearchQuery(suggestion);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-  };
-
   return (
     <div className={cn('bg-white rounded-b-lg relative', className)}>
       <div className='relative'>
@@ -89,7 +85,7 @@ const SearchTab = ({
           <SearchSuggestions
             recentQuestions={suggestedData.data.recent_questions}
             roleBasedQuestions={suggestedData.data.role_based_questions}
-            onSuggestionClick={handleSuggestionClick}
+            onSuggestionClick={handleSearchClick}
           />
         )}
       </div>

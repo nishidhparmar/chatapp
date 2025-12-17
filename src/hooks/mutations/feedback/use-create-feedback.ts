@@ -15,5 +15,13 @@ export function useCreateFeedback() {
         description: 'Thank you for your feedback! We appreciate your input.',
       });
     },
+    onError: (error: unknown) => {
+      console.error('Create feedback error:', error);
+      showToast.error({
+        title: 'Failed to submit feedback',
+        description:
+          'There was an error submitting your feedback. Please try again.',
+      });
+    },
   });
 }

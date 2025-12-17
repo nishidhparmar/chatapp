@@ -15,15 +15,6 @@ showToast.error({
   description: 'Unable to save the chat. Please try again.',
 });
 
-// For loading states:
-const loadingToast = showToast.loading({
-  title: 'Saving chat...',
-  description: 'Please wait while we save your chat.',
-});
-
-// Later dismiss the loading toast:
-// toast.dismiss(loadingToast);
-
 // Other examples:
 showToast.info({
   title: 'Information',

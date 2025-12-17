@@ -33,12 +33,21 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
     );
   }
 
+  // Determine if scrolling is needed
+  const needsVerticalScroll = tableData.length > 7;
+  const needsHorizontalScroll = columns.length > 5;
+
+  // Calculate max height for vertical scroll (approximately 7 rows + header)
+  const maxHeight = needsVerticalScroll ? 'max-h-[400px]' : '';
+
   return (
     <>
       {/* Desktop Table View */}
-      <div className='hidden md:block overflow-x-auto border bg-white rounded border-neutral-br-disabled'>
+      <div
+        className={`hidden md:block border bg-white rounded border-neutral-br-disabled ${needsHorizontalScroll ? 'overflow-x-auto' : ''} ${needsVerticalScroll ? 'overflow-y-auto' : ''} ${maxHeight}`}
+      >
         <table className='w-full'>
-          <thead>
+          <thead className='sticky top-0 bg-white z-10'>
             <tr className='bg-neutral-disabled text-neutral-ct-primary text-xs font-semibold'>
               {columns.map((column, index) => (
                 <th key={index} className='px-3 py-2 text-left'>
@@ -54,7 +63,7 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
                 className='hover:bg-gray-50 transition-colors text-sm font-normal'
               >
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className='px-3 py-4.5'>
+                  <td key={colIndex} className='px-3 py-2 whitespace-nowrap'>
                     {formatCellValue(row[column])}
                   </td>
                 ))}
@@ -65,7 +74,9 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
       </div>
 
       {/* Mobile Card View */}
-      <div className='md:hidden space-y-3'>
+      <div
+        className={`md:hidden space-y-3 ${tableData.length > 7 ? 'max-h-[500px] overflow-y-auto' : ''}`}
+      >
         {tableData.map((row, rowIndex) => (
           <div
             key={rowIndex}
@@ -77,7 +88,7 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
                   <div className='text-xs text-neutral-ct-secondary mb-1'>
                     {formatColumnHeader(column)}
                   </div>
-                  <div className='text-sm font-semibold text-neutral-ct-primary'>
+                  <div className='text-sm font-semibold text-neutral-ct-primary break-words'>
                     {formatCellValue(row[column])}
                   </div>
                 </div>

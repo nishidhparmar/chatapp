@@ -24,6 +24,11 @@ export function useCreateSchedule() {
     },
     onError: (error: unknown) => {
       console.error('Create schedule error:', error);
+      showToast.error({
+        title: 'Failed to create schedule',
+        description:
+          'There was an error creating the schedule. Please try again.',
+      });
     },
   });
 }

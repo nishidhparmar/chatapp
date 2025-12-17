@@ -129,65 +129,64 @@ const Schedule = () => {
   };
 
   // Handle schedule creation
-  const handleScheduleCreate = async (payload: CreateSchedulePayload) => {
-    try {
-      await createScheduleMutation.mutateAsync(payload);
-
-      // Reset state
-      setNewQuestions(['']);
-      setScheduleModalOpen(false);
-      setError('');
-    } catch (error) {
-      console.error('Failed to create schedule:', error);
-      setError('Failed to create schedule. Please try again.');
-    }
+  const handleScheduleCreate = (payload: CreateSchedulePayload) => {
+    createScheduleMutation.mutate(payload, {
+      onSuccess: () => {
+        // Reset state
+        setNewQuestions(['']);
+        setScheduleModalOpen(false);
+        setError('');
+      },
+      onError: error => {
+        console.error('Failed to create schedule:', error);
+        setError('Failed to create schedule. Please try again.');
+      },
+    });
   };
 
   // Handle schedule update
-  const handleScheduleUpdate = async (payload: CreateSchedulePayload) => {
-    try {
-      if (!editingScheduleId) return;
+  const handleScheduleUpdate = (payload: CreateSchedulePayload) => {
+    if (!editingScheduleId) return;
 
-      const updatePayload: UpdateSchedulePayload = {
-        title: payload.title,
-        questions: payload.questions,
-        frequency_type: payload.frequency_type,
-        frequency_value: payload.frequency_value,
-        repeat_at: payload.repeat_at,
-        repeat_on: payload.repeat_on,
-        stopping_date: payload.stopping_date as string,
-        stopping_threshold: payload.stopping_threshold,
-        notify_channels: payload.notify_channels,
-        is_active: true,
-      };
+    const updatePayload: UpdateSchedulePayload = {
+      title: payload.title,
+      questions: payload.questions,
+      frequency_type: payload.frequency_type,
+      frequency_value: payload.frequency_value,
+      repeat_at: payload.repeat_at,
+      repeat_on: payload.repeat_on,
+      stopping_date: payload.stopping_date as string,
+      stopping_threshold: payload.stopping_threshold,
+      notify_channels: payload.notify_channels,
+      is_active: true,
+    };
 
-      await updateScheduleMutation.mutateAsync({
+    updateScheduleMutation.mutate(
+      {
         scheduleId: editingScheduleId,
         payload: updatePayload,
-      });
-
-      // Reset state
-      setScheduleModalOpen(false);
-      setEditingScheduleId(null);
-    } catch (error) {
-      console.error('Failed to update schedule:', error);
-      setError('Failed to update schedule. Please try again.');
-    }
+      },
+      {
+        onSuccess: () => {
+          // Reset state
+          setScheduleModalOpen(false);
+          setEditingScheduleId(null);
+        },
+        onError: error => {
+          console.error('Failed to update schedule:', error);
+          setError('Failed to update schedule. Please try again.');
+        },
+      }
+    );
   };
 
   // Handle toggle pause/resume
-  const handleToggleStatus = async (
-    scheduleId: number,
-    currentStatus: boolean
-  ) => {
-    try {
-      await updateScheduleStatusMutation.mutateAsync({
-        scheduleId,
-        isActive: !currentStatus,
-      });
-    } catch (error) {
-      console.error('Failed to update schedule status:', error);
-    }
+  const handleToggleStatus = (scheduleId: number, currentStatus: boolean) => {
+    updateScheduleStatusMutation.mutate({
+      scheduleId,
+      isActive: !currentStatus,
+    });
+    // Error handling is done by the mutation's onError
   };
 
   const handleEdit = (id: number) => {
@@ -202,16 +201,15 @@ const Schedule = () => {
   };
 
   // Handle actual deletion
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (scheduleToDelete) {
-      try {
-        await deleteScheduleMutation.mutateAsync(scheduleToDelete);
-        setOpenDeleteRecurrence(false);
-        setScheduleToDelete(null);
-      } catch (error) {
-        console.error('Failed to delete schedule:', error);
-        // You might want to show an error message to the user
-      }
+      deleteScheduleMutation.mutate(scheduleToDelete, {
+        onSuccess: () => {
+          setOpenDeleteRecurrence(false);
+          setScheduleToDelete(null);
+        },
+        // Error handling is done by the mutation's onError
+      });
     }
   };
 
@@ -228,19 +226,22 @@ const Schedule = () => {
   };
 
   // Handle save questions
-  const handleSaveQuestions = async (questions: string[]) => {
+  const handleSaveQuestions = (questions: string[]) => {
     if (!editingQuestionsSchedule) return;
 
-    try {
-      await updateScheduleQuestionsMutation.mutateAsync({
+    updateScheduleQuestionsMutation.mutate(
+      {
         scheduleId: editingQuestionsSchedule.schedule_id,
         questions,
-      });
-      setEditQuestionsModalOpen(false);
-      setEditingQuestionsSchedule(null);
-    } catch (error) {
-      console.error('Failed to update questions:', error);
-    }
+      },
+      {
+        onSuccess: () => {
+          setEditQuestionsModalOpen(false);
+          setEditingQuestionsSchedule(null);
+        },
+        // Error handling is done by the mutation's onError
+      }
+    );
   };
 
   // Handle edit questions modal close
@@ -337,7 +338,9 @@ const Schedule = () => {
               <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
                 Schedule Chats
               </h2>
-              <div className='space-y-2 sm:space-y-3'>
+              <div
+                className={`space-y-2 sm:space-y-3 ${schedules.data.length > 7 ? 'max-h-[500px] overflow-y-auto pr-2' : ''}`}
+              >
                 {schedules?.data.map(item => (
                   <div
                     key={item.schedule_id}

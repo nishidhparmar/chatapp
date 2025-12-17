@@ -21,7 +21,7 @@ export function useUpdateScheduleStatus() {
       );
       return response.data;
     },
-    onSuccess: (data, { scheduleId, isActive }) => {
+    onSuccess: (_, { scheduleId, isActive }) => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
       showToast.success({

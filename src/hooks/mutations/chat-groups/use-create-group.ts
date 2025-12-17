@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
 import { showToast } from '@/components/common/toast';
+import { useErrorHandler } from '../../use-error-handler';
 
 interface CreateGroupPayload {
   name: string;
@@ -9,6 +10,7 @@ interface CreateGroupPayload {
 
 export function useCreateGroup() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async (payload: CreateGroupPayload) => {
@@ -24,6 +26,9 @@ export function useCreateGroup() {
         title: 'Group created',
         description: 'The chat group has been created successfully.',
       });
+    },
+    onError: error => {
+      handleError(error, 'Failed to create group. Please try again.');
     },
   });
 }

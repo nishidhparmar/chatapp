@@ -26,6 +26,11 @@ export function useDeleteSchedule() {
     },
     onError: (error: unknown) => {
       console.error('Delete schedule error:', error);
+      showToast.error({
+        title: 'Failed to cancel schedule',
+        description:
+          'There was an error canceling the schedule. Please try again.',
+      });
     },
   });
 }

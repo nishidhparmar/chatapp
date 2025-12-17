@@ -40,22 +40,18 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     visible: false,
   });
 
-  // Fetch chat details when a chat is selected
   const { data: chatDetails, isLoading: isLoadingChat } = useGetChatById(
     Number(activeChat),
     !!activeChat
   );
 
-  // Hook for sending new messages
   const chatAskMutation = useChatAsk();
-
-  // Auto-scroll to bottom when messages change
 
   const handleTabChange = (tab: 'chat' | 'data') => {
     setActiveTab(tab);
   };
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = (message: string) => {
     if (!activeChat || !message.trim()) return;
 
     // Create optimistic user message
@@ -73,27 +69,33 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     // Clear previous follow-up questions when sending new message
     setFollowUpQuestions([]);
 
-    try {
-      const response = await chatAskMutation.mutateAsync({
+    chatAskMutation.mutate(
+      {
         chat_id: Number(activeChat),
         text: message.trim(),
         mode: 'conversational',
-      });
+      },
+      {
+        onSuccess: response => {
+          // Store follow-up questions from the response
+          if (response.data?.followup_questions) {
+            setFollowUpQuestions(response.data.followup_questions);
+          }
 
-      // Store follow-up questions from the response
-      if (response.data?.followup_questions) {
-        setFollowUpQuestions(response.data.followup_questions);
+          // Refetch chat details to get the updated messages
+          queryClient.invalidateQueries({
+            queryKey: ['chat', Number(activeChat)],
+          });
+        },
+        onError: error => {
+          console.error('Failed to send message:', error);
+          // Reset optimistic state on error
+          setOptimisticMessages([]);
+          setIsWaitingForResponse(false);
+          setFollowUpQuestions([]);
+        },
       }
-
-      // Refetch chat details to get the updated messages
-      queryClient.invalidateQueries({ queryKey: ['chat', Number(activeChat)] });
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      // Reset optimistic state on error
-      setOptimisticMessages([]);
-      setIsWaitingForResponse(false);
-      setFollowUpQuestions([]);
-    }
+    );
   };
 
   const scrollToBottom = () => {
@@ -104,7 +106,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     scrollToBottom();
   }, [chatDetails?.data?.messages, optimisticMessages, isWaitingForResponse]);
 
-  // Reset optimistic messages when real messages update or chat changes
   useEffect(() => {
     if (chatDetails?.data?.messages) {
       setOptimisticMessages([]);
@@ -112,14 +113,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     }
   }, [chatDetails?.data?.messages]);
 
-  // Clear optimistic messages and follow-up questions when switching chats
   useEffect(() => {
     setOptimisticMessages([]);
     setIsWaitingForResponse(false);
     setFollowUpQuestions([]);
   }, [activeChat]);
 
-  // Auto-select chat based on query parameter
   useEffect(() => {
     const chatId = searchParams.get('id');
     if (chatId && !activeChat) {
@@ -141,7 +140,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     });
   };
 
-  // Show sidebar only when dashboard view is not visible and not on mobile with active chat
   const showSidebar = !dashboardView.visible && !(isMobile && activeChat);
 
   return (

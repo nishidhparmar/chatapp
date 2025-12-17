@@ -22,5 +22,13 @@ export function useForgotPassword() {
           data.message || 'Please check your email for reset instructions.',
       });
     },
+    onError: (error: unknown) => {
+      console.error('Forgot password error:', error);
+      showToast.error({
+        title: 'Failed to send reset email',
+        description:
+          'There was an error sending the password reset email. Please try again.',
+      });
+    },
   });
 }

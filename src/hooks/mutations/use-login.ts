@@ -45,6 +45,10 @@ export function useLogin() {
       const redirectUrl = searchParams.get('redirect') || '/';
       window.location.href = redirectUrl;
     },
-    // onError is removed because errors are now handled globally by axios interceptor
+    onError: error => {
+      // Login errors should be handled specifically
+      console.error('Login failed:', error);
+      // Don't show toast here as login form will handle the error display
+    },
   });
 }

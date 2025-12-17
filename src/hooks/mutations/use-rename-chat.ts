@@ -3,6 +3,7 @@ import axiosInstance from '@/lib/axios';
 import type { RenameChatPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
 import { showToast } from '@/components/common/toast';
+import { useErrorHandler } from '../use-error-handler';
 
 interface RenameChatParams {
   chatId: number;
@@ -11,6 +12,7 @@ interface RenameChatParams {
 
 export function useRenameChat() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ chatId, payload }: RenameChatParams) => {
@@ -27,6 +29,9 @@ export function useRenameChat() {
         title: 'Chat renamed',
         description: 'The chat name has been updated successfully.',
       });
+    },
+    onError: error => {
+      handleError(error, 'Failed to rename chat. Please try again.');
     },
   });
 }

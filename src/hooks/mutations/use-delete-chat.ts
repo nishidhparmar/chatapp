@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
 import { showToast } from '@/components/common/toast';
+import { useErrorHandler } from '../use-error-handler';
 
 export function useDeleteChat() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async (chatId: number) => {
@@ -20,6 +22,9 @@ export function useDeleteChat() {
         title: 'Chat deleted',
         description: 'The chat has been successfully deleted.',
       });
+    },
+    onError: error => {
+      handleError(error, 'Failed to delete chat. Please try again.');
     },
   });
 }

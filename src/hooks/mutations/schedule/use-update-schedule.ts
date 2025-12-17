@@ -19,7 +19,7 @@ export function useUpdateSchedule() {
       );
       return response.data;
     },
-    onSuccess: (data, { scheduleId, payload }) => {
+    onSuccess: (_, { scheduleId }) => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
       showToast.success({
@@ -29,6 +29,11 @@ export function useUpdateSchedule() {
     },
     onError: (error: unknown) => {
       console.error('Update schedule error:', error);
+      showToast.error({
+        title: 'Failed to update schedule',
+        description:
+          'There was an error updating the schedule. Please try again.',
+      });
     },
   });
 }
