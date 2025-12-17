@@ -38,10 +38,9 @@ const ForgotPasswordPage = () => {
         });
         router.push('/send-mail');
       },
-      onError: error => {
+      onError: () => {
         track('Forgot Password Failed', {
           email: data.email,
-          error: error.message,
           timestamp: new Date().toISOString(),
         });
       },

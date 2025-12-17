@@ -60,7 +60,7 @@ const ScheduleRecurring = ({
     setShowSuggestions(false);
   };
 
-  const handleCreateRecurringReport = async () => {
+  const handleCreateRecurringReport = () => {
     if (!selectedSchedule || !messageId) {
       return;
     }
@@ -85,16 +85,16 @@ const ScheduleRecurring = ({
       ),
     };
 
-    try {
-      await createScheduleMutation.mutateAsync(payload);
-      onOpenChange(false);
-      // Reset state
-      setSelectedSchedule(null);
-      setSearchTerm('');
-      setShowSuggestions(false);
-    } catch (error) {
-      console.error('Failed to create recurring report:', error);
-    }
+    createScheduleMutation.mutate(payload, {
+      onSuccess: () => {
+        onOpenChange(false);
+        // Reset state
+        setSelectedSchedule(null);
+        setSearchTerm('');
+        setShowSuggestions(false);
+      },
+      // Error handling is done by the mutation's onError
+    });
   };
 
   return (

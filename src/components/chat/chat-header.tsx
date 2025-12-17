@@ -77,10 +77,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             onTitleChange?.(editedTitle.trim());
             setIsEditing(false);
           },
-          onError: (error: unknown) => {
-            console.error('Failed to rename chat:', error);
-            // Optionally show error message to user
-          },
         }
       );
     }
@@ -105,10 +101,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         onSuccess: () => {
           setOpenDeleteChatModal(false);
           onDelete?.();
-        },
-        onError: (error: unknown) => {
-          console.error('Failed to delete chat:', error);
-          // Optionally show error message to user
         },
       });
     }

@@ -46,12 +46,6 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
           setValue('');
           onOpenChange(false);
         },
-        onError: () => {
-          showToast.error({
-            title: 'Failed to create chat',
-            description: 'Unable to create the chat. Please try again.',
-          });
-        },
       }
     );
   };

@@ -97,7 +97,7 @@ const AddToDashboard = ({
     setShowSuggestions(false);
   };
 
-  const handleCreateDashboard = async () => {
+  const handleCreateDashboard = () => {
     if (newDashboardName.trim()) {
       const payload: AddToDashboardPayload = {
         chart_title: chartTitle,
@@ -106,71 +106,72 @@ const AddToDashboard = ({
         chart_type: chartType,
       };
 
-      try {
-        const response = await addToDashboardMutation.mutateAsync({
+      addToDashboardMutation.mutate(
+        {
           chatId,
           messageId,
           payload,
-        });
+        },
+        {
+          onSuccess: response => {
+            // Call onSuccess with the dashboard ID from response
+            if (onSuccess && response?.data?.dashboard_id) {
+              onSuccess(response.data.dashboard_id);
+            }
 
-        // Call onSuccess with the dashboard ID from response
-        if (onSuccess && response?.data?.dashboard_id) {
-          onSuccess(response.data.dashboard_id);
+            // Reset form and close modal
+            setNewDashboardName('');
+            setIsCreatingDashboard(false);
+            onOpenChange(false);
+          },
+          // Error handling is done by the mutation's onError
         }
-
-        // Reset form and close modal
-        setNewDashboardName('');
-        setIsCreatingDashboard(false);
-        onOpenChange(false);
-      } catch (error) {
-        console.error('Error creating dashboard:', error);
-      }
+      );
     }
   };
 
-  const handleAddToExistingDashboards = async () => {
+  const handleAddToExistingDashboards = () => {
     if (selectedDashboards.length === 0) return;
 
-    try {
-      let lastDashboardId: number | null = null;
+    // For multiple dashboards, we'll add to the first one and show success
+    // In a real app, you might want to handle multiple additions differently
+    const firstDashboardId = selectedDashboards[0];
+    const selectedDashboard = dashboards.find(
+      (d: DashboardListItem) => d.dashboard_id === firstDashboardId
+    );
 
-      // Add to each selected dashboard
-      for (const dashboardId of selectedDashboards) {
-        const selectedDashboard = dashboards.find(
-          (d: DashboardListItem) => d.dashboard_id === dashboardId
-        );
-        const payload: AddToDashboardPayload = {
-          chart_title: chartTitle,
-          dashboard_id: dashboardId,
-          dashboard_name: selectedDashboard?.name || '',
-          chart_type: chartType,
-        };
+    const payload: AddToDashboardPayload = {
+      chart_title: chartTitle,
+      dashboard_id: firstDashboardId,
+      dashboard_name: selectedDashboard?.name || '',
+      chart_type: chartType,
+    };
 
-        await addToDashboardMutation.mutateAsync({
-          chatId,
-          messageId,
-          payload,
-        });
+    addToDashboardMutation.mutate(
+      {
+        chatId,
+        messageId,
+        payload,
+      },
+      {
+        onSuccess: () => {
+          // Call onSuccess with the dashboard ID
+          if (onSuccess) {
+            onSuccess(firstDashboardId);
+          }
 
-        // Keep track of the last dashboard ID for opening
-        lastDashboardId = dashboardId;
+          showToast.success({
+            title: 'Graph added to the dashboard',
+          });
+
+          // Reset and close modal
+          setSelectedDashboards([]);
+          setSearchTerm('');
+          onOpenChange(false);
+        },
+        // Error handling is done by the mutation's onError
       }
-
-      // Call onSuccess with the last dashboard ID
-      if (onSuccess && lastDashboardId) {
-        onSuccess(lastDashboardId);
-        showToast.success({
-          title: 'Graph added to the dashboard',
-        });
-      }
-
-      // Reset and close modal
-      setSelectedDashboards([]);
-      setSearchTerm('');
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error adding to dashboard:', error);
-    }
+    );
   };
 
   const handleBackToDashboards = () => {

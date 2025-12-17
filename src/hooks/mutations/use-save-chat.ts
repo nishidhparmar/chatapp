@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
+import { useErrorHandler } from '../use-error-handler';
 
 interface SaveChatPayload {
   chat_id: number;
@@ -9,6 +10,7 @@ interface SaveChatPayload {
 
 export function useSaveChat() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async (payload: SaveChatPayload) => {
@@ -26,8 +28,8 @@ export function useSaveChat() {
       //   description: 'The chat has been saved successfully.',
       // });
     },
-    onError: (error: unknown) => {
-      console.error('Save chat error:', error);
+    onError: error => {
+      handleError(error, 'Failed to save chat. Please try again.');
     },
   });
 }

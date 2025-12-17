@@ -17,5 +17,9 @@ export function useViewAs() {
       );
       return response.data;
     },
+    onError: (error: unknown) => {
+      console.error('View as error:', error);
+      // This mutation is used for chart transformations, errors are handled in the UI
+    },
   });
 }

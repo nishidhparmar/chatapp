@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
 import { showToast } from '@/components/common/toast';
+import { useErrorHandler } from '../../use-error-handler';
 
 interface RemoveFromGroupParams {
   groupId: number;
@@ -10,6 +11,7 @@ interface RemoveFromGroupParams {
 
 export function useRemoveFromGroup() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ groupId, chatId }: RemoveFromGroupParams) => {
@@ -27,8 +29,8 @@ export function useRemoveFromGroup() {
         description: 'The chat has been removed from the group successfully.',
       });
     },
-    onError: (error: unknown) => {
-      console.error('Remove from group error:', error);
+    onError: error => {
+      handleError(error, 'Failed to remove chat from group. Please try again.');
     },
   });
 }

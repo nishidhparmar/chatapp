@@ -46,7 +46,7 @@ export const useCustomErrorMutation = () => {
 // Example 3: Silent error handling (no toast, just logging)
 export const useSilentMutation = () => {
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async data => {
       const response = await axiosInstance.post('/api/endpoint', data);
       return response.data;
     },
@@ -73,7 +73,5 @@ export const useFormMutation = () => {
         description: 'Your form has been submitted successfully',
       });
     },
-    // Validation errors (400, 422) are automatically handled and will show
-    // the specific validation messages from the API
   });
 };

@@ -34,5 +34,13 @@ export function useAddToDashboard() {
         description: 'The chart has been successfully added to your dashboard.',
       });
     },
+    onError: (error: unknown) => {
+      console.error('Add to dashboard error:', error);
+      showToast.error({
+        title: 'Failed to add chart',
+        description:
+          'There was an error adding the chart to your dashboard. Please try again.',
+      });
+    },
   });
 }

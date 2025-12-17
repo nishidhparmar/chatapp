@@ -28,6 +28,11 @@ export function useCreateScheduleFromTemplate() {
     },
     onError: (error: unknown) => {
       console.error('Create schedule from template error:', error);
+      showToast.error({
+        title: 'Failed to create recurring report',
+        description:
+          'There was an error creating the recurring report. Please try again.',
+      });
     },
   });
 }

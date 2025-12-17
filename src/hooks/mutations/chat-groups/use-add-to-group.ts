@@ -3,6 +3,7 @@ import axiosInstance from '@/lib/axios';
 import type { AddToGroupPayload } from '@/types/chat';
 import type { ApiResponse } from '@/types/api';
 import { showToast } from '@/components/common/toast';
+import { useErrorHandler } from '../../use-error-handler';
 
 interface AddToGroupParams {
   chatId: number;
@@ -11,6 +12,7 @@ interface AddToGroupParams {
 
 export function useAddToGroup() {
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ chatId, payload }: AddToGroupParams) => {
@@ -37,8 +39,8 @@ export function useAddToGroup() {
             : 'Chat has been added to the group successfully.',
       });
     },
-    onError: (error: unknown) => {
-      console.error('Add to group error:', error);
+    onError: error => {
+      handleError(error, 'Failed to add chat to group. Please try again.');
     },
   });
 }

@@ -221,9 +221,6 @@ const ChatSidebar = ({
         onSuccess: () => {
           setOpenPopover(null);
         },
-        onError: (error: unknown) => {
-          console.error('Failed to remove chat from group:', error);
-        },
       }
     );
   };
@@ -234,9 +231,6 @@ const ChatSidebar = ({
         onSuccess: () => {
           setDeleteGroupModal(false);
           setGroupToDelete(null);
-        },
-        onError: (error: unknown) => {
-          console.error('Failed to delete group:', error);
         },
       });
     }

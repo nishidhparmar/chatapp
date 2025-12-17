@@ -6,6 +6,7 @@ import { ReactQueryProvider } from '@/lib/react-query';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { UserProvider } from '@/components/providers/user-provider';
 import { PageTracker } from '@/components/analytics/page-tracker';
+import ErrorBoundary from '@/components/common/error-boundary';
 import '@/lib/mixpanel'; // Initialize Mixpanel
 
 const inter = Inter({
@@ -28,9 +29,11 @@ export default function RootLayout({
         <ReactQueryProvider>
           <UserProvider>
             <AuthGuard>
-              <PageTracker />
-              <Toaster />
-              {children}
+              <ErrorBoundary>
+                <PageTracker />
+                <Toaster />
+                {children}
+              </ErrorBoundary>
             </AuthGuard>
           </UserProvider>
         </ReactQueryProvider>

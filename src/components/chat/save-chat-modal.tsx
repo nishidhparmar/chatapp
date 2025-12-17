@@ -56,19 +56,8 @@ const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
       },
       {
         onSuccess: () => {
-          // showToast.success({
-          //   title: 'Chat saved',
-          //   description: 'The chat has been saved successfully.',
-          // });
           onOpenChange();
-          // Redirect to chats page with the chat ID
           router.push(`/chats?id=${open.id}`);
-        },
-        onError: () => {
-          showToast.error({
-            title: 'Save failed',
-            description: 'Failed to save chat. Please try again.',
-          });
         },
       }
     );

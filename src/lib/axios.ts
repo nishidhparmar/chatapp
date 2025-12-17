@@ -1,7 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_URL } from './constant';
 import { setCookie, deleteCookie } from './cookie-utils';
-import { handleApiError } from './error-handler';
 
 const axiosInstance = axios.create({
   baseURL: API_URL || 'http://localhost:3000/api',
@@ -143,10 +142,9 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Handle API errors globally (except 401 which is handled above)
-    if (error.response?.status !== 401) {
-      handleApiError(error);
-    }
+    // Don't handle errors globally here to avoid duplicate toasts
+    // Let mutations and queries handle their own errors
+    // Only handle critical auth-related errors that need immediate action
 
     return Promise.reject(error);
   }

@@ -27,5 +27,13 @@ export function useRemoveFromDashboard() {
           'The chart has been successfully removed from your dashboard.',
       });
     },
+    onError: (error: unknown) => {
+      console.error('Remove from dashboard error:', error);
+      showToast.error({
+        title: 'Failed to remove chart',
+        description:
+          'There was an error removing the chart from your dashboard. Please try again.',
+      });
+    },
   });
 }

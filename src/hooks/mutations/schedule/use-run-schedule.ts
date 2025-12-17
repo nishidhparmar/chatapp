@@ -22,6 +22,11 @@ export function useRunSchedule() {
     },
     onError: (error: unknown) => {
       console.error('Run schedule error:', error);
+      showToast.error({
+        title: 'Failed to run schedule',
+        description:
+          'There was an error running the schedule. Please try again.',
+      });
     },
   });
 }
