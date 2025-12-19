@@ -175,7 +175,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
               chatId={activeChat ? Number(activeChat) : undefined}
               onDelete={() => setActiveChat('')}
             />
-
             {activeTab === 'chat' && (
               <>
                 {activeChat && (

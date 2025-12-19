@@ -9,6 +9,7 @@ import { ChatDetailMessage } from '../../../types/chat';
 
 import Loading from '../../../components/common/loading';
 import NoDataFound from '../../../components/icons/no-data-found';
+import { VisualizationType } from '../../../components/common/invoice-view/types';
 
 // Mock data for individual reports
 
@@ -87,6 +88,7 @@ export default function ReportDetailPage() {
                 text: chart.title,
                 chart_content: chart.chart_config,
                 created_at: chart.created_at,
+                chart_type: chart.chart_type,
                 sender: 'user',
               };
               return (
@@ -96,6 +98,7 @@ export default function ReportDetailPage() {
                   hideExtentView
                   showDelete
                   data={refinedata as ChatDetailMessage}
+                  defaultView={chart.chart_type as VisualizationType}
                   title={chart.title}
                   dashboardId={dashboardData.data.dashboard_id}
                   chartId={chart.widget_id}

@@ -31,7 +31,7 @@ const AddPopover: React.FC<AddPopoverProps> = ({
       },
     },
     {
-      title: 'Schedule recurring',
+      title: 'Add to reports',
       icon: <Clock className='!text-neutral-ct-secondary' size={18} />,
       onClick: () => {
         onScheduleRecurring();

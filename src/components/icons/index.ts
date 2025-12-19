@@ -26,6 +26,7 @@ import { default as Pdf } from './Pdf';
 import { default as Jpeg } from './Jpeg';
 import { default as Png } from './Png';
 import { default as Svg } from './Svg';
+import { default as Csv } from './Csv';
 import { default as Play } from './Play';
 import { default as Stop } from './Stop';
 import { default as Email } from './Email';
@@ -59,6 +60,7 @@ export {
   Jpeg,
   Png,
   Svg,
+  Csv,
   Play,
   Stop,
   Email,

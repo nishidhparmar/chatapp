@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { Download } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { cn } from '../../../lib/utils';
-import { Jpeg, Pdf } from '../../icons';
-import { MenuItemProps } from './types';
+import { Jpeg, Pdf, Csv } from '../../icons';
+import { MenuItemProps, VisualizationType } from './types';
 import domtoimage from 'dom-to-image';
 import jsPDF from 'jspdf';
 import FileSaver from 'file-saver';
@@ -13,6 +13,8 @@ interface DownloadPopoverProps {
   onOpenChange: (open: boolean) => void;
   contentRef: React.RefObject<HTMLDivElement | null>;
   title?: string;
+  viewType?: VisualizationType;
+  chartContent?: any; // Chart data for CSV export
 }
 
 const DownloadPopover: React.FC<DownloadPopoverProps> = ({
@@ -20,6 +22,8 @@ const DownloadPopover: React.FC<DownloadPopoverProps> = ({
   onOpenChange,
   contentRef,
   title = 'chart',
+  viewType,
+  chartContent,
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -108,7 +112,76 @@ const DownloadPopover: React.FC<DownloadPopoverProps> = ({
     }
   }, [contentRef, title, onOpenChange]);
 
+  const downloadAsCSV = useCallback(async () => {
+    if (!chartContent || !chartContent.data) return;
+
+    setIsDownloading(true);
+    try {
+      const data = chartContent.data;
+
+      // Convert data to CSV format
+      let csvContent = '';
+
+      if (Array.isArray(data) && data.length > 0) {
+        // Get headers from the first object
+        const headers = Object.keys(data[0]);
+        csvContent = headers.join(',') + '\n';
+
+        // Add data rows
+        data.forEach(row => {
+          const values = headers.map(header => {
+            const value = row[header];
+            // Escape commas and quotes in values
+            if (
+              typeof value === 'string' &&
+              (value.includes(',') || value.includes('"'))
+            ) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          });
+          csvContent += values.join(',') + '\n';
+        });
+      } else if (typeof data === 'object') {
+        // Handle object data structure
+        const entries = Object.entries(data);
+        csvContent = 'Key,Value\n';
+        entries.forEach(([key, value]) => {
+          const escapedValue =
+            typeof value === 'string' &&
+            (value.includes(',') || value.includes('"'))
+              ? `"${value.replace(/"/g, '""')}"`
+              : value;
+          csvContent += `${key},${escapedValue}\n`;
+        });
+      }
+
+      // Create and download CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      FileSaver.saveAs(
+        blob,
+        `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`
+      );
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download data as CSV. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [chartContent, title, onOpenChange]);
+
   const downloadMenuItems: MenuItemProps[] = [
+    ...(viewType === 'table'
+      ? [
+          {
+            title: 'CSV',
+            icon: <Csv />,
+            onClick: downloadAsCSV,
+          },
+        ]
+      : []),
     {
       title: 'JPEG',
       icon: <Jpeg />,

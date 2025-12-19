@@ -10,7 +10,7 @@ const MobileSidebar = () => {
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
     { icon: Chat, label: 'Chats', href: '/chats' },
-    { icon: Reports, label: 'Reports', href: '/reports' },
+    { icon: Reports, label: 'Reports', href: '/dashboard' },
     { icon: Clock, label: 'Schedule', href: '/schedule' },
     { icon: Help, label: 'Help', href: '/help' },
     { icon: Settings, label: 'Settings', href: '/settings' },
