@@ -26,6 +26,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   dashboardId,
   chartId,
 }) => {
+  console.log(data);
   const [defaultView, setDefaultView] =
     useState<VisualizationType>(propDefaultView);
   const [chartContent, setChartContent] = useState<
@@ -120,35 +121,38 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
             ? title.split(':').slice(1).join(':').split('.')[0].trim()
             : ''}
         </h3>
-        <Toolbar
-          openViewAsPopover={openViewAsPopover}
-          setOpenViewAsPopover={setOpenViewAsPopover}
-          defaultView={defaultView}
-          onViewChange={handleViewChange}
-          isChangingView={isChangingView}
-          hideViewAs={hideViewAs}
-          openAddPopover={openAddPopover}
-          setOpenAddPopover={setOpenAddPopover}
-          onAddToDashboard={() => setOpenAddTodashboard(true)}
-          onScheduleRecurring={() => setOpenScheduleRecurringModal(true)}
-          hideAddToDashboard={HideAddToDashboard}
-          openCopyPopover={openCopyPopover}
-          setOpenCopyPopover={setOpenCopyPopover}
-          chartContent={chartContent}
-          openDownloadPopover={openDownloadPopover}
-          setOpenDownloadPopover={setOpenDownloadPopover}
-          title={title}
-          openMaximizePopover={openMaximizePopover}
-          setOpenMaximizePopover={setOpenMaximizePopover}
-          contentRef={contentRef}
-          hideExtentView={hideExtentView}
-          // onFullscreenOpen={() => setOpenFullscreenModal(true)}
-          showDelete={showDelete}
-          openDeleteModal={openDeleteModal}
-          setOpenDeleteModal={setOpenDeleteModal}
-          onDeleteChart={handleDeleteChart}
-          isDeleting={isDeleting}
-        />
+        {chartContent && (
+          <Toolbar
+            openViewAsPopover={openViewAsPopover}
+            setOpenViewAsPopover={setOpenViewAsPopover}
+            defaultView={defaultView}
+            onViewChange={handleViewChange}
+            isChangingView={isChangingView}
+            hideViewAs={hideViewAs}
+            openAddPopover={openAddPopover}
+            setOpenAddPopover={setOpenAddPopover}
+            onAddToDashboard={() => setOpenAddTodashboard(true)}
+            onScheduleRecurring={() => setOpenScheduleRecurringModal(true)}
+            hideAddToDashboard={HideAddToDashboard}
+            openCopyPopover={openCopyPopover}
+            setOpenCopyPopover={setOpenCopyPopover}
+            chartContent={chartContent}
+            openDownloadPopover={openDownloadPopover}
+            setOpenDownloadPopover={setOpenDownloadPopover}
+            title={title}
+            viewType={defaultView}
+            openMaximizePopover={openMaximizePopover}
+            setOpenMaximizePopover={setOpenMaximizePopover}
+            contentRef={contentRef}
+            hideExtentView={hideExtentView}
+            // onFullscreenOpen={() => setOpenFullscreenModal(true)}
+            showDelete={showDelete}
+            openDeleteModal={openDeleteModal}
+            setOpenDeleteModal={setOpenDeleteModal}
+            onDeleteChart={handleDeleteChart}
+            isDeleting={isDeleting}
+          />
+        )}
       </div>
       <div className='md:px-4 pt-2 pb-4' ref={contentRef}>
         <ViewRenderer chartContent={chartContent} />

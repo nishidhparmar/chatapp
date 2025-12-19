@@ -35,6 +35,7 @@ interface ToolbarProps {
   openDownloadPopover: boolean;
   setOpenDownloadPopover: (open: boolean) => void;
   title?: string;
+  viewType?: VisualizationType;
 
   // Maximize props
   openMaximizePopover: boolean;
@@ -68,6 +69,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   openDownloadPopover,
   setOpenDownloadPopover,
   title,
+  viewType,
   openMaximizePopover,
   setOpenMaximizePopover,
   contentRef,
@@ -108,6 +110,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
         onOpenChange={setOpenDownloadPopover}
         contentRef={contentRef}
         title={title}
+        viewType={viewType}
+        chartContent={chartContent}
       />
 
       <MaximizePopover

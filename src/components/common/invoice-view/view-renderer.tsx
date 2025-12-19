@@ -20,7 +20,15 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
     );
   };
 
+  // Debug logging
+  console.log('ViewRenderer - chartContent:', chartContent);
+  console.log(
+    'ViewRenderer - isNewChartFormat:',
+    chartContent ? isNewChartFormat(chartContent) : false
+  );
+
   if (chartContent && isNewChartFormat(chartContent)) {
+    console.log('ViewRenderer - Rendering chart type:', chartContent.type);
     switch (chartContent.type) {
       case 'table':
         return (
@@ -37,38 +45,37 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
         return <LineChartComp data={chartContent.data} />;
       case 'pie_chart':
         return <DonutChart data={chartContent.data} />;
+      default:
     }
   }
 
-  // // Legacy format handling - for old data structure
-  // const legacyContent = chartContent as any;
-  // const tableData =
-  //   chartContent && !isNewChartFormat(chartContent)
-  //     ? {
-  //         raw_data: legacyContent.raw_data || [],
-  //         columns: legacyContent.data_format?.columns || [],
-  //       }
-  //     : undefined;
+  // Legacy format handling - for old data structure
+  const legacyContent = chartContent as any;
+  const tableData =
+    chartContent && !isNewChartFormat(chartContent)
+      ? {
+          raw_data: legacyContent.raw_data || [],
+          columns: legacyContent.data_format?.columns || [],
+        }
+      : undefined;
 
-  // // Fallback to default view based on defaultView state (for unsupported chart types)
-  // switch (defaultView) {
-  //   case 'table':
-  //     return <InvoiceViewTable data={tableData} />;
-  //   case 'bar_chart':
-  //     return <SimpleChart />;
-  //   case 'line_chart':
-  //     return <LineChartComp />;
-  //   case 'pie_chart':
-  //     return <DonutChart />;
-  //   case 'stacked_chart':
-  //     return <StackedChart />;
-  //   case 'grouped_chart':
-  //     return <GroupedChart />;
-  //   case 'multi_line':
-  //     return <MultiLineChart />;
-  //   default:
-  //     return <InvoiceViewTable data={tableData} />;
-  // }
+  console.log('ViewRenderer - Using legacy format, tableData:', tableData);
+
+  // If we have legacy data, show it as a table
+  if (
+    tableData &&
+    (tableData.raw_data.length > 0 || tableData.columns.length > 0)
+  ) {
+    return <InvoiceViewTable data={tableData} />;
+  }
+
+  // No valid chart content
+  console.log('ViewRenderer - No valid chart content found');
+  return (
+    <div className='p-8 text-center text-gray-500'>
+      <p>No chart data available</p>
+    </div>
+  );
 };
 
 export default ViewRenderer;

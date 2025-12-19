@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Clock, Trash2, SquarePen } from 'lucide-react';
+import { Plus, Clock, Trash2 } from 'lucide-react';
 import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';
-import { Edit, Play, Stop } from '../icons';
+import { Edit } from '../icons';
 import ScheduleModal from './schedule-modal';
 import { Button } from '../ui/button';
 import DeleteRecurrence from './delete-recurrence';
@@ -367,7 +367,7 @@ const Schedule = () => {
                       </p>
                     </div>
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
-                      <button
+                      {/* <button
                         onClick={() =>
                           handleToggleStatus(item.schedule_id, item.is_active)
                         }
@@ -381,14 +381,14 @@ const Schedule = () => {
                         ) : (
                           <Play size={18} className='sm:w-[18px] sm:h-[18px]' />
                         )}
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => handleEditQuestions(item)}
                         className='p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
                         title='Edit Questions'
                         aria-label='Edit Questions'
                       >
-                        <SquarePen size={16} className='sm:w-4 sm:h-4' />
+                        <Plus size={16} className='sm:w-4 sm:h-4' />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(item.schedule_id)}

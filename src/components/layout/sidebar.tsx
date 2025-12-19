@@ -16,8 +16,8 @@ const Sidebar = ({
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
     { icon: Chat, label: 'Chats', href: '/chats' },
-    { icon: Reports, label: 'Reports', href: '/reports' },
-    { icon: Clock, label: 'Schedule', href: '/schedule' },
+    { icon: Reports, label: 'Dashboard', href: '/dashboard' },
+    { icon: Clock, label: 'Reports', href: '/schedule' },
   ];
 
   const bottomItems = [
@@ -37,7 +37,7 @@ const Sidebar = ({
   };
 
   return (
-    <div className='w-20 bg-white border-r border-neutral-br-secondary hidden flex-col items-center py-6 md:flex '>
+    <div className='w-22 bg-white border-r border-neutral-br-secondary hidden flex-col items-center py-6 md:flex '>
       {/* Add Button */}
       <button
         onClick={() => setNewChatModal(true)}
@@ -54,7 +54,7 @@ const Sidebar = ({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col rounded w-16 py-2 gap-1 justify-center items-center transition-colors ${
+            className={`flex flex-col rounded w-18 py-2 gap-1 justify-center items-center transition-colors ${
               isActive(item.href)
                 ? 'text-blue-700 font-semibold bg-blue-100 rounded-lg w-full'
                 : 'text-slate-400 hover:text-slate-700'
@@ -75,7 +75,7 @@ const Sidebar = ({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col rounded w-16 py-2 gap-1 justify-center items-center transition-colors ${
+            className={`flex flex-col rounded w-18 py-2 gap-1 justify-center items-center transition-colors ${
               isActive(item.href)
                 ? 'text-blue-700 font-semibold bg-blue-100 rounded-lg w-full'
                 : 'text-slate-400 hover:text-slate-700'
