@@ -114,7 +114,7 @@ const LoginPage = () => {
               </Button>
               <Button type='submit' className='w-full mt-3' variant='outline'>
                 <Image
-                  src={'/images/key.svg'}
+                  src={'/images/Key.svg'}
                   alt='key'
                   height={20}
                   width={20}

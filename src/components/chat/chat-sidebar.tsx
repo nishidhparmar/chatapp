@@ -19,6 +19,7 @@ import DeleteChat from './delete-chat';
 import DeleteGroup from './delete-group';
 import AddToGroup from './add-to-group';
 import { IoSearchOutline } from 'react-icons/io5';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGetChatList, useGetChatGroups } from '../../hooks/queries';
 import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
 import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
@@ -50,6 +51,9 @@ const ChatSidebar = ({
   activeChat: string;
   setActiveChat: Dispatch<SetStateAction<string>>;
 }) => {
+  // Collapse state
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   // Search and pagination state
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -137,7 +141,7 @@ const ChatSidebar = ({
 
   // Auto-select first available chat when data loads (desktop only)
   useEffect(() => {
-    if (!activeChat && !isLoadingChats && !isLoadingGroups) {
+    if (!activeChat && !isLoadingChats && !isLoadingGroups && !isMobile) {
       // First try to select from regular chats
       if (chats.length > 0) {
         setActiveChat(chats[0].id);
@@ -156,6 +160,26 @@ const ChatSidebar = ({
     isMobile,
     setActiveChat,
   ]);
+
+  // Keyboard shortcut for toggling sidebar (Ctrl/Cmd + B)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setIsCollapsed(!isCollapsed);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCollapsed]);
+
+  // Auto-collapse on mobile when a chat is selected
+  useEffect(() => {
+    if (isMobile && activeChat) {
+      setIsCollapsed(true);
+    }
+  }, [isMobile, activeChat]);
 
   const handleRename = (itemId: string) => {
     const item = chats.find(chat => chat.id === itemId);
@@ -391,177 +415,207 @@ const ChatSidebar = ({
   };
 
   return (
-    <div className='md:w-80 w-full flex  bg-white border-r border-neutral-br-secondary  flex-col h-full'>
-      {/* Header */}
-      <div className='md:p-4 px-6 py-4'>
-        <h2 className='text font-semibold text-neutral-ct-primary mb-3'>
-          Chat History
-        </h2>
+    <div
+      className={`${isCollapsed ? 'w-0' : 'md:w-80 w-full'} flex bg-white border-r border-neutral-br-secondary flex-col h-full transition-all duration-300 ease-in-out relative`}
+    >
+      {/* Collapse/Expand Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className='absolute -right-4 top-4 !z-[999] bg-white border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-shadow'
+        title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
+        type='button'
+      >
+        {isCollapsed ? (
+          <ChevronRight className='h-4 w-4 text-neutral-ct-primary' />
+        ) : (
+          <ChevronLeft className='h-4 w-4 text-neutral-ct-primary' />
+        )}
+      </button>
 
-        <div className='flex gap-3 w-full items-center'>
-          <div className='flex-1 relative'>
-            <AuthInput
-              icon={IoSearchOutline}
-              iconClassName={`text-neutral-ct-tertiary -mt-[1px] !h-4 !w-4 ${isLoadingChats && debouncedSearch ? 'animate-pulse' : ''}`}
-              className='pr-8 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
-              label=''
-              placeholder='Search chats...'
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className='absolute right-2 top-1/2 -translate-y-1/2 text-neutral-ct-tertiary hover:text-neutral-ct-primary transition-colors'
-                type='button'
-                title='Clear search'
-              >
-                <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
-                  <path
-                    d='M9 3L3 9M3 3L9 9'
-                    stroke='currentColor'
-                    strokeWidth='1.5'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-          <div className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center mt-1'>
-            <Filter className='h-4 w-4 text-neutral-ct-primary' />
-          </div>
-        </div>
-      </div>
+      {/* Collapsed State */}
+      {isCollapsed ? (
+        <div className='p-4 flex flex-col items-center'></div>
+      ) : (
+        <>
+          {/* Header */}
+          <div className='md:p-4 px-6 py-4'>
+            <h2 className='text font-semibold text-neutral-ct-primary mb-3'>
+              Chat History
+            </h2>
 
-      {/* Content */}
-      <div className='flex-1 overflow-y-auto md:px-4 px-6 pb-4'>
-        {/* Empty State */}
-        {!isLoadingChats &&
-          !isLoadingGroups &&
-          chats.length === 0 &&
-          groups.length === 0 && (
-            <div className='flex items-center justify-center h-full text-center'>
-              <p className='text-neutral-ct-secondary text-sm'>
-                {debouncedSearch
-                  ? `No chats found for "${debouncedSearch}"`
-                  : "You don't have any chats right now. Please create one."}
-              </p>
+            <div className='flex gap-3 w-full items-center'>
+              <div className='flex-1 relative'>
+                <AuthInput
+                  icon={IoSearchOutline}
+                  iconClassName={`text-neutral-ct-tertiary -mt-[1px] !h-4 !w-4 ${isLoadingChats && debouncedSearch ? 'animate-pulse' : ''}`}
+                  className='pr-8 pl-8 py-2 max-h-8 w-full -mt-2.5 placeholder:!text-xs'
+                  label=''
+                  placeholder='Search chats...'
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className='absolute right-2 top-1/2 -translate-y-1/2 text-neutral-ct-tertiary hover:text-neutral-ct-primary transition-colors'
+                    type='button'
+                    title='Clear search'
+                  >
+                    <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                      <path
+                        d='M9 3L3 9M3 3L9 9'
+                        stroke='currentColor'
+                        strokeWidth='1.5'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center mt-1'>
+                <Filter className='h-4 w-4 text-neutral-ct-primary' />
+              </div>
             </div>
-          )}
-
-        {/* Groups Section */}
-        {(groups.length > 0 || isLoadingGroups) && (
-          <div className='mb-6'>
-            <button
-              onClick={() => setIsGroupsExpanded(!isGroupsExpanded)}
-              className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
-            >
-              <span>Groups</span>
-              {isGroupsExpanded ? (
-                <ChevronUp size={16} className='text-neutral-ct-tertiary' />
-              ) : (
-                <ChevronDown size={16} className='text-neutral-ct-tertiary' />
-              )}
-            </button>
-
-            {isGroupsExpanded && (
-              <div className='space-y-1 mt-2'>
-                {isLoadingGroups ? (
-                  <GroupListSkeleton count={3} />
-                ) : (
-                  groups.map((group, index) => (
-                    <div key={index}>
-                      {/* Group Header */}
-                      <div className='group/group flex items-center justify-between py-1 text-sm text-neutral-ct-primary mb-1'>
-                        <div className='flex items-center gap-2'>
-                          <Folder
-                            size={14}
-                            className='text-neutral-ct-tertiary'
-                          />
-                          <span>{group.title}</span>
-                        </div>
-                        {group.group_id && (
-                          <button
-                            className='opacity-0 group-hover/group:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-disabled'
-                            onClick={e => {
-                              e.stopPropagation();
-                              setGroupToDelete({
-                                id: group.group_id!,
-                                name: group.title,
-                              });
-                              setDeleteGroupModal(true);
-                            }}
-                            type='button'
-                            title='Delete group'
-                          >
-                            <Trash className='h-3.5 w-3.5 text-error-active' />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Group Items */}
-                      <div className='ml-1.5 px-1.5 space-y-1 border-l border-neutral-br-primary'>
-                        {group.chats.map(item =>
-                          renderChatItem(
-                            item,
-                            true,
-                            group.title,
-                            group.group_id
-                          )
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
           </div>
-        )}
 
-        {/* Chats Section */}
-        {(chats.length > 0 || isLoadingChats) && (
-          <div>
-            <button
-              onClick={() => setIsChatsExpanded(!isChatsExpanded)}
-              className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
-            >
-              <span>
-                {debouncedSearch ? 'Search Results' : 'Chats'}
-                {totalChats > 0 && ` (${totalChats})`}
-              </span>
-              {isChatsExpanded ? (
-                <ChevronUp size={16} className='text-neutral-ct-tertiary' />
-              ) : (
-                <ChevronDown size={16} className='text-neutral-ct-tertiary' />
+          {/* Content */}
+          <div className='flex-1 overflow-y-auto md:px-4 px-6 pb-4'>
+            {/* Empty State */}
+            {!isLoadingChats &&
+              !isLoadingGroups &&
+              chats.length === 0 &&
+              groups.length === 0 && (
+                <div className='flex items-center justify-center h-full text-center'>
+                  <p className='text-neutral-ct-secondary text-sm'>
+                    {debouncedSearch
+                      ? `No chats found for "${debouncedSearch}"`
+                      : "You don't have any chats right now. Please create one."}
+                  </p>
+                </div>
               )}
-            </button>
 
-            {isChatsExpanded && (
-              <div className='space-y-1 mt-2'>
-                {isLoadingChats ? (
-                  <ChatListSkeleton count={4} />
-                ) : (
-                  <>
-                    {chats.map(chat => renderChatItem(chat, false))}
-
-                    {/* Pagination Controls */}
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      hasNextPage={hasNextPage}
-                      hasPrevPage={hasPrevPage}
-                      onNextPage={handleNextPage}
-                      onPrevPage={handlePrevPage}
-                      size='sm'
+            {/* Groups Section */}
+            {(groups.length > 0 || isLoadingGroups) && (
+              <div className='mb-6'>
+                <button
+                  onClick={() => setIsGroupsExpanded(!isGroupsExpanded)}
+                  className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
+                >
+                  <span>Groups</span>
+                  {isGroupsExpanded ? (
+                    <ChevronUp size={16} className='text-neutral-ct-tertiary' />
+                  ) : (
+                    <ChevronDown
+                      size={16}
+                      className='text-neutral-ct-tertiary'
                     />
-                  </>
+                  )}
+                </button>
+
+                {isGroupsExpanded && (
+                  <div className='space-y-1 mt-2'>
+                    {isLoadingGroups ? (
+                      <GroupListSkeleton count={3} />
+                    ) : (
+                      groups.map((group, index) => (
+                        <div key={index}>
+                          {/* Group Header */}
+                          <div className='group/group flex items-center justify-between py-1 text-sm text-neutral-ct-primary mb-1'>
+                            <div className='flex items-center gap-2'>
+                              <Folder
+                                size={14}
+                                className='text-neutral-ct-tertiary'
+                              />
+                              <span>{group.title}</span>
+                            </div>
+                            {group.group_id && (
+                              <button
+                                className='opacity-0 group-hover/group:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-disabled'
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setGroupToDelete({
+                                    id: group.group_id!,
+                                    name: group.title,
+                                  });
+                                  setDeleteGroupModal(true);
+                                }}
+                                type='button'
+                                title='Delete group'
+                              >
+                                <Trash className='h-3.5 w-3.5 text-error-active' />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Group Items */}
+                          <div className='ml-1.5 px-1.5 space-y-1 border-l border-neutral-br-primary'>
+                            {group.chats.map(item =>
+                              renderChatItem(
+                                item,
+                                true,
+                                group.title,
+                                group.group_id
+                              )
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Chats Section */}
+            {(chats.length > 0 || isLoadingChats) && (
+              <div>
+                <button
+                  onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+                  className='flex items-center justify-between w-full text-left text-sm font-medium text-neutral-ct-primary'
+                >
+                  <span>
+                    {debouncedSearch ? 'Search Results' : 'Chats'}
+                    {totalChats > 0 && ` (${totalChats})`}
+                  </span>
+                  {isChatsExpanded ? (
+                    <ChevronUp size={16} className='text-neutral-ct-tertiary' />
+                  ) : (
+                    <ChevronDown
+                      size={16}
+                      className='text-neutral-ct-tertiary'
+                    />
+                  )}
+                </button>
+
+                {isChatsExpanded && (
+                  <div className='space-y-1 mt-2'>
+                    {isLoadingChats ? (
+                      <ChatListSkeleton count={4} />
+                    ) : (
+                      <>
+                        {chats.map(chat => renderChatItem(chat, false))}
+
+                        {/* Pagination Controls */}
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          hasNextPage={hasNextPage}
+                          hasPrevPage={hasPrevPage}
+                          onNextPage={handleNextPage}
+                          onPrevPage={handlePrevPage}
+                          size='sm'
+                        />
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
+
       <DeleteChat
         open={deleteChatModal}
         onOpenChange={() => {
