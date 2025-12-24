@@ -80,7 +80,7 @@ const ConversationTab = ({
           label=''
           type='text'
           placeholder={placeholder}
-          className='h-16 !px-4 !pr-14'
+          className='h-16 !px-4 !pr-14 truncate'
           disabled={isCreatingChat}
           rightIcon={
             <Button

@@ -63,7 +63,7 @@ const SearchTab = ({
             }
           }}
           placeholder={placeholder}
-          className='h-16 !px-4 c'
+          className='h-16 !px-4 c !pr-14 truncate'
           rightIcon={
             <Button
               size={'icon'}
