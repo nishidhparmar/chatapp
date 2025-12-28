@@ -91,11 +91,11 @@ const MessageList = ({
               </div>
 
               {/* Content */}
-              <div className='flex-1'>
-                <div className='flex items-center gap-2'>
+              <div className='flex-1 w-full'>
+                <div className='flex items-center gap-2 w-full'>
                   <Aichat className='shrink-0 md:hidden block' />
                   {showInvoiceView && message.chart_content && (
-                    <div>
+                    <div className='w-full'>
                       <InvoiceView
                         title={message.text}
                         defaultView={
