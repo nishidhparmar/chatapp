@@ -16,7 +16,7 @@ export function useUpdateScheduleStatus() {
       isActive,
     }: UpdateScheduleStatusParams) => {
       const response = await axiosInstance.patch(
-        `/api/v1/schedules/${scheduleId}`,
+        `/api/v1/reports/${scheduleId}`,
         { is_active: isActive }
       );
       return response.data;

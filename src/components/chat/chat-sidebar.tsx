@@ -139,16 +139,22 @@ const ChatSidebar = ({
     }
   }, [hasPrevPage]);
 
-  // Auto-select first available chat when data loads (desktop only)
+  // Auto-select first available chat when data loads (desktop only) - only if no URL param was provided
   useEffect(() => {
     if (!activeChat && !isLoadingChats && !isLoadingGroups && !isMobile) {
-      // First try to select from regular chats
-      if (chats.length > 0) {
-        setActiveChat(chats[0].id);
-      }
-      // If no regular chats, try first chat from first group
-      else if (groups.length > 0 && groups[0].chats.length > 0) {
-        setActiveChat(groups[0].chats[0].id);
+      // Check if there was a URL parameter (if ChatLayout already set activeChat, don't override)
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasUrlId = urlParams.has('id');
+
+      if (!hasUrlId) {
+        // First try to select from regular chats
+        if (chats.length > 0) {
+          setActiveChat(chats[0].id);
+        }
+        // If no regular chats, try first chat from first group
+        else if (groups.length > 0 && groups[0].chats.length > 0) {
+          setActiveChat(groups[0].chats[0].id);
+        }
       }
     }
   }, [
@@ -416,12 +422,14 @@ const ChatSidebar = ({
 
   return (
     <div
-      className={`${isCollapsed ? 'w-0' : 'md:w-80 w-full'} flex bg-white border-r border-neutral-br-secondary flex-col h-full transition-all duration-300 ease-in-out relative`}
+      className={`${isCollapsed ? 'w-0' : 'md:w-80 w-full'} flex bg-white border-r border-neutral-br-secondary flex-col h-full transition-all duration-300 ease-in-out relative overflow-visible`}
     >
       {/* Collapse/Expand Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className='absolute -right-4 top-4 !z-[999] bg-white border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-shadow'
+        className={`fixed top-21.5 z-[9999] bg-white border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-all duration-300 ${
+          isCollapsed ? 'left-18' : 'left-18'
+        }`}
         title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
         type='button'
       >

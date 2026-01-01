@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import AddToDashboard from '../../reports/add-to-dashboard';
-import ScheduleRecurring from '../../schedule/schedule-recurring-modal';
+import ReportRecurring from '../../reports/report-recurring-modal';
 import { ChatDetailMessage, ChartContentData } from '../../../types/chat';
 import { useViewAs } from '@/hooks/mutations/use-view-as';
 import { useRemoveFromDashboard } from '@/hooks/mutations/dashboard/use-remove-from-dashboard';
@@ -38,7 +38,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   const [openAddPopover, setOpenAddPopover] = useState(false);
   const [openMaximizePopover, setOpenMaximizePopover] = useState(false);
   const [openAddTodashboardModal, setOpenAddTodashboard] = useState(false);
-  const [openScheduleRecurringModal, setOpenScheduleRecurringModal] =
+  const [openReportRecurringModal, setOpenReportRecurringModal] =
     useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openFullscreenModal, setOpenFullscreenModal] = useState(false);
@@ -132,7 +132,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
             openAddPopover={openAddPopover}
             setOpenAddPopover={setOpenAddPopover}
             onAddToDashboard={() => setOpenAddTodashboard(true)}
-            onScheduleRecurring={() => setOpenScheduleRecurringModal(true)}
+            onScheduleRecurring={() => setOpenReportRecurringModal(true)}
             hideAddToDashboard={HideAddToDashboard}
             openCopyPopover={openCopyPopover}
             setOpenCopyPopover={setOpenCopyPopover}
@@ -170,9 +170,9 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
           }
         }}
       />
-      <ScheduleRecurring
-        open={openScheduleRecurringModal}
-        onOpenChange={() => setOpenScheduleRecurringModal(false)}
+      <ReportRecurring
+        open={openReportRecurringModal}
+        onOpenChange={() => setOpenReportRecurringModal(false)}
         messageId={data?.message_id}
         title={title?.split(':').slice(1).join(':').split('.')[0].trim()}
       />

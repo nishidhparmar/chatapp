@@ -32,6 +32,7 @@ interface ChatHeaderProps {
   chatId?: number;
   onTitleChange?: (newTitle: string) => void;
   onDelete?: () => void;
+  isInGroup?: boolean;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -42,6 +43,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   chatId,
   onTitleChange,
   onDelete,
+  isInGroup = false,
 }) => {
   const [deleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [shareChatModal, setOpenShareChatModal] = useState(false);
@@ -176,17 +178,24 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               align='end'
               sideOffset={6}
             >
-              <button
-                className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
-                onClick={() => setAddToGroupModal(true)}
-                type='button'
-              >
-                <div className='flex items-center gap-2'>
-                  <FolderOpen size={16} className='text-neutral-ct-secondary' />
-                  <span className='text-neutral-ct-primary'>Add to group</span>
-                </div>
-                <MdKeyboardArrowRight className='h-5 text-neutral-ct-primary w-5' />
-              </button>
+              {!isInGroup && (
+                <button
+                  className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
+                  onClick={() => setAddToGroupModal(true)}
+                  type='button'
+                >
+                  <div className='flex items-center gap-2'>
+                    <FolderOpen
+                      size={16}
+                      className='text-neutral-ct-secondary'
+                    />
+                    <span className='text-neutral-ct-primary'>
+                      Add to group
+                    </span>
+                  </div>
+                  <MdKeyboardArrowRight className='h-5 text-neutral-ct-primary w-5' />
+                </button>
+              )}
               <button
                 className='w-full flex items-center gap-2 px-3 py-2.5 text-error-active hover:bg-neutral-disabled rounded-md transition-colors text-sm'
                 onClick={() => setOpenDeleteChatModal(true)}

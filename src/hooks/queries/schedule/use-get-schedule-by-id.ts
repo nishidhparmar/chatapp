@@ -8,7 +8,7 @@ export function useGetScheduleById(scheduleId: number, enabled = true) {
     queryKey: ['schedule', scheduleId],
     queryFn: async () => {
       const response = await axiosInstance.get<ApiResponse<ScheduleDetail>>(
-        `/api/v1/schedules/${scheduleId}`
+        `/api/v1/reports/${scheduleId}`
       );
       return response.data.data!;
     },

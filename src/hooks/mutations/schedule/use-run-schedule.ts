@@ -8,7 +8,7 @@ export function useRunSchedule() {
   return useMutation({
     mutationFn: async (scheduleId: number) => {
       const response = await axiosInstance.post(
-        `/api/v1/schedules/${scheduleId}/run`
+        `/api/v1/reports/${scheduleId}/run`
       );
       return response.data;
     },

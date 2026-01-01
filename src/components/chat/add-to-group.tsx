@@ -46,8 +46,8 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    // Always show suggestions when input is focused
-    setShowSuggestions(true);
+    // Only show suggestions when input has content or is actively being used
+    setShowSuggestions(value.length > 0 || document.activeElement === e.target);
     // Clear selected group if user is typing
     if (selectedGroup && value !== selectedGroup.name) {
       setSelectedGroup(null);
@@ -174,10 +174,16 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                   placeholder='Search groups...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(true)}
+                  onFocus={() => {
+                    // Only show suggestions if there's content or groups available
+                    if (searchTerm.length > 0 || groups.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
+                  tabIndex={-1}
                 />
                 {showSuggestions && (
                   <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>

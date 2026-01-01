@@ -14,7 +14,7 @@ import DashboardView from '../reports/dashboard-view';
 import ChatDataView from './chat-data-view';
 import Loading from '../common/loading';
 import BubbleLoader from '../common/message/bubble-loader';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface ChatLayoutProps {
   title?: string;
@@ -27,6 +27,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [optimisticMessages, setOptimisticMessages] = useState<
     ChatDetailMessage[]
   >([]);
@@ -123,8 +124,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     const chatId = searchParams.get('id');
     if (chatId && !activeChat) {
       setActiveChat(chatId);
+      // Replace the URL with /chats to remove the id parameter
+      router.replace('/chats');
     }
-  }, [searchParams, activeChat]);
+  }, [searchParams, activeChat, router]);
 
   const handleOpenDashboardView = (dashboardId: number) => {
     setDashboardView({
@@ -174,6 +177,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
               handleBack={() => setActiveChat('')}
               chatId={activeChat ? Number(activeChat) : undefined}
               onDelete={() => setActiveChat('')}
+              isInGroup={chatDetails?.data.is_in_group}
             />
             {activeTab === 'chat' && (
               <>

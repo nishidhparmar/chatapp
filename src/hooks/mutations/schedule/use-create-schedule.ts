@@ -10,7 +10,7 @@ export function useCreateSchedule() {
   return useMutation({
     mutationFn: async (payload: CreateSchedulePayload) => {
       const response = await axiosInstance.post<ApiResponse<Schedule>>(
-        '/api/v1/schedules',
+        '/api/v1/reports',
         payload
       );
       return response.data;

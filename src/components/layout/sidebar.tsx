@@ -17,7 +17,7 @@ const Sidebar = ({
     { icon: Home, label: 'Home', href: '/' },
     { icon: Chat, label: 'Chats', href: '/chats' },
     { icon: Reports, label: 'Dashboard', href: '/dashboard' },
-    { icon: Clock, label: 'Reports', href: '/schedule' },
+    { icon: Clock, label: 'Reports', href: '/reports' },
   ];
 
   const bottomItems = [

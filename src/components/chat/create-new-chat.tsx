@@ -11,9 +11,10 @@ import {
 import { Button } from '../ui/button';
 import { AuthInput } from '../auth/common/auth-input';
 import { showToast } from '../common/toast';
-import { useChatAsk } from '@/hooks/mutations/use-chat-ask';
+import { useCreateChat } from '@/hooks/mutations/use-create-chat';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CreateNewChatProps {
   open: boolean;
@@ -22,8 +23,9 @@ interface CreateNewChatProps {
 
 const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
   const [value, setValue] = useState('');
-  const { mutate: createChat, isPending } = useChatAsk();
+  const { mutate: createChat, isPending } = useCreateChat();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleCreate = () => {
     if (!value.trim()) {
@@ -36,13 +38,21 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
 
     createChat(
       {
-        chat_id: 0,
-        mode: 'conversational',
-        text: value,
+        title: value,
       },
       {
         onSuccess: response => {
-          router.push(`/conversations/${response.data.chat_id}`);
+          // Invalidate chat list queries to refetch the updated list
+          queryClient.invalidateQueries({
+            queryKey: ['chats', 'list'],
+          });
+
+          // Also invalidate chat groups in case the new chat affects groups
+          queryClient.invalidateQueries({
+            queryKey: ['chat-groups'],
+          });
+
+          router.push(`/chats?id=${response.data.chat_id}`);
           setValue('');
           onOpenChange(false);
         },

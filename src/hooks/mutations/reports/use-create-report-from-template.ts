@@ -1,33 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
+import type { Report } from '@/types/reports';
 import { showToast } from '@/components/common/toast';
 
-interface CreateScheduleFromTemplatePayload {
-  schedule_id: number;
+interface CreateReportFromTemplatePayload {
+  report_id: number;
   message_id: number;
 }
 
-export function useCreateScheduleFromTemplate() {
+export function useCreateReportFromTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: CreateScheduleFromTemplatePayload) => {
-      const response = await axiosInstance.post<ApiResponse<any>>(
+    mutationFn: async (payload: CreateReportFromTemplatePayload) => {
+      const response = await axiosInstance.post<ApiResponse<Report>>(
         '/api/v1/reports/from-template',
         payload
       );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
       showToast.success({
-        title: 'Schedule created',
+        title: 'Report created',
         description: 'The recurring report has been created successfully.',
       });
     },
     onError: (error: unknown) => {
-      console.error('Create schedule from template error:', error);
+      console.error('Create report from template error:', error);
       showToast.error({
         title: 'Failed to create recurring report',
         description:

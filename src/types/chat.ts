@@ -69,6 +69,7 @@ export interface ChatDetail {
   chat_id: number;
   title: string;
   is_saved: boolean;
+  is_in_group: boolean;
   messages: ChatDetailMessage[];
   created_at: string;
   updated_at: string;

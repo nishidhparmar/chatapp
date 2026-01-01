@@ -6,48 +6,46 @@ import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';
 import { Edit } from '../icons';
-import ScheduleModal from './schedule-modal';
 import { Button } from '../ui/button';
+import { useCreateReport } from '../../hooks/mutations/reports/use-create-report';
+import { useUpdateReport } from '../../hooks/mutations/reports/use-update-report';
+import { useDeleteReport } from '../../hooks/mutations/reports/use-delete-report';
+import { useUpdateReportStatus } from '../../hooks/mutations/reports/use-update-report-status';
+import { useUpdateReportQuestions } from '../../hooks/mutations/reports/use-update-report-questions';
+import { useGetReportById } from '../../hooks/queries/reports/use-get-report-by-id';
+import type {
+  CreateReportPayload,
+  ReportListItem,
+  UpdateReportPayload,
+} from '../../types/reports';
+import { useGetReports } from '../../hooks/queries/reports/use-get-reports';
+import { ScheduleListSkeleton } from '@/components/common/skeletons';
+import ReportModal from './report-modal';
 import DeleteRecurrence from './delete-recurrence';
 import EditQuestionsModal from './edit-questions-modal';
-import { useCreateSchedule } from '../../hooks/mutations/schedule/use-create-schedule';
-import { useUpdateSchedule } from '../../hooks/mutations/schedule/use-update-schedule';
-import { useDeleteSchedule } from '../../hooks/mutations/schedule/use-delete-schedule';
-import { useUpdateScheduleStatus } from '../../hooks/mutations/schedule/use-update-schedule-status';
-import { useUpdateScheduleQuestions } from '../../hooks/mutations/schedule/use-update-schedule-questions';
-import { useGetScheduleById } from '../../hooks/queries/schedule/use-get-schedule-by-id';
-import type {
-  CreateSchedulePayload,
-  ScheduleListItem,
-  UpdateSchedulePayload,
-} from '../../types/schedule';
-import { useGetSchedules } from '../../hooks/queries/schedule/use-get-schedules';
-import { ScheduleListSkeleton } from '@/components/common/skeletons';
 
-const Schedule = () => {
-  const createScheduleMutation = useCreateSchedule();
-  const updateScheduleMutation = useUpdateSchedule();
-  const deleteScheduleMutation = useDeleteSchedule();
-  const updateScheduleStatusMutation = useUpdateScheduleStatus();
-  const updateScheduleQuestionsMutation = useUpdateScheduleQuestions();
-  const { data: schedules, isLoading: isLoadingSchedules } = useGetSchedules();
+const Reports = () => {
+  const createReportMutation = useCreateReport();
+  const updateReportMutation = useUpdateReport();
+  const deleteReportMutation = useDeleteReport();
+  const updateReportStatusMutation = useUpdateReportStatus();
+  const updateReportQuestionsMutation = useUpdateReportQuestions();
+  const { data: reports, isLoading: isLoadingReports } = useGetReports();
 
   const [newQuestions, setNewQuestions] = useState(['']);
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [openDeleteRecurrence, setOpenDeleteRecurrence] = useState(false);
-  const [editingScheduleId, setEditingScheduleId] = useState<number | null>(
-    null
-  );
-  const [scheduleToDelete, setScheduleToDelete] = useState<number | null>(null);
+  const [editingReportId, setEditingReportId] = useState<number | null>(null);
+  const [reportToDelete, setReportToDelete] = useState<number | null>(null);
   const [editQuestionsModalOpen, setEditQuestionsModalOpen] = useState(false);
-  const [editingQuestionsSchedule, setEditingQuestionsSchedule] =
-    useState<ScheduleListItem | null>(null);
+  const [editingQuestionsReport, setEditingQuestionsReport] =
+    useState<ReportListItem | null>(null);
 
-  // Get schedule details when editing
-  const { data: scheduleDetails } = useGetScheduleById(
-    editingScheduleId || 0,
-    !!editingScheduleId
+  // Get report details when editing
+  const { data: reportDetails } = useGetReportById(
+    editingReportId || 0,
+    !!editingReportId
   );
 
   const handleAddQuestionField = () => {
@@ -77,7 +75,7 @@ const Schedule = () => {
       return;
     }
 
-    setScheduleModalOpen(true);
+    setReportModalOpen(true);
   };
 
   // Get valid questions for passing to modal
@@ -113,7 +111,7 @@ const Schedule = () => {
   };
 
   // Format frequency display based on frequency_type
-  const formatFrequencyDisplay = (item: ScheduleListItem) => {
+  const formatFrequencyDisplay = (item: ReportListItem) => {
     const { frequency_type, repeat_at, repeat_on } = item;
 
     switch (frequency_type?.toLowerCase()) {
@@ -128,27 +126,27 @@ const Schedule = () => {
     }
   };
 
-  // Handle schedule creation
-  const handleScheduleCreate = (payload: CreateSchedulePayload) => {
-    createScheduleMutation.mutate(payload, {
+  // Handle report creation
+  const handleReportCreate = (payload: CreateReportPayload) => {
+    createReportMutation.mutate(payload, {
       onSuccess: () => {
         // Reset state
         setNewQuestions(['']);
-        setScheduleModalOpen(false);
+        setReportModalOpen(false);
         setError('');
       },
       onError: error => {
-        console.error('Failed to create schedule:', error);
-        setError('Failed to create schedule. Please try again.');
+        console.error('Failed to create report:', error);
+        setError('Failed to create report. Please try again.');
       },
     });
   };
 
-  // Handle schedule update
-  const handleScheduleUpdate = (payload: CreateSchedulePayload) => {
-    if (!editingScheduleId) return;
+  // Handle report update
+  const handleReportUpdate = (payload: CreateReportPayload) => {
+    if (!editingReportId) return;
 
-    const updatePayload: UpdateSchedulePayload = {
+    const updatePayload: UpdateReportPayload = {
       title: payload.title,
       questions: payload.questions,
       frequency_type: payload.frequency_type,
@@ -161,52 +159,52 @@ const Schedule = () => {
       is_active: true,
     };
 
-    updateScheduleMutation.mutate(
+    updateReportMutation.mutate(
       {
-        scheduleId: editingScheduleId,
+        reportId: editingReportId,
         payload: updatePayload,
       },
       {
         onSuccess: () => {
           // Reset state
-          setScheduleModalOpen(false);
-          setEditingScheduleId(null);
+          setReportModalOpen(false);
+          setEditingReportId(null);
         },
         onError: error => {
-          console.error('Failed to update schedule:', error);
-          setError('Failed to update schedule. Please try again.');
+          console.error('Failed to update report:', error);
+          setError('Failed to update report. Please try again.');
         },
       }
     );
   };
 
   // Handle toggle pause/resume
-  const handleToggleStatus = (scheduleId: number, currentStatus: boolean) => {
-    updateScheduleStatusMutation.mutate({
-      scheduleId,
+  const _handleToggleStatus = (reportId: number, currentStatus: boolean) => {
+    updateReportStatusMutation.mutate({
+      reportId,
       isActive: !currentStatus,
     });
     // Error handling is done by the mutation's onError
   };
 
   const handleEdit = (id: number) => {
-    setEditingScheduleId(id);
-    setScheduleModalOpen(true);
+    setEditingReportId(id);
+    setReportModalOpen(true);
   };
 
   // Handle delete confirmation
   const handleDeleteClick = (id: number) => {
-    setScheduleToDelete(id);
+    setReportToDelete(id);
     setOpenDeleteRecurrence(true);
   };
 
   // Handle actual deletion
   const handleDeleteConfirm = () => {
-    if (scheduleToDelete) {
-      deleteScheduleMutation.mutate(scheduleToDelete, {
+    if (reportToDelete) {
+      deleteReportMutation.mutate(reportToDelete, {
         onSuccess: () => {
           setOpenDeleteRecurrence(false);
-          setScheduleToDelete(null);
+          setReportToDelete(null);
         },
         // Error handling is done by the mutation's onError
       });
@@ -216,28 +214,28 @@ const Schedule = () => {
   // Handle delete modal close
   const handleDeleteCancel = () => {
     setOpenDeleteRecurrence(false);
-    setScheduleToDelete(null);
+    setReportToDelete(null);
   };
 
   // Handle edit questions
-  const handleEditQuestions = (schedule: ScheduleListItem) => {
-    setEditingQuestionsSchedule(schedule);
+  const handleEditQuestions = (report: ReportListItem) => {
+    setEditingQuestionsReport(report);
     setEditQuestionsModalOpen(true);
   };
 
   // Handle save questions
   const handleSaveQuestions = (questions: string[]) => {
-    if (!editingQuestionsSchedule) return;
+    if (!editingQuestionsReport) return;
 
-    updateScheduleQuestionsMutation.mutate(
+    updateReportQuestionsMutation.mutate(
       {
-        scheduleId: editingQuestionsSchedule.schedule_id,
+        reportId: editingQuestionsReport.report_id,
         questions,
       },
       {
         onSuccess: () => {
           setEditQuestionsModalOpen(false);
-          setEditingQuestionsSchedule(null);
+          setEditingQuestionsReport(null);
         },
         // Error handling is done by the mutation's onError
       }
@@ -247,7 +245,7 @@ const Schedule = () => {
   // Handle edit questions modal close
   const handleEditQuestionsCancel = () => {
     setEditQuestionsModalOpen(false);
-    setEditingQuestionsSchedule(null);
+    setEditingQuestionsReport(null);
   };
 
   return (
@@ -298,10 +296,10 @@ const Schedule = () => {
                 </div>
               ))}
 
-              {(error || createScheduleMutation.isError) && (
+              {(error || createReportMutation.isError) && (
                 <div className='text-error-ct-error text-sm font-medium flex items-center gap-2'>
                   <PiWarningFill className='h-4 w-4' />
-                  {error || 'Failed to create schedule. Please try again.'}
+                  {error || 'Failed to create report. Please try again.'}
                 </div>
               )}
             </div>
@@ -321,29 +319,29 @@ const Schedule = () => {
                 disabled={!isScheduleEnabled()}
               >
                 <Clock size={20} />
-                Schedule
+                Reports
               </Button>
             </div>
           </div>
-          {/* Scheduled Chats Section */}
-          {isLoadingSchedules ? (
+          {/* Scheduled Reports Section */}
+          {isLoadingReports ? (
             <div>
               <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
-                Reports Chats
+                Scheduled Reports
               </h2>
               <ScheduleListSkeleton count={3} />
             </div>
-          ) : schedules?.data && schedules?.data?.length > 0 ? (
+          ) : reports?.data && reports?.data?.length > 0 ? (
             <div>
               <h2 className='text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4'>
-                Reports Chats
+                Scheduled Reports
               </h2>
               <div
-                className={`space-y-2 sm:space-y-3 ${schedules.data.length > 7 ? 'max-h-[500px] overflow-y-auto pr-2' : ''}`}
+                className={`space-y-2 sm:space-y-3 ${reports.data.length > 7 ? 'max-h-[500px] overflow-y-auto pr-2' : ''}`}
               >
-                {schedules?.data.map(item => (
+                {reports?.data.map(item => (
                   <div
-                    key={item.schedule_id}
+                    key={item.report_id}
                     className='bg-[#F5F5F5] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#EBEBE7] transition-colors'
                   >
                     <div className='flex-1 space-y-1 min-w-0'>
@@ -367,21 +365,6 @@ const Schedule = () => {
                       </p>
                     </div>
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
-                      {/* <button
-                        onClick={() =>
-                          handleToggleStatus(item.schedule_id, item.is_active)
-                        }
-                        className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
-                        title={item.is_active ? 'Pause' : 'Resume'}
-                        aria-label={item.is_active ? 'Pause' : 'Resume'}
-                        disabled={updateScheduleStatusMutation.isPending}
-                      >
-                        {!item.is_active ? (
-                          <Stop size={18} className='sm:w-[18px] sm:h-[18px]' />
-                        ) : (
-                          <Play size={18} className='sm:w-[18px] sm:h-[18px]' />
-                        )}
-                      </button> */}
                       <button
                         onClick={() => handleEditQuestions(item)}
                         className='p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
@@ -391,10 +374,10 @@ const Schedule = () => {
                         <Plus size={16} className='sm:w-4 sm:h-4' />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(item.schedule_id)}
+                        onClick={() => handleDeleteClick(item.report_id)}
                         className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
-                        title='Delete Schedule'
-                        aria-label='Delete Schedule'
+                        title='Delete Report'
+                        aria-label='Delete Report'
                       >
                         <Trash2
                           size={16}
@@ -403,10 +386,10 @@ const Schedule = () => {
                         />
                       </button>
                       <button
-                        onClick={() => handleEdit(item.schedule_id)}
+                        onClick={() => handleEdit(item.report_id)}
                         className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
-                        title='Edit Schedule'
-                        aria-label='Edit Schedule'
+                        title='Edit Report'
+                        aria-label='Edit Report'
                       >
                         <Edit size={16} className='sm:w-4 sm:h-4' />
                       </button>
@@ -418,31 +401,31 @@ const Schedule = () => {
           ) : null}
         </div>
       </div>
-      {editingScheduleId && scheduleDetails ? (
-        <ScheduleModal
-          open={scheduleModalOpen}
+      {editingReportId && reportDetails ? (
+        <ReportModal
+          open={reportModalOpen}
           onOpenChange={open => {
-            setScheduleModalOpen(open);
+            setReportModalOpen(open);
             if (!open) {
-              setEditingScheduleId(null);
+              setEditingReportId(null);
             }
           }}
-          scheduleData={scheduleDetails as ScheduleListItem}
-          onScheduleUpdate={handleScheduleUpdate}
-          isLoading={updateScheduleMutation.isPending}
+          reportData={reportDetails as ReportListItem}
+          onReportUpdate={handleReportUpdate}
+          isLoading={updateReportMutation.isPending}
         />
       ) : (
-        <ScheduleModal
-          open={scheduleModalOpen}
+        <ReportModal
+          open={reportModalOpen}
           onOpenChange={open => {
-            setScheduleModalOpen(open);
+            setReportModalOpen(open);
             if (!open) {
-              setEditingScheduleId(null);
+              setEditingReportId(null);
             }
           }}
           questions={getValidQuestions()}
-          onScheduleCreate={handleScheduleCreate}
-          isLoading={createScheduleMutation.isPending}
+          onReportCreate={handleReportCreate}
+          isLoading={createReportMutation.isPending}
           messageId={0}
           title=''
         />
@@ -451,18 +434,18 @@ const Schedule = () => {
         open={openDeleteRecurrence}
         onOpenChange={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        isLoading={deleteScheduleMutation.isPending}
+        isLoading={deleteReportMutation.isPending}
       />
       <EditQuestionsModal
         open={editQuestionsModalOpen}
         onOpenChange={handleEditQuestionsCancel}
-        questions={editingQuestionsSchedule?.questions || []}
+        questions={editingQuestionsReport?.questions || []}
         onSave={handleSaveQuestions}
-        isLoading={updateScheduleQuestionsMutation.isPending}
-        title={editingQuestionsSchedule?.title || ''}
+        isLoading={updateReportQuestionsMutation.isPending}
+        title={editingQuestionsReport?.title || ''}
       />
     </DashboardLayout>
   );
 };
 
-export default Schedule;
+export default Reports;

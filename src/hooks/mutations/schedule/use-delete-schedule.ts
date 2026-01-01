@@ -8,7 +8,7 @@ export function useDeleteSchedule() {
   return useMutation({
     mutationFn: async (scheduleId: number) => {
       const response = await axiosInstance.delete(
-        `/api/v1/schedules/${scheduleId}`
+        `/api/v1/reports/${scheduleId}`
       );
       return response.data;
     },

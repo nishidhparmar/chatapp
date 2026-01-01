@@ -60,8 +60,8 @@ const AddToDashboard = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    // Always show suggestions when input is focused
-    setShowSuggestions(true);
+    // Only show suggestions when input has content or is actively being used
+    setShowSuggestions(value.length > 0 || document.activeElement === e.target);
 
     // Clear selections if user is typing and the value doesn't match selected items
     const selectedNames = selectedDashboards
@@ -235,10 +235,16 @@ const AddToDashboard = ({
                   placeholder='Search dashboards...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(true)}
+                  onFocus={() => {
+                    // Only show suggestions if there's content or dashboards available
+                    if (searchTerm.length > 0 || dashboards.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
+                  tabIndex={-1}
                 />
                 {showSuggestions && (
                   <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>

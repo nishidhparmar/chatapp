@@ -14,7 +14,7 @@ export function useUpdateSchedule() {
   return useMutation({
     mutationFn: async ({ scheduleId, payload }: UpdateScheduleParams) => {
       const response = await axiosInstance.patch(
-        `/api/v1/schedules/${scheduleId}`,
+        `/api/v1/reports/${scheduleId}`,
         payload
       );
       return response.data;
@@ -23,7 +23,7 @@ export function useUpdateSchedule() {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
       showToast.success({
-        title: 'Schedule updated',
+        title: 'Reports updated',
         description: 'The schedule has been updated successfully.',
       });
     },
