@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Maximize2, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { cn } from '../../../lib/utils';
@@ -18,6 +18,70 @@ const MaximizePopover: React.FC<MaximizePopoverProps> = ({
   hideExtentView,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalContentContainerRef = useRef<HTMLDivElement | null>(null);
+  const originalParentRef = useRef<Element | null>(null);
+  const nextSiblingRef = useRef<Node | null>(null);
+
+  // Move the real DOM node into the modal container when opening, and restore on close.
+  useEffect(() => {
+    const node = contentRef?.current;
+    const modalContainer = modalContentContainerRef.current;
+
+    if (isModalOpen && node && modalContainer) {
+      // save original position
+      originalParentRef.current = node.parentElement;
+      nextSiblingRef.current = node.nextSibling;
+
+      // append to modal container
+      modalContainer.appendChild(node);
+
+      // apply a helper class so we can enforce fullscreen styles if needed
+      node.classList.add('maximized-content');
+      // also ensure it stretches to container
+      (node as HTMLElement).style.width = '100%';
+      (node as HTMLElement).style.height = 'auto';
+    }
+
+    if (!isModalOpen && node && originalParentRef.current) {
+      // restore to original place
+      try {
+        if (nextSiblingRef.current && originalParentRef.current) {
+          originalParentRef.current.insertBefore(node, nextSiblingRef.current);
+        } else if (originalParentRef.current) {
+          originalParentRef.current.appendChild(node);
+        }
+      } catch (err) {
+        // ignore restore errors
+      }
+
+      node.classList.remove('maximized-content');
+      (node as HTMLElement).style.width = '';
+      (node as HTMLElement).style.height = '';
+
+      originalParentRef.current = null;
+      nextSiblingRef.current = null;
+    }
+
+    // on unmount, attempt restore
+    return () => {
+      if (
+        node &&
+        originalParentRef.current &&
+        !originalParentRef.current.contains(node)
+      ) {
+        try {
+          if (nextSiblingRef.current && originalParentRef.current) {
+            originalParentRef.current.insertBefore(
+              node,
+              nextSiblingRef.current
+            );
+          } else if (originalParentRef.current) {
+            originalParentRef.current.appendChild(node);
+          }
+        } catch {}
+      }
+    };
+  }, [isModalOpen, contentRef]);
 
   const maximizeMenuItems: MenuItemProps[] = [
     {
@@ -68,26 +132,23 @@ const MaximizePopover: React.FC<MaximizePopoverProps> = ({
 
       {/* Fullscreen Modal Overlay */}
       {isModalOpen && (
-        <div className='fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4'>
-          <div className='relative bg-white rounded-lg shadow-2xl max-w-6xl max-h-[90vh] w-full overflow-hidden'>
+        <div className='fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm flex items-center justify-center'>
+          <div className='relative bg-black  shadow-2xl w-full h-screen  overflow-hidden'>
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className='absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-colors'
+              className='absolute top-4 right-4 cursor-pointer z-10 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-colors'
             >
               <X className='h-4 w-4 text-gray-600' />
             </button>
 
-            {/* Content Container */}
-            <div className='p-6 h-full overflow-auto'>
-              {contentRef.current && (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: contentRef.current.innerHTML,
-                  }}
-                />
-              )}
-            </div>
+            {/* Content Container - we will move the real DOM node here to preserve interactivity */}
+            <div
+              className='p-6 h-full overflow-auto flex justify-center items-center'
+              ref={el => {
+                modalContentContainerRef.current = el;
+              }}
+            />
           </div>
         </div>
       )}

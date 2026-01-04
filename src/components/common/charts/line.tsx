@@ -12,39 +12,6 @@ import {
 import { useIsMobile } from '../../../hooks/use-mobile';
 import { LineChartData } from '../../../types/chat';
 
-// For ref
-
-// const lineData = [
-//   { date: '05', fullDate: 'March 05, 2025', value: 95 },
-//   { date: '06', fullDate: 'March 06, 2025', value: 100 },
-//   { date: '07', fullDate: 'March 07, 2025', value: 120 },
-//   { date: '08', fullDate: 'March 08, 2025', value: 108 },
-//   { date: '09', fullDate: 'March 09, 2025', value: 100 },
-//   { date: '10', fullDate: 'March 10, 2025', value: 105 },
-//   { date: '11', fullDate: 'March 11, 2025', value: 90 },
-//   { date: '12', fullDate: 'March 12, 2025', value: 92 },
-//   { date: '13', fullDate: 'March 13, 2025', value: 85 },
-//   { date: '14', fullDate: 'March 14, 2025', value: 95 },
-//   { date: '15', fullDate: 'March 15, 2025', value: 78 },
-//   { date: '16', fullDate: 'March 16, 2025', value: 100 },
-//   { date: '17', fullDate: 'March 17, 2025', value: 105 },
-//   { date: '18', fullDate: 'March 18, 2025', value: 65 },
-//   { date: '19', fullDate: 'March 19, 2025', value: 80 },
-//   { date: '20', fullDate: 'March 20, 2025', value: 85 },
-//   { date: '21', fullDate: 'March 21, 2025', value: 75 },
-//   { date: '22', fullDate: 'March 22, 2025', value: 60 },
-//   { date: '23', fullDate: 'March 23, 2025', value: 72 },
-//   { date: '24', fullDate: 'March 24, 2025', value: 55 },
-//   { date: '25', fullDate: 'March 25, 2025', value: 80 },
-//   { date: '26', fullDate: 'March 26, 2025', value: 82 },
-//   { date: '27', fullDate: 'March 27, 2025', value: 85 },
-//   { date: '28', fullDate: 'March 28, 2025', value: 80 },
-//   { date: '29', fullDate: 'March 29, 2025', value: 78 },
-//   { date: '30', fullDate: 'March 30, 2025', value: 75 },
-//   { date: '31', fullDate: 'March 31, 2025', value: 95 },
-//   { date: '01', fullDate: 'April 01, 2025', value: 100 },
-// ];
-
 interface LineChartProps {
   data?: LineChartData['data'];
 }
@@ -85,10 +52,8 @@ const CustomTooltip = ({
 const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
   const isMobile = useIsMobile();
 
-  // Use API data if available, otherwise fallback to default data
   const chartData = data;
 
-  // Responsive dimensions
   const chartHeight = isMobile ? 300 : 400;
   const margins = { top: 80, right: 16, left: 0, bottom: 16 };
   const fontSize = isMobile ? 10 : 12;

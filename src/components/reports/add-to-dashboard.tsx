@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -56,6 +56,17 @@ const AddToDashboard = ({
   const filteredDashboards = dashboards.filter((dashboard: DashboardListItem) =>
     dashboard.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Show suggestions when modal opens (instead of on input focus)
+  useEffect(() => {
+    if (open) {
+      if (dashboards.length > 0 || searchTerm.length > 0) {
+        setShowSuggestions(true);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  }, [open, dashboards.length, searchTerm]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -235,19 +246,14 @@ const AddToDashboard = ({
                   placeholder='Search dashboards...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => {
-                    // Only show suggestions if there's content or dashboards available
-                    if (searchTerm.length > 0 || dashboards.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
+                  // suggestions are shown on modal open instead of on input focus
                   onBlur={() =>
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
                   tabIndex={-1}
                 />
                 {showSuggestions && (
-                  <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>
+                  <div className='w-full bg-white max-h-[160px] overflow-auto rounded-lg mt-3 z-10'>
                     <div className='max-h-60 overflow-y-auto space-y-1'>
                       {isDashboardsLoading ? (
                         <div className='p-4 text-center text-sm text-neutral-tertiary'>

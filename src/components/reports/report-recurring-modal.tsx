@@ -34,7 +34,6 @@ const ReportRecurring = ({
   const [selectedReport, setSelectedReport] = useState<ReportListItem | null>(
     null
   );
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
 
   // Fetch reports from API
@@ -48,17 +47,17 @@ const ReportRecurring = ({
     report.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Show suggestions when modal opens (instead of on input focus)
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     // Only show suggestions when input has content or is actively being used
-    setShowSuggestions(value.length > 0 || document.activeElement === e.target);
   };
 
   const handleReportSelect = (report: ReportListItem) => {
     setSelectedReport(report);
     setSearchTerm(report.title);
-    setShowSuggestions(false);
   };
 
   const handleCreateRecurringReport = () => {
@@ -92,7 +91,6 @@ const ReportRecurring = ({
         // Reset state
         setSelectedReport(null);
         setSearchTerm('');
-        setShowSuggestions(false);
       },
       // Error handling is done by the mutation's onError
     });
@@ -129,58 +127,47 @@ const ReportRecurring = ({
                   placeholder='Search existing reports...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => {
-                    // Only show suggestions if there's content or reports available
-                    if (searchTerm.length > 0 || reports.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 200)
-                  }
                   tabIndex={-1}
                 />
-                {showSuggestions && (
-                  <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>
-                    <div className='max-h-60 overflow-y-auto space-y-1'>
-                      {isLoadingReports ? (
-                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
-                          Loading reports...
-                        </div>
-                      ) : reports.length === 0 ? (
-                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
-                          No existing reports found. Create a new one below.
-                        </div>
-                      ) : filteredReports.length > 0 ? (
-                        filteredReports.map(report => (
-                          <div
-                            key={report.report_id}
-                            onMouseDown={e => e.preventDefault()}
-                            className='flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 cursor-pointer'
-                            onClick={() => handleReportSelect(report)}
-                          >
-                            <div className='flex-1'>
-                              <p className='text-sm text-neutral-ct-primary font-medium'>
-                                {report.title}
-                              </p>
-                              <p className='text-xs text-neutral-ct-tertiary'>
-                                {report.frequency_type} •{' '}
-                                {report.frequency_value} time(s)
-                              </p>
-                            </div>
-                            {selectedReport?.report_id === report.report_id && (
-                              <div className='w-2 h-2 bg-blue-500 rounded-full' />
-                            )}
+                <div className='w-full bg-white max-h-[160px] overflow-auto mt-3 z-10'>
+                  <div className='max-h-60 overflow-y-auto space-y-1'>
+                    {isLoadingReports ? (
+                      <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                        Loading reports...
+                      </div>
+                    ) : reports.length === 0 ? (
+                      <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                        No existing reports found. Create a new one below.
+                      </div>
+                    ) : filteredReports.length > 0 ? (
+                      filteredReports.map(report => (
+                        <div
+                          key={report.report_id}
+                          onMouseDown={e => e.preventDefault()}
+                          className='flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 cursor-pointer'
+                          onClick={() => handleReportSelect(report)}
+                        >
+                          <div className='flex-1'>
+                            <p className='text-sm text-neutral-ct-primary font-medium'>
+                              {report.title}
+                            </p>
+                            <p className='text-xs text-neutral-ct-tertiary'>
+                              {report.frequency_type} • {report.frequency_value}{' '}
+                              time(s)
+                            </p>
                           </div>
-                        ))
-                      ) : (
-                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
-                          No reports match your search
+                          {selectedReport?.report_id === report.report_id && (
+                            <div className='w-2 h-2 bg-blue-500 rounded-full' />
+                          )}
                         </div>
-                      )}
-                    </div>
+                      ))
+                    ) : (
+                      <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                        No reports match your search
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 

@@ -24,7 +24,6 @@ interface AddToGroupProps {
 import { useAddToGroup } from '@/hooks/mutations';
 import { useGetChatGroups } from '@/hooks/queries';
 import type { ChatGroup } from '@/types/chat';
-import { showToast } from '../common/toast';
 
 const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const addToGroup = useAddToGroup();
@@ -33,7 +32,6 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
     useGetChatGroups();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<ChatGroup | null>(null);
@@ -47,7 +45,6 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
     const value = e.target.value;
     setSearchTerm(value);
     // Only show suggestions when input has content or is actively being used
-    setShowSuggestions(value.length > 0 || document.activeElement === e.target);
     // Clear selected group if user is typing
     if (selectedGroup && value !== selectedGroup.name) {
       setSelectedGroup(null);
@@ -57,7 +54,6 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
   const handleGroupSelect = (group: ChatGroup) => {
     setSelectedGroup(group);
     setSearchTerm(group.name);
-    setShowSuggestions(false);
   };
 
   const handleAddToGroup = () => {
@@ -73,12 +69,6 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
       },
       {
         onSuccess: () => {
-          showToast.success({
-            title: 'Chat added to group',
-            description:
-              'Chat has been successfully added to Pricing Experiments',
-          });
-          setShowSuggestions(false);
           setSearchTerm('');
           setSelectedGroup(null);
           onOpenChange(false);
@@ -174,54 +164,43 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
                   placeholder='Search groups...'
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onFocus={() => {
-                    // Only show suggestions if there's content or groups available
-                    if (searchTerm.length > 0 || groups.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 200)
-                  }
                   tabIndex={-1}
                 />
-                {showSuggestions && (
-                  <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10'>
-                    <div className='max-h-60 overflow-y-auto space-y-1'>
-                      {isLoadingGroups ? (
-                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
-                          Loading groups...
-                        </div>
-                      ) : filteredGroups.length > 0 ? (
-                        filteredGroups.map((group: ChatGroup) => (
-                          <div
-                            key={group.group_id}
-                            onMouseDown={e => e.preventDefault()}
-                            className={`group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition ${
-                              selectedGroup?.group_id === group.group_id
-                                ? 'bg-blue-50 border border-blue-200'
-                                : ''
-                            }`}
-                            onClick={() => handleGroupSelect(group)}
-                          >
-                            <div className='flex items-center space-x-3'>
-                              <Folder size={16} color='#6B7280' />
-                              <div>
-                                <p className='text-sm text-neutral-ct-primary font-medium'>
-                                  {group.name}
-                                </p>
-                              </div>
+                <div className='w-full bg-white  mt-3 z-10'>
+                  <div className='max-h-60 overflow-y-auto space-y-1'>
+                    {isLoadingGroups ? (
+                      <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                        Loading groups...
+                      </div>
+                    ) : filteredGroups.length > 0 ? (
+                      filteredGroups.map((group: ChatGroup) => (
+                        <div
+                          key={group.group_id}
+                          onMouseDown={e => e.preventDefault()}
+                          className={`group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 cursor-pointer transition ${
+                            selectedGroup?.group_id === group.group_id
+                              ? 'bg-blue-50 border border-blue-200'
+                              : ''
+                          }`}
+                          onClick={() => handleGroupSelect(group)}
+                        >
+                          <div className='flex items-center space-x-3'>
+                            <Folder size={16} color='#6B7280' />
+                            <div>
+                              <p className='text-sm text-neutral-ct-primary font-medium'>
+                                {group.name}
+                              </p>
                             </div>
                           </div>
-                        ))
-                      ) : (
-                        <div className='p-4 text-center text-sm text-neutral-tertiary'>
-                          No groups found
                         </div>
-                      )}
-                    </div>
+                      ))
+                    ) : (
+                      <div className='p-4 text-center text-sm text-neutral-tertiary'>
+                        No groups found
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
