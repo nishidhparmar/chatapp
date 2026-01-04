@@ -11,11 +11,14 @@ import { BackToLoginButton } from './common/back-to-login-button';
 import { useRouter } from 'next/navigation';
 import { useForgotPassword } from '@/hooks/mutations/use-forgot-password';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { useState } from 'react';
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
   const { track } = useAnalytics();
   const forgotPasswordMutation = useForgotPassword();
+  const [emailSent, setEmailSent] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
 
   const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
     resolver: zodResolver(ForgotPasswordSchema),
@@ -30,13 +33,15 @@ const ForgotPasswordPage = () => {
       timestamp: new Date().toISOString(),
     });
 
+    setSubmittedEmail(data.email);
+
     forgotPasswordMutation.mutate(data, {
       onSuccess: () => {
         track('Forgot Password Successful', {
           email: data.email,
           timestamp: new Date().toISOString(),
         });
-        router.push('/send-mail');
+        setEmailSent(true);
       },
       onError: () => {
         track('Forgot Password Failed', {
@@ -47,6 +52,26 @@ const ForgotPasswordPage = () => {
     });
   };
 
+  // Render check email view after successful submission
+  if (emailSent) {
+    return (
+      <div className='flex flex-col justify-center bg-secondary items-center min-h-screen lg:p-8 p-4'>
+        <div className='p-6 border border-neutral-br-primary space-y-8 bg-white rounded-lg max-w-[422px] w-full'>
+          <h1 className='text-neutral-ct-primary text-[28px] font-semibold'>
+            Check your email
+          </h1>
+          <p className='text-neutral-ct-primary text-sm'>
+            If an account exists for{' '}
+            <span className='font-semibold'>{submittedEmail}</span>, we've sent
+            instructions to reset your password.
+          </p>
+          <BackToLoginButton />
+        </div>
+      </div>
+    );
+  }
+
+  // Render forgot password form
   return (
     <div className='flex flex-col bg-secondary justify-center items-center min-h-screen lg:p-8 p-4'>
       <div className='p-6 border border-neutral-br-primary bg-white rounded-lg max-w-[422px] w-full'>

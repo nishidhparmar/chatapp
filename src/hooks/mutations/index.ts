@@ -2,6 +2,7 @@ export * from './use-login';
 export * from './use-logout';
 export * from './use-refresh-token';
 export * from './use-forgot-password';
+export * from './use-reset-password';
 export * from './use-chat-ask';
 export * from './use-create-chat';
 export * from './chat-groups/use-add-to-group';

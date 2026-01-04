@@ -22,6 +22,16 @@ export interface ForgotPasswordResponse {
   message: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  status: string;
+  message: string;
+}
+
 export interface User {
   user_id: string | number;
   email: string;

@@ -8,8 +8,16 @@ import z from 'zod';
 import { ResetPasswordSchema } from '@/lib/validation';
 import { Button } from '../ui/button';
 import { BackToLoginButton } from './common/back-to-login-button';
+import { useResetPassword } from '@/hooks/mutations';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const ResetPasswordPage = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const token = searchParams.get('token');
+  const resetPasswordMutation = useResetPassword();
+
   const form = useForm<z.infer<typeof ResetPasswordSchema>>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
@@ -18,9 +26,35 @@ const ResetPasswordPage = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof ResetPasswordSchema>) => {
-    console.log(data);
+  useEffect(() => {
+    if (!token) {
+      // Redirect to forgot password page if no token is provided
+      router.push('/forgot-password');
+    }
+  }, [token, router]);
+
+  const onSubmit = async (data: z.infer<typeof ResetPasswordSchema>) => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await resetPasswordMutation.mutateAsync({
+        token,
+        new_password: data.password,
+      });
+
+      // Redirect to login page on success
+      router.push('/login');
+    } catch (error) {
+      // Error is handled by the hook's onError callback
+      console.error('Reset password failed:', error);
+    }
   };
+
+  if (!token) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className='flex flex-col justify-center bg-secondary items-center min-h-screen lg:p-8 p-4'>
@@ -66,8 +100,14 @@ const ResetPasswordPage = () => {
                 </FormItem>
               )}
             />
-            <Button type='submit' className='w-full mt-8'>
-              Reset Password
+            <Button
+              type='submit'
+              className='w-full mt-8'
+              disabled={resetPasswordMutation.isPending}
+            >
+              {resetPasswordMutation.isPending
+                ? 'Resetting...'
+                : 'Reset Password'}
             </Button>
             <BackToLoginButton />
           </form>

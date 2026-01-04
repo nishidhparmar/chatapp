@@ -40,12 +40,8 @@ export function useLogout() {
       );
       return response.data;
     },
-    onSuccess: data => {
+    onSuccess: () => {
       clearAuthData();
-      showToast.success({
-        title: 'Logged out',
-        description: data.message || 'You have been logged out successfully.',
-      });
       router.push('/login');
     },
     onError: (error: unknown) => {
