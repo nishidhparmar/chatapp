@@ -37,7 +37,6 @@ const MessageList = ({
   onFollowUpQuestionClick,
   isLoadingFollowUp = false,
 }: MessageListProps) => {
-  console.log(messages);
   const { user } = useUserStore();
   const displayName = getDisplayName(user);
   const router = useRouter();
@@ -54,7 +53,6 @@ const MessageList = ({
   const lastAiMessage = messages
     .filter(msg => msg.sender === 'assistant')
     .pop();
-  console.log(messages);
   return (
     <>
       <div className={className}>

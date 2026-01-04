@@ -427,7 +427,7 @@ const ChatSidebar = ({
       {/* Collapse/Expand Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`fixed top-21.5 z-[9999] bg-white border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-all duration-300 ${
+        className={`fixed top-21.5 z-50  bg-white cursor-pointer border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-all duration-300 ${
           isCollapsed ? 'left-18' : 'left-18'
         }`}
         title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
