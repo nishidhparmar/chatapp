@@ -52,7 +52,10 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
             queryKey: ['chat-groups'],
           });
 
-          router.push(`/chats?id=${response.data.chat_id}`);
+          // Set the newly created chat as active
+          router.replace(`/chats?id=${response.data.chat_id}`);
+          window.location.reload();
+
           setValue('');
           onOpenChange(false);
         },

@@ -73,6 +73,7 @@ export interface ChatDetail {
   messages: ChatDetailMessage[];
   created_at: string;
   updated_at: string;
+  group_id: number;
 }
 
 export interface ChatAskResponse {

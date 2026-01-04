@@ -23,6 +23,8 @@ import AddToGroup from './add-to-group';
 import { useIsMobile } from '../../hooks/use-mobile';
 import { useDeleteChat } from '../../hooks/mutations/use-delete-chat';
 import { useRenameChat } from '../../hooks/mutations/use-rename-chat';
+import { useRemoveFromGroup } from '../../hooks/mutations';
+import TurnArrow from './TurnArrow';
 
 interface ChatHeaderProps {
   title?: string;
@@ -33,6 +35,7 @@ interface ChatHeaderProps {
   onTitleChange?: (newTitle: string) => void;
   onDelete?: () => void;
   isInGroup?: boolean;
+  groupId: number;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -44,6 +47,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   onTitleChange,
   onDelete,
   isInGroup = false,
+  groupId,
 }) => {
   const [deleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [shareChatModal, setOpenShareChatModal] = useState(false);
@@ -55,6 +59,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const isMobile = useIsMobile();
   const deleteChat = useDeleteChat();
   const renameChat = useRenameChat();
+  const removeFromGroup = useRemoveFromGroup();
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -106,6 +111,20 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         },
       });
     }
+  };
+
+  const handleRemoveFromGroup = () => {
+    removeFromGroup.mutate(
+      {
+        groupId,
+        chatId: Number(chatId),
+      },
+      {
+        onSuccess: () => {
+          // setOpenPopover(null);
+        },
+      }
+    );
   };
 
   return (
@@ -178,7 +197,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               align='end'
               sideOffset={6}
             >
-              {!isInGroup && (
+              {!isInGroup ? (
                 <button
                   className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
                   onClick={() => setAddToGroupModal(true)}
@@ -191,6 +210,23 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                     />
                     <span className='text-neutral-ct-primary'>
                       Add to group
+                    </span>
+                  </div>
+                  <MdKeyboardArrowRight className='h-5 text-neutral-ct-primary w-5' />
+                </button>
+              ) : (
+                <button
+                  className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
+                  onClick={handleRemoveFromGroup}
+                  type='button'
+                >
+                  <div className='flex items-center gap-2'>
+                    <TurnArrow
+                      size={16}
+                      className='text-neutral-ct-secondary'
+                    />
+                    <span className='text-neutral-ct-primary'>
+                      Remove from group
                     </span>
                   </div>
                   <MdKeyboardArrowRight className='h-5 text-neutral-ct-primary w-5' />

@@ -178,6 +178,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
               chatId={activeChat ? Number(activeChat) : undefined}
               onDelete={() => setActiveChat('')}
               isInGroup={chatDetails?.data.is_in_group}
+              groupId={chatDetails?.data?.group_id || 0}
             />
             {activeTab === 'chat' && (
               <>
