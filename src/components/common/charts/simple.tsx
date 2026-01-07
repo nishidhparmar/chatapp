@@ -14,22 +14,24 @@ import { useIsMobile } from '../../../hooks/use-mobile';
 import { BarChartData } from '../../../types/chat';
 
 const simpleBarData = [
-  { month: 'Jan', fullMonth: 'January', value: 24 },
-  { month: 'Feb', fullMonth: 'February', value: 36 },
-  { month: 'Mar', fullMonth: 'March', value: 33 },
-  { month: 'Apr', fullMonth: 'April', value: 25 },
-  { month: 'May', fullMonth: 'May', value: 35 },
-  { month: 'Jun', fullMonth: 'June', value: 25 },
-  { month: 'Jul', fullMonth: 'July', value: 22 },
-  { month: 'Aug', fullMonth: 'August', value: 34 },
-  { month: 'Sep', fullMonth: 'September', value: 27 },
-  { month: 'Oct', fullMonth: 'October', value: 39 },
-  { month: 'Nov', fullMonth: 'November', value: 26 },
-  { month: 'Dec', fullMonth: 'December', value: 34 },
+  { label: 'Jan', value: 24 },
+  { label: 'Feb', value: 36 },
+  { label: 'Mar', value: 33 },
+  { label: 'Apr', value: 25 },
+  { label: 'May', value: 35 },
+  { label: 'Jun', value: 25 },
+  { label: 'Jul', value: 22 },
+  { label: 'Aug', value: 34 },
+  { label: 'Sep', value: 27 },
+  { label: 'Oct', value: 39 },
+  { label: 'Nov', value: 26 },
+  { label: 'Dec', value: 34 },
 ];
 
 interface SimpleChartProps {
   data?: BarChartData['data'];
+  minValue?: number;
+  maxValue?: number;
 }
 
 // Custom Tooltip Component
@@ -45,7 +47,9 @@ const CustomTooltip = ({
         {/* Tooltip Box */}
         <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
           <div className='flex items-center justify-between gap-8 text-xs'>
-            <span className='font-medium'>{data.fullMonth}</span>
+            <span className='font-medium'>
+              {data.originalLabel || data.label}
+            </span>
             <span className='font-semibold'>{data.value}</span>
           </div>
         </div>
@@ -55,11 +59,44 @@ const CustomTooltip = ({
   return null;
 };
 
-const SimpleChart: React.FC<SimpleChartProps> = ({ data }) => {
+const SimpleChart: React.FC<SimpleChartProps> = ({
+  data,
+  minValue,
+  maxValue,
+}) => {
   const isMobile = useIsMobile();
 
   // Use API data if available, otherwise fallback to default data
   const chartData = data || simpleBarData;
+
+  // Function to truncate text if too long
+  const truncateText = (
+    text: string,
+    maxLength: number = isMobile ? 6 : 10
+  ) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '..';
+  };
+
+  // Process chart data with truncated labels for display
+  const processedChartData = chartData.map(item => ({
+    ...item,
+    displayLabel: truncateText(item.label),
+    originalLabel: item.label, // Keep original for tooltip
+  }));
+
+  // Calculate min/max values from data if not provided
+  const dataValues = chartData.map(item => item.value || 0);
+
+  const calculatedMin = minValue ?? Math.min(...dataValues);
+  const calculatedMax = maxValue ?? Math.max(...dataValues);
+
+  // Add some padding to the domain for better visualization
+  const domainMin = Math.max(
+    0,
+    calculatedMin - (calculatedMax - calculatedMin) * 0.1
+  );
+  const domainMax = calculatedMax + (calculatedMax - calculatedMin) * 0.1;
 
   // Responsive dimensions
   const chartHeight = isMobile ? 300 : 400;
@@ -70,11 +107,29 @@ const SimpleChart: React.FC<SimpleChartProps> = ({ data }) => {
 
   return (
     <div className='w-full'>
+      {/* Min/Max Value Display */}
+      {(minValue !== undefined || maxValue !== undefined) && (
+        <div className='flex justify-between items-center mb-4 px-4 py-2 bg-gray-50 rounded-lg'>
+          <div className='text-sm'>
+            <span className='text-gray-600'>Min: </span>
+            <span className='font-semibold text-green-600'>
+              {calculatedMin.toLocaleString()}
+            </span>
+          </div>
+          <div className='text-sm'>
+            <span className='text-gray-600'>Max: </span>
+            <span className='font-semibold text-red-600'>
+              {calculatedMax.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className='w-full' style={{ height: chartHeight }}>
         <ResponsiveContainer width='100%' height='100%'>
-          <BarChart data={chartData} margin={margins}>
+          <BarChart data={processedChartData} margin={margins}>
             <XAxis
-              dataKey='month'
+              dataKey='displayLabel'
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
@@ -82,7 +137,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({ data }) => {
                 fontSize: fontSize,
                 fontWeight: 500,
               }}
-              interval={isMobile ? 1 : 0}
+              interval={isMobile ? 2 : processedChartData.length > 8 ? 1 : 0}
               height={isMobile ? 40 : 50}
             />
             <YAxis
@@ -93,13 +148,23 @@ const SimpleChart: React.FC<SimpleChartProps> = ({ data }) => {
                 fontSize: fontSize,
                 fontWeight: 500,
               }}
-              ticks={[0, 40]}
-              domain={[0, 40]}
-              tickFormatter={v => `${v === 0 ? '0' : v + 'M'}`}
+              domain={
+                dataValues.length > 0 && calculatedMax > 0
+                  ? [domainMin, domainMax]
+                  : [0, 100]
+              }
+              ticks={
+                dataValues.length > 0 && calculatedMax > 0
+                  ? [calculatedMin, calculatedMax]
+                  : [0, 100]
+              }
+              tickFormatter={v =>
+                `${v === 0 ? '0' : v >= 1000000 ? (v / 1000000).toFixed(1) + 'M' : v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v}`
+              }
               width={isMobile ? 40 : 50}
             >
               <Label
-                value='Sale'
+                value='Value'
                 angle={-90}
                 position='insideLeft'
                 style={{

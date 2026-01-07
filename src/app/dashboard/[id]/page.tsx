@@ -83,13 +83,14 @@ export default function ReportDetailPage() {
         ) : (
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             {dashboardData.data.charts.map(chart => {
-              const refinedata = {
-                message_id: chart.message_id,
+              const refinedata: ChatDetailMessage = {
+                id: chart.message_id,
                 text: chart.title,
                 chart_content: chart.chart_config,
                 created_at: chart.created_at,
-                chart_type: chart.chart_type,
+                chart_type: chart.chart_type as VisualizationType,
                 sender: 'user',
+                title: chart.title,
               };
               return (
                 <InvoiceView
@@ -97,7 +98,7 @@ export default function ReportDetailPage() {
                   HideAddToDashboard
                   hideExtentView
                   showDelete
-                  data={refinedata as ChatDetailMessage}
+                  data={refinedata}
                   defaultView={chart.chart_type as VisualizationType}
                   title={chart.title}
                   dashboardId={dashboardData.data.dashboard_id}

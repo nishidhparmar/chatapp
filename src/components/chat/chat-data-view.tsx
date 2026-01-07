@@ -48,7 +48,7 @@ const ChatDataView: React.FC<ChatDataViewProps> = ({
       {chartsData?.data.map(chart => {
         return (
           <InvoiceView
-            key={chart.message_id}
+            key={chart.id}
             title={chart.title}
             defaultView={chart.visualization_type as VisualizationType}
             data={chart}

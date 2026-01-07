@@ -61,12 +61,13 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         ) : dashboardData ? (
           <div className='w-full h-full gap-4 p-6 space-y-4'>
             {dashboardData.data.charts.map(chart => {
-              const refinedata = {
-                message_id: chart.message_id,
+              const refinedata: ChatDetailMessage = {
+                id: chart.message_id,
                 text: chart.title,
                 chart_content: chart.chart_config,
                 created_at: chart.created_at,
                 sender: 'user',
+                title: chart.title,
               };
               return (
                 <InvoiceView
@@ -75,7 +76,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                   HideAddToDashboard
                   hideExtentView
                   showDelete
-                  data={refinedata as ChatDetailMessage}
+                  data={refinedata}
                   title={chart.title}
                   dashboardId={dashboardData.data.dashboard_id}
                   chartId={chart.widget_id}

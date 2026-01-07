@@ -67,6 +67,7 @@ export interface DashboardWidget {
 }
 
 export interface DashboardDetail {
+  id: number;
   dashboard_id: number;
   user_id: number;
   client_id: number;

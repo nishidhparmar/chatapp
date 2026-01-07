@@ -4,28 +4,32 @@ import { VisualizationType } from '../components/common/invoice-view/types';
 export interface BarChartData {
   type: 'bar_chart';
   data: Array<{
-    month: string;
+    label: string;
     value: number;
-    fullMonth: string;
   }>;
+  min_value?: number;
+  max_value?: number;
 }
 
 export interface LineChartData {
   type: 'line_chart';
   data: Array<{
-    date: string;
-    fullDate: string;
+    label: string;
     value: number;
   }>;
+  min_value?: number;
+  max_value?: number;
 }
 
 export interface PieChartData {
   type: 'pie_chart';
   data: Array<{
-    name: string;
+    label: string;
     value: number;
     percent: number;
   }>;
+  min_value?: number;
+  max_value?: number;
 }
 
 export interface TableData {
@@ -55,7 +59,7 @@ export interface ChatMessage {
 }
 
 export interface ChatDetailMessage {
-  message_id: number;
+  id: number;
   sender: 'user' | 'assistant';
   text: string;
   chart_content?: ChartContentData;

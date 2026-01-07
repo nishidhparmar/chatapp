@@ -12,8 +12,18 @@ import {
 import { useIsMobile } from '../../../hooks/use-mobile';
 import { LineChartData } from '../../../types/chat';
 
+const defaultLineData = [
+  { label: 'Jan', value: 24 },
+  { label: 'Feb', value: 36 },
+  { label: 'Mar', value: 33 },
+  { label: 'Apr', value: 25 },
+  { label: 'May', value: 35 },
+];
+
 interface LineChartProps {
   data?: LineChartData['data'];
+  minValue?: number;
+  maxValue?: number;
 }
 
 // Custom Tooltip Component
@@ -30,7 +40,7 @@ const CustomTooltip = ({
       {/* Tooltip Box */}
       <div className='bg-gray-700 text-white rounded-lg p-3 shadow-lg min-w-[180px]'>
         <div className='text-sm font-medium mb-2 text-gray-200'>
-          {data.fullDate}
+          {data.originalLabel || data.label}
         </div>
 
         {/* Value */}
@@ -42,17 +52,54 @@ const CustomTooltip = ({
             ></div>
             <span className='text-xs text-gray-300'>Value</span>
           </div>
-          <span className='text-xs font-semibold'>{data.value}</span>
+          <span className='text-xs font-semibold'>
+            {data.value.toLocaleString()}
+          </span>
         </div>
       </div>
     </div>
   );
 };
 
-const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
+const LineChartComp: React.FC<LineChartProps> = ({
+  data,
+  minValue,
+  maxValue,
+}) => {
   const isMobile = useIsMobile();
 
-  const chartData = data;
+  // Use fallback data if no data provided
+  const chartData = data || defaultLineData;
+
+  // Function to truncate text if too long
+  const truncateText = (
+    text: string,
+    maxLength: number = isMobile ? 6 : 10
+  ) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '..';
+  };
+
+  // Process chart data with truncated labels for display
+  const processedChartData = chartData.map(item => ({
+    ...item,
+    displayLabel: truncateText(item.label),
+    originalLabel: item.label, // Keep original for tooltip
+  }));
+
+  // Calculate min/max values from data if not provided
+  const dataValues = chartData?.map(item => item.value) || [];
+  const calculatedMin =
+    minValue ?? (dataValues.length > 0 ? Math.min(...dataValues) : 0);
+  const calculatedMax =
+    maxValue ?? (dataValues.length > 0 ? Math.max(...dataValues) : 100);
+
+  // Add some padding to the domain for better visualization
+  const domainMin = Math.max(
+    0,
+    calculatedMin - (calculatedMax - calculatedMin) * 0.1
+  );
+  const domainMax = calculatedMax + (calculatedMax - calculatedMin) * 0.1;
 
   const chartHeight = isMobile ? 300 : 400;
   const margins = { top: 80, right: 16, left: 0, bottom: 16 };
@@ -64,9 +111,27 @@ const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
 
   return (
     <div className='w-full'>
+      {/* Min/Max Value Display */}
+      {(minValue !== undefined || maxValue !== undefined) && (
+        <div className='flex justify-between items-center mb-4 px-4 py-2 bg-gray-50 rounded-lg'>
+          <div className='text-sm'>
+            <span className='text-gray-600'>Min: </span>
+            <span className='font-semibold text-green-600'>
+              {calculatedMin.toLocaleString()}
+            </span>
+          </div>
+          <div className='text-sm'>
+            <span className='text-gray-600'>Max: </span>
+            <span className='font-semibold text-red-600'>
+              {calculatedMax.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className='w-full' style={{ height: chartHeight }}>
         <ResponsiveContainer width='100%' height='100%'>
-          <AreaChart data={chartData} margin={margins}>
+          <AreaChart data={processedChartData} margin={margins}>
             <defs>
               <linearGradient id='colorLeads' x1='0' y1='0' x2='0' y2='1'>
                 <stop offset='5%' stopColor='#EF4444' stopOpacity={0.3} />
@@ -75,7 +140,7 @@ const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
             </defs>
 
             <XAxis
-              dataKey='date'
+              dataKey='displayLabel'
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
@@ -83,7 +148,15 @@ const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
                 fontSize: fontSize,
                 fontWeight: 500,
               }}
-              interval={isMobile ? 2 : 1}
+              interval={
+                isMobile
+                  ? processedChartData.length > 6
+                    ? 2
+                    : 1
+                  : processedChartData.length > 10
+                    ? 1
+                    : 0
+              }
               height={isMobile ? 30 : 40}
             />
             <YAxis
@@ -94,11 +167,18 @@ const LineChartComp: React.FC<LineChartProps> = ({ data }) => {
                 fontSize: yAxisFontSize,
                 fontWeight: 500,
               }}
-              ticks={[0, 125]}
-              domain={[0, 125]}
+              domain={[domainMin, domainMax]}
+              ticks={[calculatedMin, calculatedMax]}
+              tickFormatter={v =>
+                v >= 1000000
+                  ? (v / 1000000).toFixed(1) + 'M'
+                  : v >= 1000
+                    ? (v / 1000).toFixed(1) + 'K'
+                    : v.toString()
+              }
               width={yAxisWidth}
               label={{
-                value: 'Number of Leads',
+                value: 'Value',
                 angle: -90,
                 position: 'end',
                 style: {

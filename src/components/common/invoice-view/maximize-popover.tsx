@@ -133,11 +133,11 @@ const MaximizePopover: React.FC<MaximizePopoverProps> = ({
       {/* Fullscreen Modal Overlay */}
       {isModalOpen && (
         <div className='fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm flex items-center justify-center'>
-          <div className='relative bg-black  shadow-2xl w-full h-screen  overflow-hidden'>
+          <div className='relative bg-white  shadow-2xl w-full h-screen  overflow-hidden'>
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className='absolute top-4 right-4 cursor-pointer z-10 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-colors'
+              className='absolute top-4 right-4 border border-black/6 cursor-pointer z-10 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-colors'
             >
               <X className='h-4 w-4 text-gray-600' />
             </button>

@@ -57,7 +57,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
 
     // Create optimistic user message
     const optimisticUserMessage: ChatDetailMessage = {
-      message_id: Date.now(), // Temporary ID
+      id: Date.now(), // Temporary ID
       text: message.trim(),
       sender: 'user',
       created_at: new Date().toISOString(),

@@ -40,11 +40,29 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
           />
         );
       case 'bar_chart':
-        return <SimpleChart data={chartContent.data} />;
+        return (
+          <SimpleChart
+            data={chartContent.data}
+            minValue={chartContent.min_value}
+            maxValue={chartContent.max_value}
+          />
+        );
       case 'line_chart':
-        return <LineChartComp data={chartContent.data} />;
+        return (
+          <LineChartComp
+            data={chartContent.data}
+            minValue={chartContent.min_value}
+            maxValue={chartContent.max_value}
+          />
+        );
       case 'pie_chart':
-        return <DonutChart data={chartContent.data} />;
+        return (
+          <DonutChart
+            data={chartContent.data}
+            minValue={chartContent.min_value}
+            maxValue={chartContent.max_value}
+          />
+        );
       default:
     }
   }

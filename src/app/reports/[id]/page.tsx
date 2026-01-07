@@ -38,7 +38,7 @@ export default function ReportDetailPage() {
           <div className='mb-8'>
             <Link
               href={'/dashboard'}
-              className='text-brand-ct-brand font-semibold tex-xs'
+              className='text-brand-ct-brand font-semibold text-xs'
             >
               Back to All
             </Link>
@@ -63,7 +63,7 @@ export default function ReportDetailPage() {
         <div className='mb-8'>
           <Link
             href={'/dashboard'}
-            className='text-brand-ct-brand font-semibold tex-xs'
+            className='text-brand-ct-brand font-semibold text-xs'
           >
             Back to All
           </Link>
@@ -83,8 +83,9 @@ export default function ReportDetailPage() {
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             {dashboardData.data.charts.map(chart => {
               const refinedata = {
-                message_id: chart.message_id,
+                id: chart.message_id,
                 text: chart.title,
+                title: chart.title,
                 chart_content: chart.chart_config,
                 created_at: chart.created_at,
                 sender: 'user',

@@ -60,7 +60,7 @@ const MessageList = ({
           const isLastAiMessage =
             showFeedback &&
             message.sender === 'assistant' &&
-            message.message_id === lastAiMessage?.message_id;
+            message.id === lastAiMessage?.id;
 
           const isLastMessage = index === messages.length - 1;
           const isLastAssistantMessage =
@@ -69,7 +69,7 @@ const MessageList = ({
           if (message.sender === 'user') {
             return (
               <ChatBubble
-                key={message.message_id}
+                key={message.id}
                 message={message.text}
                 avatar={user?.avatar}
                 userName={displayName}
@@ -80,7 +80,7 @@ const MessageList = ({
 
           return (
             <div
-              key={message.message_id}
+              key={message.id}
               className='flex flex-col md:flex-row md:items-start md:gap-3'
             >
               {/* Icon */}
@@ -169,7 +169,7 @@ const MessageList = ({
         <ProvideFeedbackModal
           open={provideFeedbackModal}
           onOpenChange={setOpenProvideFeedbackModal}
-          messageId={String(lastAiMessage.message_id)}
+          messageId={String(lastAiMessage.id)}
         />
       )}
     </>

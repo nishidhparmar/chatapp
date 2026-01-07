@@ -62,8 +62,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({
           <div className='w-full h-full gap-4 p-6 space-y-4'>
             {dashboardData.data.charts.map(chart => {
               const refinedata = {
+                id: chart.widget_id,
                 message_id: chart.message_id,
                 text: chart.title,
+                title: chart.title,
                 chart_content: chart.chart_config,
                 created_at: chart.created_at,
                 sender: 'user',
