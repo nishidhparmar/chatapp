@@ -55,6 +55,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const [isHovered, setIsHovered] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const deleteChat = useDeleteChat();
@@ -121,7 +122,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       },
       {
         onSuccess: () => {
-          // setOpenPopover(null);
+          setIsPopoverOpen(false);
         },
       }
     );
@@ -182,7 +183,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           </div>
         )}
         <div className='flex items-center justify-end space-x-2 shrink-0 ml-1'>
-          <Popover>
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
               <button
                 className='bg-neutral-tertiary h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0'
@@ -193,14 +194,17 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               </button>
             </PopoverTrigger>
             <PopoverContent
-              className='w-[200px] p-0'
+              className='w-[220px] p-0'
               align='end'
               sideOffset={6}
             >
               {!isInGroup ? (
                 <button
                   className='w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-disabled rounded-md transition-colors text-sm'
-                  onClick={() => setAddToGroupModal(true)}
+                  onClick={() => {
+                    setAddToGroupModal(true);
+                    setIsPopoverOpen(false);
+                  }}
                   type='button'
                 >
                   <div className='flex items-center gap-2'>
