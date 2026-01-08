@@ -67,8 +67,8 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
         );
       case 'text':
         return (
-          <p className='text-xl text-center font-semibold'>
-            {chartContent.data[0].count}
+          <p className='text-4xl text-center font-semibold'>
+            {chartContent.data[0]?.count}
           </p>
         );
       default:

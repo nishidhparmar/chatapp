@@ -43,7 +43,7 @@ export interface PieChartData {
 export interface TextData {
   type: 'text';
   data: Array<{
-    count: number;
+    count?: number;
   }>;
   min_value?: number;
   max_value?: number;

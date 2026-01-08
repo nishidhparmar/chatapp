@@ -119,8 +119,8 @@ const DonutChart: React.FC<DonutChartProps> = ({
 
   // Function to truncate text if too long
   const truncateText = (text: string, maxLength: number = 15) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '..';
+    if (text?.length <= maxLength) return text;
+    return text?.substring(0, maxLength) + '..';
   };
 
   // Responsive dimensions
