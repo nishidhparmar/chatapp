@@ -9,6 +9,7 @@ import { Button } from '../../ui/button';
 import { useChatAsk } from '../../../hooks/mutations';
 import SearchSuggestions from './search-suggestions';
 import { useSuggestedQuestions } from '../../../hooks/queries';
+import { useFollowupStore } from '../../../lib/stores';
 
 interface ConversationTabProps {
   placeholder?: string;
@@ -25,6 +26,7 @@ const ConversationTab = ({
 
   const { mutate: createChat, isPending: isCreatingChat } = useChatAsk();
   const router = useRouter();
+  const { setFollowupQuestions } = useFollowupStore();
 
   const handleSearchConversationChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -36,10 +38,20 @@ const ConversationTab = ({
   const handleSearchClick = (suggestion: string) => {
     if (isCreatingChat) return;
 
+    // Clear any existing followup questions when starting new search
+    setFollowupQuestions([], 0);
+
     createChat(
       { chat_id: 0, mode: 'conversational', text: suggestion },
       {
         onSuccess: response => {
+          // Store followup questions in Zustand store
+          if (response.data.followup_questions) {
+            setFollowupQuestions(
+              response.data.followup_questions,
+              response.data.chat_id
+            );
+          }
           router.push(`/conversations/${response.data.chat_id}`);
         },
       }
@@ -50,10 +62,20 @@ const ConversationTab = ({
   const handleAskQuestion = () => {
     if (!searchConversationQuery.trim() || isCreatingChat) return;
 
+    // Clear any existing followup questions when starting new search
+    setFollowupQuestions([], 0);
+
     createChat(
       { chat_id: 0, mode: 'conversational', text: searchConversationQuery },
       {
         onSuccess: response => {
+          // Store followup questions in Zustand store
+          if (response.data.followup_questions) {
+            setFollowupQuestions(
+              response.data.followup_questions,
+              response.data.chat_id
+            );
+          }
           router.push(`/conversations/${response.data.chat_id}`);
         },
       }

@@ -42,9 +42,10 @@ export interface PieChartData {
 
 export interface TextData {
   type: 'text';
-  data: Array<{
-    count?: number;
-  }>;
+  data: Array<Record<string, unknown>>;
+  data_format?: {
+    columns: string[];
+  };
   min_value?: number;
   max_value?: number;
 }

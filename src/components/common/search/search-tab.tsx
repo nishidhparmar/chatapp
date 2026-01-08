@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../../ui/button';
 import { useSuggestedQuestions } from '../../../hooks/queries';
 import { useChatAsk } from '../../../hooks/mutations';
+import { useFollowupStore } from '../../../lib/stores';
 
 interface SearchTabProps {
   placeholder?: string;
@@ -29,6 +30,7 @@ const SearchTab = ({
 
   const { mutate: createChat, isPending } = useChatAsk();
   const router = useRouter();
+  const { setFollowupQuestions } = useFollowupStore();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -36,10 +38,20 @@ const SearchTab = ({
   };
 
   const handleSearchClick = (suggestion: string) => {
+    // Clear any existing followup questions when starting new search
+    setFollowupQuestions([], 0);
+
     createChat(
       { chat_id: 0, mode: 'search', text: suggestion },
       {
         onSuccess: response => {
+          // Store followup questions in Zustand store
+          if (response.data.followup_questions) {
+            setFollowupQuestions(
+              response.data.followup_questions,
+              response.data.chat_id
+            );
+          }
           router.push(`/chat/${response.data.chat_id}`);
         },
       }

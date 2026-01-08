@@ -15,6 +15,7 @@ import ChatDataView from './chat-data-view';
 import Loading from '../common/loading';
 import BubbleLoader from '../common/message/bubble-loader';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useFollowupStore } from '../../lib/stores';
 
 interface ChatLayoutProps {
   title?: string;
@@ -28,11 +29,16 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const {
+    followupQuestions,
+    currentChatId,
+    setFollowupQuestions,
+    clearFollowupQuestions,
+  } = useFollowupStore();
   const [optimisticMessages, setOptimisticMessages] = useState<
     ChatDetailMessage[]
   >([]);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [dashboardView, setDashboardView] = useState<{
     dashboardId: number | null;
     visible: boolean;
@@ -68,7 +74,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     setOptimisticMessages([optimisticUserMessage]);
     setIsWaitingForResponse(true);
     // Clear previous follow-up questions when sending new message
-    setFollowUpQuestions([]);
+    clearFollowupQuestions();
 
     chatAskMutation.mutate(
       {
@@ -78,9 +84,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
       },
       {
         onSuccess: response => {
-          // Store follow-up questions from the response
+          // Store follow-up questions in Zustand store
           if (response.data?.followup_questions) {
-            setFollowUpQuestions(response.data.followup_questions);
+            setFollowupQuestions(
+              response.data.followup_questions,
+              Number(activeChat)
+            );
           }
 
           // Refetch chat details to get the updated messages
@@ -93,7 +102,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
           // Reset optimistic state on error
           setOptimisticMessages([]);
           setIsWaitingForResponse(false);
-          setFollowUpQuestions([]);
+          // Questions are already cleared, no need to clear again
         },
       }
     );
@@ -117,8 +126,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   useEffect(() => {
     setOptimisticMessages([]);
     setIsWaitingForResponse(false);
-    setFollowUpQuestions([]);
-  }, [activeChat]);
+    clearFollowupQuestions();
+  }, [activeChat, clearFollowupQuestions]);
 
   useEffect(() => {
     const chatId = searchParams.get('id');
@@ -199,7 +208,11 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
                             ]}
                             chatId={Number(activeChat)}
                             onOpenDashboardView={handleOpenDashboardView}
-                            followUpQuestions={followUpQuestions}
+                            followUpQuestions={
+                              currentChatId === Number(activeChat)
+                                ? followupQuestions
+                                : []
+                            }
                             onFollowUpQuestionClick={handleSendMessage}
                             isLoadingFollowUp={chatAskMutation.isPending}
                           />

@@ -9,10 +9,20 @@ import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
 import Loading from '@/components/common/loading';
 import { SearchTab } from '../common';
+import { useFollowupStore } from '../../lib/stores';
+import { useChatAsk } from '../../hooks/mutations';
+import BubbleLoader from '../common/message/bubble-loader';
 
 const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
   const { data, isLoading, isError, refetch } = useGetChatById(Number(chatId));
+  const {
+    followupQuestions,
+    currentChatId,
+    setFollowupQuestions,
+    clearFollowupQuestions,
+  } = useFollowupStore();
+  const { mutate: createChat, isPending } = useChatAsk();
   const [openSaveChatModal, setOpenChatModal] = useState<{
     visible: boolean;
     id: number;
@@ -48,6 +58,38 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
 
   const messages = data.data.messages;
 
+  // Handle followup question clicks
+  const handleFollowupQuestionClick = (question: string) => {
+    // Clear followup questions immediately when clicked
+    clearFollowupQuestions();
+
+    createChat(
+      { chat_id: chatId, mode: 'search', text: question },
+      {
+        onSuccess: response => {
+          // Update followup questions in store with new ones from response
+          if (response.data.followup_questions) {
+            setFollowupQuestions(
+              response.data.followup_questions,
+              response.data.chat_id
+            );
+          }
+          // Refetch to get updated messages
+          refetch();
+        },
+        onError: error => {
+          console.error('Failed to send followup question:', error);
+          // On error, we could optionally restore the previous questions
+          // but for now we'll keep them cleared for better UX
+        },
+      }
+    );
+  };
+
+  // Get followup questions for this specific chat
+  const currentFollowupQuestions =
+    currentChatId === chatId ? followupQuestions : [];
+
   return (
     <DashboardLayout>
       <div className='bg-transparent'>
@@ -74,7 +116,16 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
               className='space-y-6'
               showFeedback={true}
               chatId={chatId}
+              // followUpQuestions={currentFollowupQuestions}
+              onFollowUpQuestionClick={handleFollowupQuestionClick}
+              isLoadingFollowUp={isPending}
             />
+            {/* Show bubble loader when API is pending */}
+            {isPending && (
+              <div className='space-y-6 py-6'>
+                <BubbleLoader />
+              </div>
+            )}
           </div>
         </div>
       </div>

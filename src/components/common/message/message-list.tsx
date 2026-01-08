@@ -92,10 +92,10 @@ const MessageList = ({
               <div className='flex-1 w-full'>
                 <div className='flex items-center gap-2 w-full'>
                   <Aichat className='shrink-0 md:hidden block' />
-                  {showInvoiceView && message.chart_content && (
+                  {showInvoiceView && message.chart_content ? (
                     <div className='w-full'>
                       <InvoiceView
-                        title={message.text}
+                        title={message.title}
                         defaultView={
                           message.chart_content.type as VisualizationType
                         }
@@ -103,6 +103,12 @@ const MessageList = ({
                         chatId={chatId}
                         onOpenDashboardView={onOpenDashboardView}
                       />
+                    </div>
+                  ) : (
+                    <div
+                      className={`mt-0.5 rounded-md max-w-[75%] text-sm leading-snug`}
+                    >
+                      {message.title}
                     </div>
                   )}
                 </div>

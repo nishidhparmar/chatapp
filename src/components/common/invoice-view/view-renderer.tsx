@@ -20,15 +20,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
     );
   };
 
-  // Debug logging
-  console.log('ViewRenderer - chartContent:', chartContent);
-  console.log(
-    'ViewRenderer - isNewChartFormat:',
-    chartContent ? isNewChartFormat(chartContent) : false
-  );
-
   if (chartContent && isNewChartFormat(chartContent)) {
-    console.log('ViewRenderer - Rendering chart type:', chartContent.type);
     switch (chartContent.type) {
       case 'table':
         return (
@@ -66,11 +58,12 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
           />
         );
       case 'text':
-        return (
-          <p className='text-4xl text-center font-semibold'>
-            {chartContent.data[0]?.count}
-          </p>
-        );
+        // Get the column name from data_format.columns (should only have one column)
+        const textContent = chartContent as any;
+        const columnName = textContent.data_format?.columns?.[0];
+        const value = columnName ? textContent.data[0]?.[columnName] : null;
+
+        return <p className='text-4xl text-center font-semibold'>{value}</p>;
       default:
     }
   }

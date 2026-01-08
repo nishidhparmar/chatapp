@@ -12,17 +12,23 @@ import { useRouter } from 'next/navigation';
 import Loading from '@/components/common/loading';
 import BubbleLoader from '../common/message/bubble-loader';
 import { ChatDetailMessage } from '../../types/chat';
+import { useFollowupStore } from '../../lib/stores';
 
 const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
   const { data, isLoading, isError, refetch } = useGetChatById(Number(chatId));
   const { mutate, isPending } = useChatAsk();
+  const {
+    followupQuestions,
+    currentChatId,
+    setFollowupQuestions,
+    clearFollowupQuestions,
+  } = useFollowupStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [optimisticMessages, setOptimisticMessages] = useState<
     ChatDetailMessage[]
   >([]);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [openSaveChatModal, setOpenChatModal] = useState<{
     visible: boolean;
     id: number;
@@ -50,6 +56,9 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   const handleSendMessage = (message: string) => {
     if (!message.trim()) return;
 
+    // Clear followup questions immediately when sending new message
+    clearFollowupQuestions();
+
     // Create optimistic user message
     const optimisticUserMessage: ChatDetailMessage = {
       id: Date.now(), // Temporary ID
@@ -62,8 +71,6 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
     // Add optimistic message and show loading state
     setOptimisticMessages([optimisticUserMessage]);
     setIsWaitingForResponse(true);
-    // Clear previous follow-up questions when sending new message
-    setFollowUpQuestions([]);
 
     mutate(
       {
@@ -73,9 +80,9 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
       },
       {
         onSuccess: response => {
-          // Store follow-up questions from the response
+          // Store follow-up questions in Zustand store
           if (response.data?.followup_questions) {
-            setFollowUpQuestions(response.data.followup_questions);
+            setFollowupQuestions(response.data.followup_questions, chatId);
           }
           refetch();
         },
@@ -84,7 +91,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
           // Reset optimistic state on error
           setOptimisticMessages([]);
           setIsWaitingForResponse(false);
-          setFollowUpQuestions([]);
+          // Questions are already cleared, no need to clear again
         },
       }
     );
@@ -116,6 +123,10 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
   const messages = data.data.messages;
   const displayMessages = [...messages, ...optimisticMessages];
 
+  // Get followup questions for this specific chat
+  const currentFollowupQuestions =
+    currentChatId === chatId ? followupQuestions : [];
+
   return (
     <DashboardLayout>
       <div className='flex flex-col h-full'>
@@ -135,7 +146,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
           <MessageList
             messages={displayMessages}
             chatId={chatId}
-            followUpQuestions={followUpQuestions}
+            followUpQuestions={currentFollowupQuestions}
             onFollowUpQuestionClick={handleSendMessage}
             isLoadingFollowUp={isPending}
           />
