@@ -32,6 +32,7 @@ interface SimpleChartProps {
   data?: BarChartData['data'];
   minValue?: number;
   maxValue?: number;
+  chartContent?: BarChartData;
 }
 
 // Custom Tooltip Component
@@ -63,6 +64,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
   data,
   minValue,
   maxValue,
+  chartContent,
 }) => {
   const isMobile = useIsMobile();
 
@@ -139,7 +141,18 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
               }}
               interval={isMobile ? 2 : processedChartData.length > 8 ? 1 : 0}
               height={isMobile ? 40 : 50}
-            />
+            >
+              <Label
+                value={chartContent?.columns?.x}
+                position='bottom'
+                style={{
+                  textAnchor: 'middle',
+                  fill: '#6B7280',
+                  fontSize: fontSize,
+                  fontWeight: 600,
+                }}
+              />
+            </XAxis>
             <YAxis
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
@@ -164,7 +177,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
               width={isMobile ? 40 : 50}
             >
               <Label
-                value='Value'
+                value={chartContent?.columns?.y}
                 angle={-90}
                 position='insideLeft'
                 style={{

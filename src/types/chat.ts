@@ -9,6 +9,10 @@ export interface BarChartData {
   }>;
   min_value?: number;
   max_value?: number;
+  columns?: {
+    x: string;
+    y: string;
+  };
 }
 
 export interface LineChartData {
@@ -19,6 +23,10 @@ export interface LineChartData {
   }>;
   min_value?: number;
   max_value?: number;
+  columns?: {
+    x: string;
+    y: string;
+  };
 }
 
 export interface PieChartData {
@@ -27,6 +35,15 @@ export interface PieChartData {
     label: string;
     value: number;
     percent: number;
+  }>;
+  min_value?: number;
+  max_value?: number;
+}
+
+export interface TextData {
+  type: 'text';
+  data: Array<{
+    count: number;
   }>;
   min_value?: number;
   max_value?: number;
@@ -42,7 +59,8 @@ export type ChartContentData =
   | BarChartData
   | LineChartData
   | PieChartData
-  | TableData;
+  | TableData
+  | TextData;
 
 export interface ChatAskPayload {
   chat_id: number;

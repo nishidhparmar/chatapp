@@ -42,6 +42,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
       case 'bar_chart':
         return (
           <SimpleChart
+            chartContent={chartContent}
             data={chartContent.data}
             minValue={chartContent.min_value}
             maxValue={chartContent.max_value}
@@ -50,6 +51,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
       case 'line_chart':
         return (
           <LineChartComp
+            chartContent={chartContent}
             data={chartContent.data}
             minValue={chartContent.min_value}
             maxValue={chartContent.max_value}
@@ -62,6 +64,12 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({ chartContent }) => {
             minValue={chartContent.min_value}
             maxValue={chartContent.max_value}
           />
+        );
+      case 'text':
+        return (
+          <p className='text-xl text-center font-semibold'>
+            {chartContent.data[0].count}
+          </p>
         );
       default:
     }

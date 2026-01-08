@@ -24,6 +24,7 @@ interface LineChartProps {
   data?: LineChartData['data'];
   minValue?: number;
   maxValue?: number;
+  chartContent?: LineChartData;
 }
 
 // Custom Tooltip Component
@@ -65,6 +66,7 @@ const LineChartComp: React.FC<LineChartProps> = ({
   data,
   minValue,
   maxValue,
+  chartContent,
 }) => {
   const isMobile = useIsMobile();
 
@@ -158,6 +160,16 @@ const LineChartComp: React.FC<LineChartProps> = ({
                     : 0
               }
               height={isMobile ? 30 : 40}
+              label={{
+                value: chartContent?.columns?.x,
+                position: 'bottom',
+                style: {
+                  textAnchor: 'middle',
+                  fill: '#6b7280',
+                  fontSize: yAxisFontSize,
+                  fontWeight: 400,
+                },
+              }}
             />
             <YAxis
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
@@ -178,7 +190,7 @@ const LineChartComp: React.FC<LineChartProps> = ({
               }
               width={yAxisWidth}
               label={{
-                value: 'Value',
+                value: chartContent?.columns?.y,
                 angle: -90,
                 position: 'end',
                 style: {
