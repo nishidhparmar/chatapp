@@ -76,8 +76,8 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
     text: string,
     maxLength: number = isMobile ? 6 : 10
   ) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '..';
+    if (text?.length <= maxLength) return text;
+    return text?.substring(0, maxLength) + '..';
   };
 
   // Process chart data with truncated labels for display

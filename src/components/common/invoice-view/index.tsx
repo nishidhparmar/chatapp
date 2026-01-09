@@ -26,7 +26,6 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   dashboardId,
   chartId,
 }) => {
-  console.log(data);
   const [defaultView, setDefaultView] =
     useState<VisualizationType>(propDefaultView);
   const [chartContent, setChartContent] = useState<
@@ -171,7 +170,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
         open={openReportRecurringModal}
         onOpenChange={() => setOpenReportRecurringModal(false)}
         messageId={data?.id}
-        title={title?.split(':').slice(1).join(':').split('.')[0].trim()}
+        title={title}
       />
 
       {/* Fullscreen Modal */}

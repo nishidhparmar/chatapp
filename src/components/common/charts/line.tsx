@@ -78,7 +78,7 @@ const LineChartComp: React.FC<LineChartProps> = ({
     text: string,
     maxLength: number = isMobile ? 6 : 10
   ) => {
-    if (text.length <= maxLength) return text;
+    if (text?.length <= maxLength) return text;
     return text.substring(0, maxLength) + '..';
   };
 
