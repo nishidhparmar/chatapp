@@ -53,24 +53,24 @@ const ViewAsPopover: React.FC<ViewAsPopoverProps> = ({
       value: 'pie_chart',
       onClick: () => onViewChange('pie_chart'),
     },
-    {
-      title: 'Stacked Chart',
-      icon: <BarChart3 className='h-4 w-4' />,
-      value: 'stacked_chart',
-      onClick: () => onViewChange('stacked_chart'),
-    },
-    {
-      title: 'Grouped Chart',
-      icon: <BarChart3 className='h-4 w-4' />,
-      value: 'grouped_chart',
-      onClick: () => onViewChange('grouped_chart'),
-    },
-    {
-      title: 'Multi Line Chart',
-      icon: <LineChart className='h-4 w-4' />,
-      value: 'multi_line',
-      onClick: () => onViewChange('multi_line'),
-    },
+    // {
+    //   title: 'Stacked Chart',
+    //   icon: <BarChart3 className='h-4 w-4' />,
+    //   value: 'stacked_chart',
+    //   onClick: () => onViewChange('stacked_chart'),
+    // },
+    // {
+    //   title: 'Grouped Chart',
+    //   icon: <BarChart3 className='h-4 w-4' />,
+    //   value: 'grouped_chart',
+    //   onClick: () => onViewChange('grouped_chart'),
+    // },
+    // {
+    //   title: 'Multi Line Chart',
+    //   icon: <LineChart className='h-4 w-4' />,
+    //   value: 'multi_line',
+    //   onClick: () => onViewChange('multi_line'),
+    // },
   ];
 
   return (
@@ -78,7 +78,7 @@ const ViewAsPopover: React.FC<ViewAsPopoverProps> = ({
       {!hideViewAs && (
         <PopoverTrigger asChild>
           <button
-            className='px-3 py-1.5 text-xs cursor-pointer text-nowrap font-semibold text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+            className='md:px-3 py-1.5 text-xs cursor-pointer text-nowrap font-semibold text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
             disabled={isChangingView}
           >
             {isChangingView ? 'Loading...' : 'View As'}
@@ -92,7 +92,7 @@ const ViewAsPopover: React.FC<ViewAsPopoverProps> = ({
             key={index}
             className={cn(
               defaultView === item.value && 'bg-neutral-secondary',
-              'w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-neutral-secondary rounded-md transition-colors text-sm text-neutral-ct-primary disabled:opacity-50 disabled:cursor-not-allowed'
+              'w-full flex items-center justify-between gap-2 px-3 cursor-pointer py-2.5 hover:bg-neutral-secondary rounded-md transition-colors text-sm text-neutral-ct-primary disabled:opacity-50 disabled:cursor-not-allowed'
             )}
             onClick={item.onClick}
             type='button'

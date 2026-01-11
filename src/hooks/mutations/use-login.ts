@@ -4,7 +4,6 @@ import axiosInstance from '@/lib/axios';
 import type { LoginPayload, AuthResponse, User } from '@/types/auth';
 import type { ApiResponse } from '@/types/api';
 import { setCookie } from '@/lib/cookie-utils';
-import { showToast } from '@/components/common/toast';
 import { useUserStore } from '@/lib/stores/user-store';
 
 export function useLogin() {
@@ -38,10 +37,6 @@ export function useLogin() {
         console.error('Failed to fetch user details after login:', error);
       }
 
-      showToast.success({
-        title: 'Login successful',
-        description: 'Welcome back! You have been logged in successfully.',
-      });
       const redirectUrl = searchParams.get('redirect') || '/';
       window.location.href = redirectUrl;
     },

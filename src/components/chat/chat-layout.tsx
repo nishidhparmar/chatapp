@@ -51,7 +51,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     Number(activeChat),
     !!activeChat
   );
-
   const chatAskMutation = useChatAsk();
 
   const handleTabChange = (tab: 'chat' | 'data') => {

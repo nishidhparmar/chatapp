@@ -62,7 +62,7 @@ class ErrorBoundary extends React.Component<
       return (
         <div className='flex items-center justify-center min-h-[200px] p-6'>
           <div className='text-center'>
-            <h2 className='text-lg font-semibold text-neutral-ct-primary mb-2'>
+            <h2 className='md:text-lg text-base font-semibold text-neutral-ct-primary mb-2'>
               Something went wrong
             </h2>
             <p className='text-sm text-neutral-ct-secondary mb-4'>

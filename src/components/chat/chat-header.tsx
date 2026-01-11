@@ -109,6 +109,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         onSuccess: () => {
           setOpenDeleteChatModal(false);
           onDelete?.();
+          window.location.reload();
         },
       });
     }

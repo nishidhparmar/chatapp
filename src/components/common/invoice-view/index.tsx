@@ -114,7 +114,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   return (
     <div className='bg-white rounded-lg border border-neutral-br-disabled'>
       <div className='flex md:flex-row flex-col md:items-center gap-2 justify-between p-4 '>
-        <h3 className='text-lg font-semibold text-neutral-ct-primary'>
+        <h3 className='text-md:text-lg text-base font-semibold text-neutral-ct-primary'>
           {data?.title}
         </h3>
         {chartContent && (

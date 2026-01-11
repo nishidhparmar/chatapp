@@ -16,11 +16,13 @@ interface SearchTabProps {
   placeholder?: string;
   suggestions?: string[];
   className?: string;
+  handleSuccess?: (response: any) => void;
 }
 
 const SearchTab = ({
   placeholder = 'Show me the sales data for California?',
   className,
+  handleSuccess,
 }: SearchTabProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [onFocus, setOnFocus] = useState(false);
@@ -52,7 +54,14 @@ const SearchTab = ({
               response.data.chat_id
             );
           }
-          router.push(`/chat/${response.data.chat_id}`);
+
+          // If handleSuccess prop is provided, use it (for existing chat pages)
+          if (handleSuccess) {
+            handleSuccess(response);
+          } else {
+            // Otherwise navigate to new chat (for new searches)
+            router.push(`/chat/${response.data.chat_id}`);
+          }
         },
       }
     );

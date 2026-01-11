@@ -23,7 +23,7 @@ const FollowUpQuestions = ({
             key={index}
             onClick={() => onQuestionClick(question)}
             disabled={isLoading}
-            className='text-left h-auto py-2 px-3 text-wrap text-sm bg-gray-200 rounded-md cursor-pointer text-neutral-ct-primary'
+            className='text-left h-auto py-2 px-3 text-wrap md:text-sm text-[10px] bg-gray-200 rounded-md cursor-pointer text-neutral-ct-primary'
           >
             {question}
           </button>

@@ -234,12 +234,14 @@ const ChatSidebar = ({
           setChatToDelete(null);
           // If the deleted chat was active, clear the active chat
           if (activeChat === chatToDelete) {
-            setActiveChat('');
+            window.location.reload();
           }
         },
       });
     }
   };
+
+  console.log(chatToDelete, activeChat);
 
   const handleRemoveFromGroup = (chatId: string, groupId: number) => {
     removeFromGroup.mutate(

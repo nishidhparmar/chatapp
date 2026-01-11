@@ -27,7 +27,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     <div className='h-full  border-l border-neutral-br-disabled'>
       {/* Header */}
       <div className='flex items-center bg-white justify-between p-4 border-b border-neutral-br-disabled'>
-        <h2 className='text-lg font-semibold text-neutral-ct-primary'>
+        <h2 className='md:text-lg text-base font-semibold text-neutral-ct-primary'>
           {dashboardData?.data.name}
         </h2>
         <Button

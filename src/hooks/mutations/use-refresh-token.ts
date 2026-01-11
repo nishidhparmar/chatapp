@@ -20,10 +20,7 @@ export function useRefreshToken() {
       localStorage.setItem('access_token', data.data.access_token);
       localStorage.setItem('refresh_token', data.data.refresh_token);
       localStorage.setItem('expires_in', data.data.expires_in.toString());
-      showToast.success({
-        title: 'Session refreshed',
-        description: 'Your session has been refreshed successfully.',
-      });
+      // Removed automatic success toast for token refresh as it's a background operation
     },
     onError: () => {
       localStorage.removeItem('access_token');

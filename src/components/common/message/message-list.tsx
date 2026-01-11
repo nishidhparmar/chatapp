@@ -90,7 +90,7 @@ const MessageList = ({
 
               {/* Content */}
               <div className='flex-1 w-full'>
-                <div className='flex items-center gap-2 w-full'>
+                <div className='flex items-start gap-2 w-full'>
                   <Aichat className='shrink-0 md:hidden block' />
                   {showInvoiceView && message.chart_content ? (
                     <div className='w-full'>
@@ -130,7 +130,7 @@ const MessageList = ({
                 {isLastAiMessage && (
                   <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between pt-4 mt-4'>
                     <div className='flex items-center gap-3'>
-                      <span className='text-sm text-neutral-ct-tertiary'>
+                      <span className='md:text-sm text-[10px] text-neutral-ct-tertiary'>
                         Was this answer helpful?
                       </span>
                       <PiThumbsUp

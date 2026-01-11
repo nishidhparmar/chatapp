@@ -25,7 +25,7 @@ const SearchSuggestions = ({
 
   return (
     <div className='absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-1 z-10 max-h-96 overflow-y-auto'>
-      <div className='flex'>
+      <div className='flex md:flex-row flex-col max-h-64 overflow-auto '>
         {hasRecentQuestions && (
           <div>
             <div className='px-4 py-2 text-xs font-medium text-neutral-ct-primary '>
