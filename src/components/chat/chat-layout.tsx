@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ChatSidebar from './chat-sidebar';
 import ChatHeader from './chat-header';
-import { useIsMobile } from '../../hooks/use-mobile';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import { useChatAsk } from '../../hooks/mutations/use-chat-ask';
 import SendInput from '../common/message/send-input';
@@ -24,7 +23,7 @@ interface ChatLayoutProps {
 const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const [activeTab, setActiveTab] = useState<'chat' | 'data'>('chat');
   const [activeChat, setActiveChat] = useState('');
-  const isMobile = useIsMobile();
+  const isMobile = window.innerWidth < 768;
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
@@ -162,11 +161,13 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
 
       {!activeChat ? (
         <div className='flex-1 flex items-center justify-center'>
-          <div className='text-center'>
-            <p className='text-neutral-ct-secondary text-sm'>
-              Select a chat to start messaging
-            </p>
-          </div>
+          {!isMobile && (
+            <div className='text-center'>
+              <p className='text-neutral-ct-secondary text-sm'>
+                Select a chat to start messaging
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div

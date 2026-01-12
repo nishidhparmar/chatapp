@@ -29,7 +29,6 @@ import {
   ChatListSkeleton,
   GroupListSkeleton,
 } from '@/components/common/skeletons';
-import { useIsMobile } from '../../hooks/use-mobile';
 import { Pagination } from '../ui/pagination';
 
 interface ChatItem {
@@ -77,7 +76,7 @@ const ChatSidebar = ({
   const { data: chatGroupsData, isLoading: isLoadingGroups } =
     useGetChatGroups();
   const deleteChat = useDeleteChat();
-  const isMobile = useIsMobile();
+  const isMobile = window.innerWidth < 768;
   const deleteGroup = useDeleteGroup();
   const renameChat = useRenameChat();
   const removeFromGroup = useRemoveFromGroup();
@@ -139,6 +138,7 @@ const ChatSidebar = ({
     }
   }, [hasPrevPage]);
 
+  console.log();
   // Auto-select first available chat when data loads (desktop only) - only if no URL param was provided
   useEffect(() => {
     if (!activeChat && !isLoadingChats && !isLoadingGroups && !isMobile) {
@@ -240,8 +240,6 @@ const ChatSidebar = ({
       });
     }
   };
-
-  console.log(chatToDelete, activeChat);
 
   const handleRemoveFromGroup = (chatId: string, groupId: number) => {
     removeFromGroup.mutate(
@@ -427,20 +425,22 @@ const ChatSidebar = ({
       className={`${isCollapsed ? 'w-0' : 'md:w-80 w-full'} flex bg-white border-r border-neutral-br-secondary flex-col h-full transition-all duration-300 ease-in-out relative overflow-visible`}
     >
       {/* Collapse/Expand Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`fixed top-21.5 z-50  bg-white cursor-pointer border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-all duration-300 ${
-          isCollapsed ? 'left-18' : 'left-18'
-        }`}
-        title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
-        type='button'
-      >
-        {isCollapsed ? (
-          <ChevronRight className='h-4 w-4 text-neutral-ct-primary' />
-        ) : (
-          <ChevronLeft className='h-4 w-4 text-neutral-ct-primary' />
-        )}
-      </button>
+      {!isMobile && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={`fixed top-21.5 z-50  bg-white cursor-pointer border border-neutral-br-secondary rounded-full p-1.5 shadow-sm hover:shadow-md transition-all duration-300 ${
+            isCollapsed ? 'left-18' : 'left-18'
+          }`}
+          title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
+          type='button'
+        >
+          {isCollapsed ? (
+            <ChevronRight className='h-4 w-4 text-neutral-ct-primary' />
+          ) : (
+            <ChevronLeft className='h-4 w-4 text-neutral-ct-primary' />
+          )}
+        </button>
+      )}
 
       {/* Collapsed State */}
       {isCollapsed ? (
