@@ -86,7 +86,7 @@ export default function ReportDetailPage() {
                 id: chart.message_id,
                 text: chart.title,
                 title: chart.title,
-                chart_content: chart.chart_config,
+                chart_content: chart.chart_content,
                 created_at: chart.created_at,
                 sender: 'user',
               };

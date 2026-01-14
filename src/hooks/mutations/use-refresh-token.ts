@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type { AuthResponse } from '@/types/auth';
-import { showToast } from '@/components/common/toast';
 
 interface RefreshTokenPayload {
   refresh_token: string;

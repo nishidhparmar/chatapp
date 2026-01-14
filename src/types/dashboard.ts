@@ -61,7 +61,7 @@ export interface DashboardWidget {
   message_id: number;
   title: string;
   chart_type: string;
-  chart_config: ChartContentData;
+  chart_content: ChartContentData;
   position: number;
   created_at: string;
 }

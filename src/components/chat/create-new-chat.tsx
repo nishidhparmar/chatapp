@@ -54,7 +54,7 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
 
           // Set the newly created chat as active
           router.replace(`/chats?id=${response.data.chat_id}`);
-          window.location.reload();
+          // window.location.reload();
 
           setValue('');
           onOpenChange(false);

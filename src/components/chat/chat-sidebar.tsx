@@ -30,6 +30,7 @@ import {
   GroupListSkeleton,
 } from '@/components/common/skeletons';
 import { Pagination } from '../ui/pagination';
+import { useRouter } from 'next/navigation';
 
 interface ChatItem {
   id: string;
@@ -102,6 +103,7 @@ const ChatSidebar = ({
   const totalPages = pagination?.total_pages || 1;
   const totalChats = pagination?.total || 0;
 
+  const router = useRouter();
   const chats: ChatItem[] =
     data?.data?.chats?.map(chat => ({
       id: String(chat.chat_id),
@@ -343,7 +345,10 @@ const ChatSidebar = ({
             : renamingItem !== item.id &&
               'hover:bg-neutral-disabled bg-transparent'
         }`}
-        onClick={() => setActiveChat(item.id)}
+        onClick={() => {
+          setActiveChat(item.id);
+          router.push(`/chats?id=${item.id}`);
+        }}
       >
         {isInGroup && (
           <div className='absolute h-[1px] -left-1.5 w-3 bg-neutral-br-primary' />

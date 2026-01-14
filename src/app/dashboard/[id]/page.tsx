@@ -86,7 +86,7 @@ export default function ReportDetailPage() {
               const refinedata: ChatDetailMessage = {
                 id: chart.message_id,
                 text: chart.title,
-                chart_content: chart.chart_config,
+                chart_content: chart.chart_content,
                 created_at: chart.created_at,
                 chart_type: chart.chart_type as VisualizationType,
                 sender: 'user',

@@ -13,7 +13,5 @@ export function useGetChatById(chatId: number, enabled = true) {
       return response.data;
     },
     enabled: enabled && !!chatId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }

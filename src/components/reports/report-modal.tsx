@@ -34,6 +34,7 @@ import type { CreateReportPayload, ReportListItem } from '@/types/reports';
 import { useCurrentUser } from '../../hooks/use-current-user';
 import TimeCombobox from './time-combobox';
 import { Button } from '../ui/button';
+import Input from '../ui/input';
 
 interface CreateReportModalProps {
   open: boolean;
@@ -66,6 +67,7 @@ const ReportModal = (props: ReportModalProps) => {
   const isEditing = isEditMode(props);
   const { user } = useCurrentUser();
   const [repeatEvery, setRepeatEvery] = useState('1');
+  const [title, setTitle] = useState('');
   const [repeatUnit, setRepeatUnit] = useState('daily');
   const [time, setTime] = useState('9:00 AM');
   const [ends, setEnds] = useState<'never' | 'on' | 'after'>('never');
@@ -93,6 +95,7 @@ const ReportModal = (props: ReportModalProps) => {
   useEffect(() => {
     if (isEditing) {
       const reportData = props.reportData;
+      setTitle(reportData.title);
       setRepeatEvery(String(reportData.frequency_value) || '1');
       setRepeatUnit(reportData.frequency_type || 'daily');
       setTime(convertTo12Hour(reportData.repeat_at || '09:00:00'));
@@ -132,6 +135,7 @@ const ReportModal = (props: ReportModalProps) => {
       }
     } else {
       // Reset form for create mode
+      setTitle('');
       setRepeatEvery('1');
       setRepeatUnit('daily');
       setTime('9:00 AM');
@@ -175,11 +179,11 @@ const ReportModal = (props: ReportModalProps) => {
     }
 
     const questionsArray = getQuestions();
-    const reportTitle = getTitle();
+    // const reportTitle = getTitle();
 
     const basePayload: CreateReportPayload = {
       message_id: isEditing ? undefined : props.messageId,
-      title: reportTitle,
+      title: title,
       questions: questionsArray,
       frequency_type: repeatUnit as 'daily' | 'weekly' | 'monthly',
       frequency_value: parseInt(repeatEvery),
@@ -217,6 +221,17 @@ const ReportModal = (props: ReportModalProps) => {
           </DialogTitle>
         </DialogHeader>
         <div className='space-y-6 mt-2'>
+          <div className='flex items-center gap-2'>
+            <div className='text-sm text-neutral-ct-primary items-start col-span-1'>
+              Title
+            </div>
+            <Input
+              onChange={e => {
+                setTitle(e.target.value);
+              }}
+              value={title}
+            />
+          </div>
           {/* Repeat every */}
           <div className='grid grid-cols-4 gap-2 items-center justify-between'>
             <div className='text-sm text-neutral-ct-primary items-start col-span-1'>
@@ -242,7 +257,6 @@ const ReportModal = (props: ReportModalProps) => {
               </Select>
             </div>
           </div>
-
           {/* Conditional rendering based on repeat unit */}
           {repeatUnit === 'weekly' && (
             <div className='grid grid-cols-4 items-center'>
@@ -272,7 +286,6 @@ const ReportModal = (props: ReportModalProps) => {
               </div>
             </div>
           )}
-
           {repeatUnit === 'monthly' && (
             <div className='grid grid-cols-4 gap-2 items-center justify-between'>
               <div className='text-sm text-neutral-ct-primary col-span-1'>
@@ -305,7 +318,6 @@ const ReportModal = (props: ReportModalProps) => {
               </div>
             </div>
           )}
-
           {/* At time (Combobox) */}
           <div className='grid grid-cols-4 gap-2 items-center justify-between'>
             <div className='text-sm text-neutral-ct-primary grid-cols-1'>
@@ -313,7 +325,6 @@ const ReportModal = (props: ReportModalProps) => {
             </div>
             <TimeCombobox value={time} onChange={setTime} />
           </div>
-
           {/* Ends */}
           <div className='space-y-5'>
             <div className='text-base font-semibold text-neutral-ct-primary'>
@@ -409,7 +420,6 @@ const ReportModal = (props: ReportModalProps) => {
               </div>
             </RadioGroup>
           </div>
-
           {/* Get updates */}
           <div>
             <div className='text-base font-semibold text-neutral-ct-primary'>

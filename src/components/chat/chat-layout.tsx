@@ -46,13 +46,17 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
     visible: false,
   });
 
-  const { data: chatDetails, isLoading: isLoadingChat } = useGetChatById(
-    Number(activeChat),
-    !!activeChat
-  );
+  const {
+    data: chatDetails,
+    isLoading: isLoadingChat,
+    refetch,
+  } = useGetChatById(Number(activeChat), !!activeChat);
   const chatAskMutation = useChatAsk();
 
   const handleTabChange = (tab: 'chat' | 'data') => {
+    if (tab === 'chat') {
+      refetch();
+    }
     setActiveTab(tab);
   };
 
@@ -128,8 +132,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   }, [activeChat, clearFollowupQuestions]);
 
   useEffect(() => {
+    setActiveTab('chat');
+  }, [activeChat]);
+
+  useEffect(() => {
     const chatId = searchParams.get('id');
-    if (chatId && !activeChat) {
+    if (chatId) {
       setActiveChat(chatId);
       // Replace the URL with /chats to remove the id parameter
       router.replace('/chats');

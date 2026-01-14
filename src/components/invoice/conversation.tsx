@@ -84,7 +84,7 @@ const InvoiceConversation = ({ chatId }: { chatId: number }) => {
           if (response.data?.followup_questions) {
             setFollowupQuestions(response.data.followup_questions, chatId);
           }
-          refetch();
+          // refetch();
         },
         onError: error => {
           console.error('Failed to send message:', error);

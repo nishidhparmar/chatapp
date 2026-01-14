@@ -111,7 +111,7 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
             );
           }
           // Refetch to get updated messages
-          refetch();
+          // refetch();
         },
         onError: error => {
           console.error('Failed to send followup question:', error);

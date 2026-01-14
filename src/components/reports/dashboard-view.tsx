@@ -22,7 +22,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     isLoading,
     error,
   } = useGetDashboardById(dashboardId!, !!dashboardId);
-
   return (
     <div className='h-full  border-l border-neutral-br-disabled'>
       {/* Header */}
@@ -64,7 +63,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               const refinedata: ChatDetailMessage = {
                 id: chart.message_id,
                 text: chart.title,
-                chart_content: chart.chart_config,
+                chart_content: chart.chart_content,
                 created_at: chart.created_at,
                 sender: 'user',
                 title: chart.title,
