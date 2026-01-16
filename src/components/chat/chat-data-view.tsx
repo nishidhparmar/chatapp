@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import { useGetChatCharts } from '../../hooks/queries/use-get-chat-charts';
 import { InvoiceView } from '../common';
 import { VisualizationType } from '../common/invoice-view/types';
@@ -47,14 +47,16 @@ const ChatDataView: React.FC<ChatDataViewProps> = ({
     >
       {chartsData?.data.map((chart, i) => {
         return (
-          <InvoiceView
-            key={i}
-            title={chart.title}
-            defaultView={chart.visualization_type as VisualizationType}
-            data={chart}
-            chatId={chatId}
-            onOpenDashboardView={handleOpenDashboardView}
-          />
+          <Fragment key={i}>
+            <InvoiceView
+              key={i}
+              title={chart.title}
+              defaultView={chart.visualization_type as VisualizationType}
+              data={chart}
+              chatId={chatId}
+              onOpenDashboardView={handleOpenDashboardView}
+            />
+          </Fragment>
         );
       })}
     </div>

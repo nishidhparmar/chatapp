@@ -72,10 +72,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
   const chartData = data || simpleBarData;
 
   // Function to truncate text if too long
-  const truncateText = (
-    text: string,
-    maxLength: number = isMobile ? 6 : 10
-  ) => {
+  const truncateText = (text: string, maxLength: number = isMobile ? 6 : 5) => {
     if (text?.length <= maxLength) return text;
     return text?.substring(0, maxLength) + '..';
   };
