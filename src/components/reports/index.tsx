@@ -178,15 +178,6 @@ const Reports = () => {
     );
   };
 
-  // Handle toggle pause/resume
-  const _handleToggleStatus = (reportId: number, currentStatus: boolean) => {
-    updateReportStatusMutation.mutate({
-      reportId,
-      isActive: !currentStatus,
-    });
-    // Error handling is done by the mutation's onError
-  };
-
   const handleEdit = (id: number) => {
     setEditingReportId(id);
     setReportModalOpen(true);

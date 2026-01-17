@@ -82,6 +82,7 @@ export interface ChatDetailMessage {
   sender: 'user' | 'assistant';
   text: string;
   chart_content?: ChartContentData;
+  asked_question?: string;
   created_at: string;
   visualization_type?: VisualizationType;
   chart_type?: VisualizationType;

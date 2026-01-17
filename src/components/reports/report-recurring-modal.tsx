@@ -14,6 +14,7 @@ import { Plus } from 'lucide-react';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useGetReports } from '@/hooks/queries/reports/use-get-reports';
 import { useCreateReport } from '@/hooks/mutations/reports/use-create-report';
+import { useUpdateReport } from '@/hooks/mutations/reports/use-update-report';
 import type { ReportListItem, CreateReportPayload } from '@/types/reports';
 import ReportModal from './report-modal';
 
@@ -22,6 +23,7 @@ interface ReportRecurringProps {
   onOpenChange: (open: boolean) => void;
   messageId?: number;
   title?: string;
+  askedQuestion?: string;
 }
 
 const ReportRecurring = ({
@@ -29,6 +31,7 @@ const ReportRecurring = ({
   onOpenChange,
   messageId,
   title,
+  askedQuestion,
 }: ReportRecurringProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReport, setSelectedReport] = useState<ReportListItem | null>(
@@ -40,6 +43,7 @@ const ReportRecurring = ({
   const { data: reportsResponse, isLoading: isLoadingReports } =
     useGetReports();
   const createReportMutation = useCreateReport();
+  const updateReportMutation = useUpdateReport();
 
   const reports = reportsResponse?.data || [];
 
@@ -65,35 +69,73 @@ const ReportRecurring = ({
       return;
     }
 
-    // Create payload using selected report data
-    const payload: CreateReportPayload = {
-      message_id: messageId,
-      title: selectedReport.title,
-      questions: selectedReport.questions,
-      frequency_type: selectedReport.frequency_type as
-        | 'daily'
-        | 'weekly'
-        | 'monthly',
-      frequency_value: selectedReport.frequency_value,
-      repeat_at: selectedReport.repeat_at,
-      repeat_on: selectedReport.repeat_on || '',
-      stopping_date: selectedReport.stopping_date ?? undefined,
-      stopping_threshold: 0,
-      notify_channels: selectedReport.notify_channels.filter(
-        (channel): channel is 'in_app' | 'email' =>
-          channel === 'in_app' || channel === 'email'
-      ),
-    };
+    console.log(selectedReport);
 
-    createReportMutation.mutate(payload, {
-      onSuccess: () => {
-        onOpenChange(false);
-        // Reset state
-        setSelectedReport(null);
-        setSearchTerm('');
-      },
-      // Error handling is done by the mutation's onError
-    });
+    // If we have a new question from props, update the selected report's questions
+    if (askedQuestion) {
+      // Combine existing questions with the new one
+      const existingQuestions = Array.isArray(selectedReport.questions)
+        ? selectedReport.questions
+        : [selectedReport.questions];
+
+      const updatedQuestions = [...existingQuestions, askedQuestion];
+
+      updateReportMutation.mutate(
+        {
+          reportId: selectedReport.report_id,
+          payload: {
+            title: selectedReport.title,
+            questions: updatedQuestions,
+            frequency_type: selectedReport.frequency_type,
+            frequency_value: selectedReport.frequency_value,
+            repeat_at: selectedReport.repeat_at,
+            repeat_on: selectedReport.repeat_on || '',
+            stopping_date: selectedReport.stopping_date ?? undefined,
+            stopping_threshold: selectedReport.stopping_threshold || 0,
+            notify_channels: selectedReport.notify_channels,
+            is_active: selectedReport.is_active,
+          },
+        },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            // Reset state
+            setSelectedReport(null);
+            setSearchTerm('');
+          },
+        }
+      );
+    } else {
+      // If no new question, create a new report with selected report data
+      const payload: CreateReportPayload = {
+        message_id: messageId,
+        title: selectedReport.title,
+        questions: selectedReport.questions,
+        frequency_type: selectedReport.frequency_type as
+          | 'daily'
+          | 'weekly'
+          | 'monthly',
+        frequency_value: selectedReport.frequency_value,
+        repeat_at: selectedReport.repeat_at,
+        repeat_on: selectedReport.repeat_on || '',
+        stopping_date: selectedReport.stopping_date ?? undefined,
+        stopping_threshold: 0,
+        notify_channels: selectedReport.notify_channels.filter(
+          (channel): channel is 'in_app' | 'email' =>
+            channel === 'in_app' || channel === 'email'
+        ),
+      };
+
+      createReportMutation.mutate(payload, {
+        onSuccess: () => {
+          onOpenChange(false);
+          // Reset state
+          setSelectedReport(null);
+          setSearchTerm('');
+        },
+        // Error handling is done by the mutation's onError
+      });
+    }
   };
 
   return (
@@ -187,10 +229,14 @@ const ReportRecurring = ({
                 disabled={
                   !selectedReport ||
                   !messageId ||
-                  createReportMutation.isPending
+                  createReportMutation.isPending ||
+                  updateReportMutation.isPending
                 }
               >
-                {createReportMutation.isPending ? 'Creating...' : 'Continue'}
+                {createReportMutation.isPending ||
+                updateReportMutation.isPending
+                  ? 'Processing...'
+                  : 'Continue'}
               </Button>
             </div>
           </>

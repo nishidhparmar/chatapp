@@ -171,6 +171,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
         onOpenChange={() => setOpenReportRecurringModal(false)}
         messageId={data?.id}
         title={title}
+        askedQuestion={data?.asked_question}
       />
 
       {/* Fullscreen Modal */}
