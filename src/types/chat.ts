@@ -79,6 +79,7 @@ export interface ChatMessage {
 
 export interface ChatDetailMessage {
   id: number;
+  message_id?: number;
   sender: 'user' | 'assistant';
   text: string;
   chart_content?: ChartContentData;

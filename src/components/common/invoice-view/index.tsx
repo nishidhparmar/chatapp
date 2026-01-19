@@ -80,14 +80,14 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   }, [data?.chart_content]);
 
   const handleViewChange = (viewType: VisualizationType) => {
-    if (!data?.id) {
+    if (!data?.id && !data?.message_id) {
       setDefaultView(viewType);
       setOpenViewAsPopover(false);
       return;
     }
     changeView(
       {
-        messageId: data?.id,
+        messageId: data?.id ?? data?.message_id,
         payload: { visualization_type: viewType },
       },
       {
@@ -157,7 +157,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
         open={openAddTodashboardModal}
         onOpenChange={() => setOpenAddTodashboard(false)}
         chatId={chatId || 0}
-        messageId={data?.id || 0}
+        messageId={data?.id || data?.message_id || 0}
         chartTitle={title || ''}
         chartType={defaultView as AddToDashboardPayload['chart_type']}
         onSuccess={dashboardId => {

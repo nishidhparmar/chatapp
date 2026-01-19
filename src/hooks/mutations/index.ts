@@ -11,4 +11,5 @@ export * from './chat-groups/use-delete-group';
 export * from './chat-groups/use-remove-from-group';
 export * from './dashboard/use-add-to-dashboard';
 export * from './dashboard/use-remove-from-dashboard';
+export * from './dashboard/use-delete-dashboard';
 export * from './feedback/use-create-feedback';

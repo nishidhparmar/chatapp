@@ -47,9 +47,9 @@ const InvoiceViewTable: React.FC<InvoiceViewTableProps> = ({ data }) => {
         className={`hidden md:block border bg-white rounded border-neutral-br-disabled ${needsHorizontalScroll ? 'overflow-x-auto' : ''} ${needsVerticalScroll ? 'overflow-y-auto' : ''} ${maxHeight}`}
       >
         <table className='w-full'>
-          <thead className='sticky top-0 bg-white z-10'>
+          <thead className='sticky top-0 bg-white z-9'>
             <tr className='bg-neutral-disabled text-neutral-ct-primary text-xs font-semibold'>
-              {columns.map((column, index) => (
+              {columns?.map((column, index) => (
                 <th key={index} className='px-3 py-2 text-left'>
                   {formatColumnHeader(column)}
                 </th>

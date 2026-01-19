@@ -95,9 +95,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
           }
 
           // Refetch chat details to get the updated messages
-          queryClient.invalidateQueries({
-            queryKey: ['chat', Number(activeChat)],
-          });
+          // queryClient.invalidateQueries({
+          //   queryKey: ['chat', Number(activeChat)],
+          // });
         },
         onError: error => {
           console.error('Failed to send message:', error);
