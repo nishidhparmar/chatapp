@@ -212,9 +212,19 @@ const ReportModal = (props: ReportModalProps) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading) {
+      e.preventDefault();
+      handleReportSubmit();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[434px]'>
+      <DialogContent
+        className='sm:max-w-[434px] max-h-[90vh] overflow-y-auto'
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Edit recurring report' : 'Set up recurring report'}
@@ -233,11 +243,11 @@ const ReportModal = (props: ReportModalProps) => {
             />
           </div>
           {/* Repeat every */}
-          <div className='grid grid-cols-4 gap-2 items-center justify-between'>
-            <div className='text-sm text-neutral-ct-primary items-start col-span-1'>
+          <div className='grid grid-cols-4 gap-2 items-center justify-between md:grid-cols-4'>
+            <div className='text-sm text-neutral-ct-primary items-start col-span-4 md:col-span-1'>
               Repeat every
             </div>
-            <div className='col-span-3 grid grid-cols-2 gap-2'>
+            <div className='col-span-4 md:col-span-3 grid grid-cols-2 gap-2'>
               <AuthInput
                 label=''
                 value={repeatEvery}
@@ -259,9 +269,11 @@ const ReportModal = (props: ReportModalProps) => {
           </div>
           {/* Conditional rendering based on repeat unit */}
           {repeatUnit === 'weekly' && (
-            <div className='grid grid-cols-4 items-center'>
-              <div className='text-sm text-neutral-ct-primary'>Repeat on</div>
-              <div className='flex gap-2 col-span-3'>
+            <div className='grid grid-cols-4 items-center md:grid-cols-4 gap-2'>
+              <div className='text-sm text-neutral-ct-primary col-span-4 md:col-span-1'>
+                Repeat on
+              </div>
+              <div className='flex gap-2 col-span-4 md:col-span-3 flex-wrap'>
                 {WEEK_DAYS.map(day => (
                   <button
                     key={day.key}
@@ -345,7 +357,9 @@ const ReportModal = (props: ReportModalProps) => {
                 onClick={() => setEnds('never')}
               >
                 <RadioGroupItem value='never' />
-                <span className='text-neutral-ct-primary text-sm'>Never</span>
+                <span className='text-neutral-ct-primary md:text-sm text-xs'>
+                  Never
+                </span>
               </div>
 
               <div className='grid grid-cols-3 items-center gap-2'>
@@ -360,7 +374,9 @@ const ReportModal = (props: ReportModalProps) => {
                   }}
                 >
                   <RadioGroupItem value='on' />
-                  <span className='text-neutral-ct-primary text-sm'>On</span>
+                  <span className='text-neutral-ct-primary md:text-sm text-xs'>
+                    On
+                  </span>
                 </div>
                 <div className='col-span-2'>
                   <Popover>
@@ -397,7 +413,7 @@ const ReportModal = (props: ReportModalProps) => {
                   onClick={() => setEnds('after')}
                 >
                   <RadioGroupItem value='after' />
-                  <span className='text-neutral-ct-primary text-sm'>
+                  <span className='text-neutral-ct-primary md:text-sm text-xs'>
                     After(Times)
                   </span>
                 </div>

@@ -35,7 +35,7 @@ export default function ReportDetailPage() {
     return (
       <DashboardLayout>
         <div className='md:p-6 p-4 h-[calc(100vh-52px)]'>
-          <div className='mb-8'>
+          <div className='md:mb-8 mb-6'>
             <Link
               href={'/dashboard'}
               className='text-brand-ct-brand font-semibold text-xs'
@@ -60,14 +60,14 @@ export default function ReportDetailPage() {
   return (
     <DashboardLayout>
       <div className='md:p-6 p-4 '>
-        <div className='mb-8'>
+        <div className='md:mb-8 mb-6'>
           <Link
             href={'/dashboard'}
             className='text-brand-ct-brand font-semibold text-xs'
           >
             Back to All
           </Link>
-          <h1 className='text-2xl font-bold text-neutral-ct-primary mt-1'>
+          <h1 className='md:text-2xl text-xl font-bold text-neutral-ct-primary mt-1'>
             {dashboardData.data.name}
           </h1>
         </div>

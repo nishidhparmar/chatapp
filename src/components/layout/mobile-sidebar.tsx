@@ -2,7 +2,7 @@
 
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
-import { Chat, Clock, Help, Home, Reports } from '../icons';
+import { Chat, Clock, Home, Reports } from '../icons';
 import { usePathname } from 'next/navigation';
 
 const MobileSidebar = () => {
@@ -10,9 +10,9 @@ const MobileSidebar = () => {
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
     { icon: Chat, label: 'Chats', href: '/chats' },
-    { icon: Reports, label: 'Reports', href: '/dashboard' },
+    { icon: Reports, label: 'Dashboard', href: '/dashboard' },
     { icon: Clock, label: 'Reports', href: '/reports' },
-    { icon: Help, label: 'Help', href: '/help' },
+    // { icon: Help, label: 'Help', href: '/help' },
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 

@@ -146,7 +146,7 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   return (
     <DashboardLayout>
       <div className='bg-transparent'>
-        <div className='flex items-center md:flex-row flex-col bg-white p-3 gap-2'>
+        <div className='flex items-center flex-row  bg-white p-3 gap-2'>
           <div className='md:flex-1'></div>
           <div className='flex justify-cente max-w-[758px]  w-full'>
             <SearchTab
@@ -155,9 +155,9 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
             />
           </div>
           {!data.data.is_saved && (
-            <div className='md:flex-1 flex items-center justify-end w-full md:w-max'>
+            <div className='md:flex-1 flex items-center justify-end w-max '>
               <Button
-                className='text-xs py-2 px-4 w-full md:w-max'
+                className='text-xs py-2 px-4 w-full md:w-max h-full'
                 onClick={() => setOpenChatModal({ visible: true, id: chatId })}
               >
                 Save

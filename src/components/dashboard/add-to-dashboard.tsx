@@ -179,9 +179,20 @@ const AddToDashboard = ({
     setNewDashboardName('');
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !addToDashboardMutation.isPending) {
+      e.preventDefault();
+      if (isCreatingDashboard && newDashboardName.trim()) {
+        handleCreateDashboard();
+      } else if (!isCreatingDashboard && selectedDashboards.length > 0) {
+        handleAddToExistingDashboards();
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='sm:max-w-[425px]' onKeyDown={handleKeyDown}>
         {isCreatingDashboard ? (
           // Create Group View
           <>
@@ -194,6 +205,16 @@ const AddToDashboard = ({
               className=''
               value={newDashboardName}
               onChange={e => setNewDashboardName(e.target.value)}
+              onKeyDown={e => {
+                if (
+                  e.key === 'Enter' &&
+                  newDashboardName.trim() &&
+                  !addToDashboardMutation.isPending
+                ) {
+                  e.preventDefault();
+                  handleCreateDashboard();
+                }
+              }}
             />
             <DialogFooter className='mt-4'>
               <Button

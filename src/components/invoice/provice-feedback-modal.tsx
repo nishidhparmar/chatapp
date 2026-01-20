@@ -97,9 +97,19 @@ const ProvideFeedbackModal = ({
     onOpenChange({ type: 'POSITIVE', visible: false });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && customFeedback.trim() && !isPending) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
     <Dialog open={open.visible} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[425px] space-y-2'>
+      <DialogContent
+        className='sm:max-w-[425px] space-y-2'
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle className='font-medium text-lg'>{title}</DialogTitle>
         </DialogHeader>

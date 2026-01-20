@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useGetChatCharts } from '../../hooks/queries/use-get-chat-charts';
 import { InvoiceView } from '../common';
 import { VisualizationType } from '../common/invoice-view/types';
@@ -16,7 +16,15 @@ const ChatDataView: React.FC<ChatDataViewProps> = ({
   chatId,
   handleOpenDashboardView,
 }) => {
-  const { data: chartsData, isLoading } = useGetChatCharts(chatId, !!chatId);
+  const {
+    data: chartsData,
+    isLoading,
+    refetch,
+  } = useGetChatCharts(chatId, !!chatId);
+
+  useEffect(() => {
+    refetch();
+  }, [chatId]);
 
   if (isLoading) {
     return (

@@ -42,7 +42,7 @@ const ConversationTab = ({
     setFollowupQuestions([], 0);
 
     createChat(
-      { chat_id: 0, mode: 'conversational', text: suggestion },
+      { chat_id: undefined, mode: 'conversational', text: suggestion },
       {
         onSuccess: response => {
           // Store followup questions in Zustand store
@@ -66,7 +66,11 @@ const ConversationTab = ({
     setFollowupQuestions([], 0);
 
     createChat(
-      { chat_id: 0, mode: 'conversational', text: searchConversationQuery },
+      {
+        chat_id: undefined,
+        mode: 'conversational',
+        text: searchConversationQuery,
+      },
       {
         onSuccess: response => {
           // Store followup questions in Zustand store
@@ -102,7 +106,7 @@ const ConversationTab = ({
           label=''
           type='text'
           placeholder={placeholder}
-          className='h-16 !px-4 !pr-14 truncate'
+          className='h-16 !px-4  max-h-[48px] md:max-h-full !pr-14 truncate'
           disabled={isCreatingChat}
           rightIcon={
             <Button

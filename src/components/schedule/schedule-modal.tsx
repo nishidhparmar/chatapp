@@ -213,9 +213,16 @@ const ScheduleModal = (props: ScheduleModalProps) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading) {
+      e.preventDefault();
+      handleScheduleSubmit();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[434px]'>
+      <DialogContent className='sm:max-w-[434px]' onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle>
             {isEditing

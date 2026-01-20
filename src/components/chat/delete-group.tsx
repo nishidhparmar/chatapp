@@ -25,12 +25,22 @@ const DeleteGroup = ({
   isDeleting,
   groupName,
 }: DeleteGroupProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && onConfirm && !isDeleting) {
+      e.preventDefault();
+      onConfirm();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px] space-y-2'>
+      <DialogContent
+        className='sm:max-w-[425px] !gap-2'
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle>Delete Group</DialogTitle>
-          <DialogDescription className='mt-1'>
+          <DialogDescription className='mt-4'>
             Are you sure you want to delete the group &quot;{groupName}&quot;?
             The chats in this group will not be deleted.
           </DialogDescription>
