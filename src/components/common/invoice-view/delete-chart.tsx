@@ -22,12 +22,22 @@ const DeleteChart = ({
   onConfirm,
   isDeleting,
 }: DeleteChartProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && onConfirm && !isDeleting) {
+      e.preventDefault();
+      onConfirm();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px] space-y-2'>
+      <DialogContent
+        className='sm:max-w-[425px] !gap-2'
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle>Remove Chart</DialogTitle>
-          <DialogDescription className='mt-1'>
+          <DialogDescription className='mt-4'>
             Are you sure you want to remove this chart from the dashboard?
           </DialogDescription>
         </DialogHeader>

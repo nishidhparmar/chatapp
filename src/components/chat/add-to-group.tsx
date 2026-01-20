@@ -41,6 +41,17 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
     group.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !addToGroup.isPending) {
+      e.preventDefault();
+      if (isCreatingGroup && newGroupName.trim()) {
+        handleCreateGroup();
+      } else if (!isCreatingGroup && selectedGroup) {
+        handleAddToGroup();
+      }
+    }
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -114,7 +125,7 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='sm:max-w-[425px]' onKeyDown={handleKeyDown}>
         {isCreatingGroup ? (
           // Create Group View
           <>
@@ -127,6 +138,16 @@ const AddToGroup = ({ open, onOpenChange, chatId }: AddToGroupProps) => {
               className=''
               value={newGroupName}
               onChange={e => setNewGroupName(e.target.value)}
+              onKeyDown={e => {
+                if (
+                  e.key === 'Enter' &&
+                  newGroupName.trim() &&
+                  !addToGroup.isPending
+                ) {
+                  e.preventDefault();
+                  handleCreateGroup();
+                }
+              }}
             />
             <DialogFooter className='mt-4'>
               <Button

@@ -3,7 +3,7 @@
 import { Plus, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '../ui/separator';
-import { Chat, Clock, Help, Home, Reports } from '../icons';
+import { Chat, Clock, Home, Reports } from '../icons';
 import { Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -21,7 +21,7 @@ const Sidebar = ({
   ];
 
   const bottomItems = [
-    { icon: Help, label: 'Help', href: '/help' },
+    // { icon: Help, label: 'Help', href: '/help' },
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 

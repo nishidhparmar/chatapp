@@ -80,6 +80,7 @@ const SaveChatModal = ({ open, onOpenChange }: SaveChatModalProps) => {
           onChange={e => setChatTitle(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter' && !isPending) {
+              e.preventDefault();
               handleSave();
             }
           }}

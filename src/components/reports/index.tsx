@@ -358,7 +358,7 @@ const Reports = () => {
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
                       <button
                         onClick={() => handleEditQuestions(item)}
-                        className='p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                        className='p-2 text-gray-700 cursor-pointer hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
                         title='Edit Questions'
                         aria-label='Edit Questions'
                       >
@@ -366,7 +366,7 @@ const Reports = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteClick(item.report_id)}
-                        className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                        className='p-2 text-red-600 cursor-pointer hover:bg-red-50 rounded-lg transition-colors'
                         title='Delete Report'
                         aria-label='Delete Report'
                       >
@@ -378,7 +378,7 @@ const Reports = () => {
                       </button>
                       <button
                         onClick={() => handleEdit(item.report_id)}
-                        className='p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
+                        className='p-2 text-gray-700 cursor-pointer hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
                         title='Edit Report'
                         aria-label='Edit Report'
                       >

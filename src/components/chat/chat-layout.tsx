@@ -6,7 +6,6 @@ import ChatHeader from './chat-header';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
 import { useChatAsk } from '../../hooks/mutations/use-chat-ask';
 import SendInput from '../common/message/send-input';
-import { useQueryClient } from '@tanstack/react-query';
 import MessageList from '../common/message/message-list';
 import { ChatDetailMessage } from '../../types/chat';
 import DashboardView from '../reports/dashboard-view';
@@ -24,7 +23,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = () => {
   const [activeTab, setActiveTab] = useState<'chat' | 'data'>('chat');
   const [activeChat, setActiveChat] = useState('');
   const isMobile = window.innerWidth < 768;
-  const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();

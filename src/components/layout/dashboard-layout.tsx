@@ -26,9 +26,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 >
                   <Plus size={16} />
                 </button>
-                <p className='text-base text-neutral-ct-primary'>
-                  New saved chat
-                </p>
               </div>
             </SheetHeader>
             <MobileSidebar />

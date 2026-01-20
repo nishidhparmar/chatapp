@@ -44,7 +44,7 @@ const SearchTab = ({
     setFollowupQuestions([], 0);
 
     createChat(
-      { chat_id: 0, mode: 'search', text: suggestion },
+      { chat_id: undefined, mode: 'search', text: suggestion },
       {
         onSuccess: response => {
           // Store followup questions in Zustand store
@@ -84,13 +84,13 @@ const SearchTab = ({
             }
           }}
           placeholder={placeholder}
-          className='h-16 !px-4 c !pr-14 truncate'
+          className='h-16 !px-4  max-h-[48px] md:max-h-full !pr-14 truncate'
           rightIcon={
             <Button
               size={'icon'}
               variant={searchQuery.length > 0 ? 'default' : 'secondary'}
               onClick={() => handleSearchClick(searchQuery)}
-              disabled={isPending}
+              disabled={isPending || searchQuery.length === 0}
             >
               {isPending ? (
                 <div className='animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent' />

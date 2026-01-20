@@ -78,6 +78,12 @@ const CreateNewChat = ({ open, onOpenChange }: CreateNewChatProps) => {
           className=''
           value={value}
           onChange={e => setValue(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleCreate();
+            }
+          }}
         />
         <DialogFooter>
           <DialogClose asChild>

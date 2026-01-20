@@ -64,7 +64,7 @@ export type ChartContentData =
   | TextData;
 
 export interface ChatAskPayload {
-  chat_id: number;
+  chat_id: number | undefined;
   text: string;
   mode: 'search' | 'conversational';
 }

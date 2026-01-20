@@ -97,9 +97,21 @@ const ScheduleRecurring = ({
     });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (
+      e.key === 'Enter' &&
+      selectedSchedule &&
+      messageId &&
+      !createScheduleMutation.isPending
+    ) {
+      e.preventDefault();
+      handleCreateRecurringReport();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='sm:max-w-[425px]' onKeyDown={handleKeyDown}>
         {isCreatingSchedule ? (
           <ScheduleModal
             open={isCreatingSchedule}
