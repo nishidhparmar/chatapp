@@ -136,7 +136,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
                 fontSize: fontSize,
                 fontWeight: 500,
               }}
-              interval={isMobile ? 2 : processedChartData.length > 8 ? 1 : 0}
+              interval={isMobile ? 0 : processedChartData.length > 8 ? 1 : 0}
               height={isMobile ? 40 : 50}
             >
               <Label

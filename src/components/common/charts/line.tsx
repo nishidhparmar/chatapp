@@ -151,7 +151,7 @@ const LineChartComp: React.FC<LineChartProps> = ({
                 isMobile
                   ? processedChartData.length > 6
                     ? 2
-                    : 1
+                    : 0
                   : processedChartData.length > 10
                     ? 1
                     : 0

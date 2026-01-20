@@ -183,7 +183,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
         </div>
         <div className={`flex-1 ${isMobile ? 'mt-4 w-full px-6' : 'mr-0'}`}>
           <div
-            className={`${isMobile ? 'max-h-48' : 'max-h-80 pr-10'} overflow-y-auto`}
+            className={`${isMobile ? 'max-h-48' : 'max-h-80 pr-10'} overflow-y-auto px-2`}
           >
             {chartData.map((item, index) => (
               <div
