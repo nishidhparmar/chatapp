@@ -1,4 +1,6 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import { Eye } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Trash } from '../../icons';
 import ViewAsPopover from './view-as-popover';
@@ -7,8 +9,18 @@ import CopyPopover from './copy-popover';
 import DownloadPopover from './download-popover';
 import MaximizePopover from './maximize-popover';
 import DeleteChart from './delete-chart';
+import { useOpenChartAsChat } from '../../../hooks/mutations/dashboard/use-open-chart-as-chat';
 import { VisualizationType } from './types';
 import { ChatDetailMessage } from '../../../types/chat';
+
+interface OpenChartAsChatResponse {
+  status: string;
+  data: {
+    chat_id: number;
+    is_saved: boolean;
+  };
+  message: string;
+}
 
 interface ToolbarProps {
   // View As props
@@ -25,6 +37,7 @@ interface ToolbarProps {
   onAddToDashboard: () => void;
   onScheduleRecurring: () => void;
   hideAddToDashboard: boolean;
+  viewChat: boolean;
 
   // Copy props
   openCopyPopover: boolean;
@@ -49,6 +62,10 @@ interface ToolbarProps {
   setOpenDeleteModal: (open: boolean) => void;
   onDeleteChart?: () => void;
   isDeleting?: boolean;
+
+  // View Chat props
+  showViewChat?: boolean;
+  widgetId?: number;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -73,13 +90,36 @@ const Toolbar: React.FC<ToolbarProps> = ({
   openMaximizePopover,
   setOpenMaximizePopover,
   contentRef,
+  viewChat = false,
   hideExtentView,
   showDelete,
   openDeleteModal,
   setOpenDeleteModal,
   onDeleteChart,
   isDeleting,
+  widgetId,
 }) => {
+  const router = useRouter();
+  const openChartAsChatMutation = useOpenChartAsChat();
+
+  // Handle opening chart as chat
+  const handleViewChat = () => {
+    if (!widgetId) {
+      console.error('Widget ID is required to open chart as chat');
+      return;
+    }
+
+    openChartAsChatMutation.mutate(widgetId, {
+      onSuccess: (response: OpenChartAsChatResponse) => {
+        const chatId = response.data.chat_id;
+        router.push(`/conversations/${chatId}`);
+      },
+      onError: (error: Error) => {
+        console.error('Failed to open chart as chat:', error);
+        // You can add toast notification here if needed
+      },
+    });
+  };
   return (
     <div className='flex items-center'>
       <ViewAsPopover
@@ -120,6 +160,20 @@ const Toolbar: React.FC<ToolbarProps> = ({
         contentRef={contentRef}
         hideExtentView={hideExtentView}
       />
+
+      {viewChat && (
+        <button
+          className={cn(
+            'h-8 w-8 cursor-pointer flex items-center justify-center text-neutral-ct-secondary hover:bg-neutral-tertiary rounded-md transition-colors',
+            openChartAsChatMutation.isPending && 'opacity-50 cursor-not-allowed'
+          )}
+          onClick={handleViewChat}
+          disabled={openChartAsChatMutation.isPending}
+          title='View as Chat'
+        >
+          <Eye size={12} className='text-sm' />
+        </button>
+      )}
 
       {showDelete && (
         <>

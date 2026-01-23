@@ -81,6 +81,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                   title={chart.title}
                   dashboardId={dashboardData.data.dashboard_id}
                   chartId={chart.widget_id}
+                  viewChat
+                  widgetId={chart.widget_id}
                 />
               );
             })}

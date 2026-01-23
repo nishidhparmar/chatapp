@@ -22,6 +22,9 @@ export interface InvoiceViewProps {
   onOpenDashboardView?: (dashboardId: number) => void;
   dashboardId?: number;
   chartId?: number;
+  viewChat?: boolean;
+  showViewChat?: boolean;
+  widgetId?: number;
 }
 
 export interface MenuItemProps {

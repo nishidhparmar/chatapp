@@ -20,6 +20,9 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
   HideAddToDashboard = false,
   showDelete = false,
   hideExtentView = false,
+  viewChat = false,
+  showViewChat = false,
+  widgetId,
   title,
   chatId,
   onOpenDashboardView,
@@ -141,6 +144,9 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({
             setOpenMaximizePopover={setOpenMaximizePopover}
             contentRef={contentRef}
             hideExtentView={hideExtentView}
+            viewChat={viewChat}
+            showViewChat={showViewChat}
+            widgetId={widgetId}
             // onFullscreenOpen={() => setOpenFullscreenModal(true)}
             showDelete={showDelete}
             openDeleteModal={openDeleteModal}

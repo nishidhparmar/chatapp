@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Clock, Trash2 } from 'lucide-react';
 import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
@@ -12,12 +13,22 @@ import { useUpdateReport } from '../../hooks/mutations/reports/use-update-report
 import { useDeleteReport } from '../../hooks/mutations/reports/use-delete-report';
 import { useUpdateReportStatus } from '../../hooks/mutations/reports/use-update-report-status';
 import { useUpdateReportQuestions } from '../../hooks/mutations/reports/use-update-report-questions';
+import { useOpenReportAsChat } from '../../hooks/mutations/reports/use-open-report-as-chat';
 import { useGetReportById } from '../../hooks/queries/reports/use-get-report-by-id';
 import type {
   CreateReportPayload,
   ReportListItem,
   UpdateReportPayload,
 } from '../../types/reports';
+
+interface OpenReportAsChatResponse {
+  status: string;
+  data: {
+    chat_id: number;
+    is_saved: boolean;
+  };
+  message: string;
+}
 import { useGetReports } from '../../hooks/queries/reports/use-get-reports';
 import { ScheduleListSkeleton } from '@/components/common/skeletons';
 import ReportModal from './report-modal';
@@ -25,11 +36,13 @@ import DeleteRecurrence from './delete-recurrence';
 import EditQuestionsModal from './edit-questions-modal';
 
 const Reports = () => {
+  const router = useRouter();
   const createReportMutation = useCreateReport();
   const updateReportMutation = useUpdateReport();
   const deleteReportMutation = useDeleteReport();
   const updateReportStatusMutation = useUpdateReportStatus();
   const updateReportQuestionsMutation = useUpdateReportQuestions();
+  const openReportAsChatMutation = useOpenReportAsChat();
   const { data: reports, isLoading: isLoadingReports } = useGetReports();
 
   const [newQuestions, setNewQuestions] = useState(['']);
@@ -239,6 +252,20 @@ const Reports = () => {
     setEditingQuestionsReport(null);
   };
 
+  // Handle opening report as chat
+  const handleOpenReportAsChat = (reportId: number) => {
+    openReportAsChatMutation.mutate(reportId, {
+      onSuccess: (response: OpenReportAsChatResponse) => {
+        const chatId = response.data.chat_id;
+        router.push(`/conversations/${chatId}`);
+      },
+      onError: (error: Error) => {
+        console.error('Failed to open report as chat:', error);
+        // You can add toast notification here if needed
+      },
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className='min-h-screen bg-gray-50 py-12 px-4'>
@@ -333,7 +360,8 @@ const Reports = () => {
                 {reports?.data.map(item => (
                   <div
                     key={item.report_id}
-                    className='bg-[#F5F5F5] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#EBEBE7] transition-colors'
+                    className='bg-[#F5F5F5] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#EBEBE7] transition-colors cursor-pointer'
+                    onClick={() => handleOpenReportAsChat(item.report_id)}
                   >
                     <div className='flex-1 space-y-1 min-w-0'>
                       <div className='flex items-center gap-2 flex-wrap'>
@@ -357,7 +385,10 @@ const Reports = () => {
                     </div>
                     <div className='flex items-center gap-2 sm:gap-3 self-end sm:self-center flex-shrink-0'>
                       <button
-                        onClick={() => handleEditQuestions(item)}
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleEditQuestions(item);
+                        }}
                         className='p-2 text-gray-700 cursor-pointer hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors'
                         title='Edit Questions'
                         aria-label='Edit Questions'
@@ -365,7 +396,10 @@ const Reports = () => {
                         <Plus size={16} className='sm:w-4 sm:h-4' />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(item.report_id)}
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleDeleteClick(item.report_id);
+                        }}
                         className='p-2 text-red-600 cursor-pointer hover:bg-red-50 rounded-lg transition-colors'
                         title='Delete Report'
                         aria-label='Delete Report'
@@ -377,7 +411,10 @@ const Reports = () => {
                         />
                       </button>
                       <button
-                        onClick={() => handleEdit(item.report_id)}
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleEdit(item.report_id);
+                        }}
                         className='p-2 text-gray-700 cursor-pointer hover:text-blue-600 hover:bg-gray-200 rounded-lg transition-colors'
                         title='Edit Report'
                         aria-label='Edit Report'

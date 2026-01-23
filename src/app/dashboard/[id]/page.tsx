@@ -98,11 +98,14 @@ export default function ReportDetailPage() {
                   HideAddToDashboard
                   hideExtentView
                   showDelete
+                  showViewChat
+                  widgetId={chart.widget_id}
                   data={refinedata}
                   defaultView={chart.chart_type as VisualizationType}
                   title={chart.title}
                   dashboardId={dashboardData.data.dashboard_id}
                   chartId={chart.widget_id}
+                  viewChat
                 />
               );
             })}

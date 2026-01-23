@@ -29,7 +29,7 @@ interface MessageListProps {
 const MessageList = ({
   messages,
   showInvoiceView = true,
-  className = 'max-w-[758px] mx-auto w-full space-y-6 py-6 px-4',
+  className = 'max-w-[726px] mx-auto w-full space-y-6 py-6 px-4',
   showFeedback = false,
   chatId,
   onOpenDashboardView,
