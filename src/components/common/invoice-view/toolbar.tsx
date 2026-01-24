@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Trash } from '../../icons';
 import ViewAsPopover from './view-as-popover';
@@ -171,7 +171,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           disabled={openChartAsChatMutation.isPending}
           title='View as Chat'
         >
-          <Eye size={12} className='text-sm' />
+          <MessageCircle size={12} className='text-sm' />
         </button>
       )}
 
