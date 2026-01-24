@@ -67,7 +67,6 @@ const CustomTooltip = ({
   if (!active || !payload || payload.length === 0) return null;
 
   const dataPoint = payload[0].payload;
-
   return (
     <div className='relative' style={{ transform: 'translateY(-20px)' }}>
       {/* Tooltip Box */}
@@ -104,8 +103,9 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
   const processedChartData = chartData.map(item => ({
     ...item,
     displayLabel: truncateText(item.label),
-    originalLabel: item.label, // Keep original for tooltip
+    originalLabel: item.label,
   }));
+
 
   // Calculate min/max values from data if not provided
   const dataValues = chartData.map(item => item.value || 0);
@@ -151,7 +151,8 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
         <ResponsiveContainer width='100%' height='100%'>
           <BarChart data={processedChartData} margin={margins}>
             <XAxis
-              dataKey='displayLabel'
+              dataKey='originalLabel'
+              tickFormatter={(value) => truncateText(value)}
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{

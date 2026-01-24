@@ -127,7 +127,8 @@ const LineChartComp: React.FC<LineChartProps> = ({
             </defs>
 
             <XAxis
-              dataKey='displayLabel'
+              dataKey='originalLabel'
+              tickFormatter={(value) => truncateText(value)}
               axisLine={{ stroke: '#E7EBE8', strokeWidth: 1 }}
               tickLine={false}
               tick={{
