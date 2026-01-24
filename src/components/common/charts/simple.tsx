@@ -10,8 +10,6 @@ import {
   Tooltip,
   TooltipContentProps,
 } from 'recharts';
-import { useIsMobile } from '../../../hooks/use-mobile';
-import { BarChartData } from '../../../types/chat';
 
 const simpleBarData = [
   { label: 'Jan', value: 24 },
@@ -28,6 +26,14 @@ const simpleBarData = [
   { label: 'Dec', value: 34 },
 ];
 
+interface BarChartData {
+  data: Array<{ label: string; value: number }>;
+  columns?: {
+    x?: string;
+    y?: string;
+  };
+}
+
 interface SimpleChartProps {
   data?: BarChartData['data'];
   minValue?: number;
@@ -35,29 +41,46 @@ interface SimpleChartProps {
   chartContent?: BarChartData;
 }
 
+// Hook to detect mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
 // Custom Tooltip Component
 const CustomTooltip = ({
   active,
   payload,
 }: TooltipContentProps<string | number, string>) => {
-  if (!active || !payload?.length) return null;
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className='relative' style={{ transform: 'translateY(-20px)' }}>
-        {/* Tooltip Box */}
-        <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
-          <div className='flex items-center justify-between gap-8 text-xs'>
-            <span className='font-medium'>
-              {data.originalLabel || data.label}
-            </span>
-            <span className='font-semibold'>{data.value}</span>
-          </div>
+  if (!active || !payload || payload.length === 0) return null;
+
+  const dataPoint = payload[0].payload;
+
+  return (
+    <div className='relative' style={{ transform: 'translateY(-20px)' }}>
+      {/* Tooltip Box */}
+      <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
+        <div className='flex items-center justify-between gap-8 text-xs'>
+          <span className='font-medium'>
+            {dataPoint.originalLabel || dataPoint.label}
+          </span>
+          <span className='font-semibold'>{dataPoint.value}</span>
         </div>
       </div>
-    );
-  }
-  return null;
+    </div>
+  );
 };
 
 const SimpleChart: React.FC<SimpleChartProps> = ({

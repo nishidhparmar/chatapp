@@ -32,36 +32,24 @@ const CustomTooltip = ({
   active,
   payload,
 }: TooltipContentProps<string | number, string>) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload || payload.length === 0) return null;
 
-  const data = payload[0].payload;
+  const dataPoint = payload[0].payload;
 
   return (
     <div className='relative' style={{ transform: 'translateY(-20px)' }}>
       {/* Tooltip Box */}
-      <div className='bg-gray-700 text-white rounded-lg p-3 shadow-lg min-w-[180px]'>
-        <div className='text-sm font-medium mb-2 text-gray-200'>
-          {data.originalLabel || data.label}
-        </div>
-
-        {/* Value */}
-        <div className='flex items-center justify-between gap-6'>
-          <div className='flex items-center gap-2'>
-            <div
-              className='w-3 h-3 rounded-full'
-              style={{ backgroundColor: '#EF4444' }}
-            ></div>
-            <span className='text-xs text-gray-300'>Value</span>
-          </div>
-          <span className='text-xs font-semibold'>
-            {data.value.toLocaleString()}
+      <div className='bg-gray-700 text-white rounded-[8px] p-4 shadow-lg'>
+        <div className='flex items-center justify-between gap-8 text-xs'>
+          <span className='font-medium'>
+            {dataPoint.originalLabel || dataPoint.label}
           </span>
+          <span className='font-semibold'>{dataPoint.value}</span>
         </div>
       </div>
     </div>
   );
 };
-
 const LineChartComp: React.FC<LineChartProps> = ({
   data,
   minValue,
