@@ -24,6 +24,7 @@ interface MessageListProps {
   followUpQuestions?: string[];
   onFollowUpQuestionClick?: (question: string) => void;
   isLoadingFollowUp?: boolean;
+  hideBubble: boolean;
 }
 
 const MessageList = ({
@@ -36,6 +37,7 @@ const MessageList = ({
   followUpQuestions = [],
   onFollowUpQuestionClick,
   isLoadingFollowUp = false,
+  hideBubble = false,
 }: MessageListProps) => {
   const { user } = useUserStore();
   const displayName = getDisplayName(user);
@@ -84,14 +86,18 @@ const MessageList = ({
               className='flex flex-col md:flex-row md:items-start md:gap-3'
             >
               {/* Icon */}
-              <div className='w-6 h-6 md:block rounded-full bg-brand-default hidden items-center justify-center flex-shrink-0 mb-3 md:mb-0'>
-                <Aichat />
-              </div>
+              {!hideBubble && (
+                <div className='w-6 h-6 md:block rounded-full bg-brand-default hidden items-center justify-center flex-shrink-0 mb-3 md:mb-0'>
+                  <Aichat />
+                </div>
+              )}
 
               {/* Content */}
               <div className='flex-1 max-w-[620px]'>
                 <div className='flex items-start gap-2 w-full'>
-                  <Aichat className='shrink-0 md:hidden block' />
+                  {!hideBubble && (
+                    <Aichat className='shrink-0 md:hidden block' />
+                  )}
                   {showInvoiceView && message.chart_content ? (
                     <div className='w-full'>
                       <InvoiceView

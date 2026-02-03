@@ -2,7 +2,6 @@
 
 import { Plus, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { Separator } from '../ui/separator';
 import { Chat, Clock, Home, Reports } from '../icons';
 import { Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
@@ -15,6 +14,12 @@ const Sidebar = ({
   const pathname = usePathname();
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
+    {
+      icon: Plus,
+      label: 'New Chat',
+      href: null,
+      onClick: () => setNewChatModal(true),
+    },
     { icon: Chat, label: 'Chats', href: '/chats' },
     { icon: Reports, label: 'Dashboard', href: '/dashboard' },
     { icon: Clock, label: 'Reports', href: '/reports' },
@@ -25,7 +30,8 @@ const Sidebar = ({
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 
-  const isActive = (href: string) => {
+  const isActive = (href: string | null) => {
+    if (!href) return false;
     if (href === '/') {
       return (
         pathname === '/' ||
@@ -38,35 +44,46 @@ const Sidebar = ({
 
   return (
     <div className='w-22 bg-white border-r border-neutral-br-secondary hidden flex-col items-center py-6 md:flex '>
-      {/* Add Button */}
-      <button
-        onClick={() => setNewChatModal(true)}
-        className='w-10 h-10 cursor-pointer bg-brand-alternate rounded-full flex items-center justify-center text-white hover:bg-brand-active transition-colors'
-      >
-        <Plus size={20} />
-      </button>
-      <div className='px-2 w-full'>
-        <Separator className='my-6' />
-      </div>
       {/* Navigation Items */}
       <div className='flex-1 flex flex-col gap-6 '>
-        {navItems.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex flex-col rounded w-18 py-2 gap-1 justify-center items-center transition-colors ${
-              isActive(item.href)
-                ? 'text-blue-700 font-semibold bg-blue-100 rounded-lg w-full'
-                : 'text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <item.icon
-              size={24}
-              color={isActive(item.href) ? '#1D4ED8' : '#94A3B8'}
-            />
-            <span className='text-xs'>{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map(item => {
+          if (item.href) {
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex flex-col rounded w-18 py-2 gap-1 justify-center items-center cursor-pointer transition-colors ${
+                  isActive(item.href)
+                    ? 'text-blue-700 font-semibold bg-blue-100 rounded-lg w-full'
+                    : item.label === 'Home'
+                      ? 'text-blue-700'
+                      : 'text-slate-400 hover:text-slate-700'
+                }`}
+              >
+                <item.icon
+                  size={24}
+                  color={
+                    isActive(item.href) || item.label === 'Home'
+                      ? '#1D4ED8'
+                      : '#94A3B8'
+                  }
+                />
+                <span className='text-xs'>{item.label}</span>
+              </Link>
+            );
+          }
+
+          return (
+            <button
+              key={item.label}
+              onClick={item.onClick}
+              className='flex flex-col rounded w-18 py-2 gap-1 cursor-pointer justify-center items-center transition-colors text-slate-400 hover:text-slate-700'
+            >
+              <item.icon size={24} color='#94A3B8' />
+              <span className='text-xs'>{item.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Bottom Items */}
@@ -75,7 +92,7 @@ const Sidebar = ({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col rounded w-18 py-2 gap-1 justify-center items-center transition-colors ${
+            className={`flex flex-col rounded w-18 py-2 cursor-pointer gap-1 justify-center items-center transition-colors ${
               isActive(item.href)
                 ? 'text-blue-700 font-semibold bg-blue-100 rounded-lg w-full'
                 : 'text-slate-400 hover:text-slate-700'

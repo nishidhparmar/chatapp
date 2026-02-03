@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Clock, Trash2 } from 'lucide-react';
+import { Plus, Clock, Trash2, LucideClock } from 'lucide-react';
 import { AuthInput } from '../auth/common/auth-input';
 import { PiWarningFill } from 'react-icons/pi';
 import DashboardLayout from '../layout/dashboard-layout';
@@ -393,7 +393,7 @@ const Reports = () => {
                         title='Edit Questions'
                         aria-label='Edit Questions'
                       >
-                        <Plus size={16} className='sm:w-4 sm:h-4' />
+                        <Edit size={16} className='sm:w-4 sm:h-4' />
                       </button>
                       <button
                         onClick={e => {
@@ -419,7 +419,11 @@ const Reports = () => {
                         title='Edit Report'
                         aria-label='Edit Report'
                       >
-                        <Edit size={16} className='sm:w-4 sm:h-4' />
+                        <LucideClock
+                          size={14}
+                          className='sm:w-4 sm:h-4'
+                          color='#75756F'
+                        />
                       </button>
                     </div>
                   </div>

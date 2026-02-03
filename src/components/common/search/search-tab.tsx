@@ -17,14 +17,16 @@ interface SearchTabProps {
   suggestions?: string[];
   className?: string;
   handleSuccess?: (response: any) => void;
+  defaultValue?: string;
 }
 
 const SearchTab = ({
   placeholder = 'Show me the sales data for California?',
   className,
   handleSuccess,
+  defaultValue = '',
 }: SearchTabProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(defaultValue);
   const [onFocus, setOnFocus] = useState(false);
   const { data: suggestedData } = useSuggestedQuestions({
     enabled: onFocus && !searchQuery,

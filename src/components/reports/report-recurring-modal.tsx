@@ -249,7 +249,7 @@ const ReportRecurring = ({
                 {createReportMutation.isPending ||
                 updateReportMutation.isPending
                   ? 'Processing...'
-                  : 'Continue'}
+                  : 'Add To Existing '}
               </Button>
             </div>
           </>

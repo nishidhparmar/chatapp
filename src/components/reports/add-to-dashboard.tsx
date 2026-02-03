@@ -246,7 +246,7 @@ const AddToDashboard = ({
               >
                 {addToDashboardMutation.isPending
                   ? 'Creating...'
-                  : 'Create dashboard'}
+                  : 'Create New'}
               </Button>
             </DialogFooter>
           </>
@@ -332,7 +332,9 @@ const AddToDashboard = ({
                   addToDashboardMutation.isPending
                 }
               >
-                {addToDashboardMutation.isPending ? 'Adding...' : 'Done'}
+                {addToDashboardMutation.isPending
+                  ? 'Adding...'
+                  : 'Add To Existing'}
               </Button>
             </div>
           </>

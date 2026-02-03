@@ -60,9 +60,13 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
           <div className='p-3 border-b'>
             <div className='flex items-center gap-3'>
               <UserAvatar name={displayName} avatar={user?.avatar} size='md' />
-              <div className='flex flex-col'>
-                <span className='text-sm font-semibold'>{displayName}</span>
-                <span className='text-xs text-gray-500'>{user?.email}</span>
+              <div className='flex flex-col min-w-0 flex-1'>
+                <span className='text-sm font-semibold truncate'>
+                  {displayName}
+                </span>
+                <span className='text-xs text-gray-500 truncate'>
+                  {user?.email}
+                </span>
               </div>
             </div>
           </div>

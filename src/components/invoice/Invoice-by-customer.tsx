@@ -5,25 +5,26 @@ import DashboardLayout from '../layout/dashboard-layout';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useGetChatById } from '../../hooks/queries/use-get-chat-by-id';
-import MessageList from '../common/message/message-list';
 import SaveChatModal from '../chat/save-chat-modal';
 import Loading from '@/components/common/loading';
-import { SearchTab } from '../common';
-import { useFollowupStore } from '../../lib/stores';
-import { useChatAsk } from '../../hooks/mutations';
-import BubbleLoader from '../common/message/bubble-loader';
+import { InvoiceView, SearchTab } from '../common';
 import { ChatDetailMessage } from '../../types/chat';
+import { VisualizationType } from '../common/invoice-view/types';
+import { PiThumbsUp } from 'react-icons/pi';
+import { Message } from '../icons';
+import ProvideFeedbackModal from './provice-feedback-modal';
 
 const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   const router = useRouter();
   const { data, isLoading, isError, refetch } = useGetChatById(Number(chatId));
-  const {
-    followupQuestions,
-    currentChatId,
-    setFollowupQuestions,
-    clearFollowupQuestions,
-  } = useFollowupStore();
-  const { mutate: createChat, isPending } = useChatAsk();
+  const [provideFeedbackModal, setOpenProvideFeedbackModal] = useState<{
+    visible: boolean;
+    type: 'POSITIVE' | 'NAGETIVE';
+  }>({
+    visible: false,
+    type: 'POSITIVE',
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [optimisticMessages, setOptimisticMessages] = useState<
     ChatDetailMessage[]
@@ -79,65 +80,9 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
   }
 
   const messages = data.data.messages;
-  const displayMessages = [...messages, ...optimisticMessages];
 
-  // Handle followup question clicks
-  const handleFollowupQuestionClick = (question: string) => {
-    // Clear followup questions immediately when clicked
-    clearFollowupQuestions();
-
-    // Create optimistic user message
-    const optimisticUserMessage: ChatDetailMessage = {
-      id: Date.now(), // Temporary ID
-      text: question.trim(),
-      sender: 'user',
-      created_at: new Date().toISOString(),
-      title: '',
-    };
-
-    // Add optimistic message and show loading state
-    setOptimisticMessages([optimisticUserMessage]);
-    setIsWaitingForResponse(true);
-
-    createChat(
-      { chat_id: chatId, mode: 'search', text: question },
-      {
-        onSuccess: response => {
-          // Update followup questions in store with new ones from response
-          if (response.data.followup_questions) {
-            setFollowupQuestions(
-              response.data.followup_questions,
-              response.data.chat_id
-            );
-          }
-          // Refetch to get updated messages
-          // refetch();
-        },
-        onError: error => {
-          console.error('Failed to send followup question:', error);
-          // Reset optimistic state on error
-          setOptimisticMessages([]);
-          setIsWaitingForResponse(false);
-          // On error, we could optionally restore the previous questions
-          // but for now we'll keep them cleared for better UX
-        },
-      }
-    );
-  };
-
-  // Get followup questions for this specific chat
-  const currentFollowupQuestions =
-    currentChatId === chatId ? followupQuestions : [];
-
-  // Handle success from SearchTab
   const handleSuccess = (response: any) => {
     // Store followup questions in Zustand store
-    if (response.data.followup_questions) {
-      setFollowupQuestions(
-        response.data.followup_questions,
-        response.data.chat_id
-      );
-    }
 
     // Navigate to the new chat with timestamp to force refresh
     router.push(`/chat/${response.data.chat_id}?t=${Date.now()}`);
@@ -152,6 +97,7 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
             <SearchTab
               className='w-full max-w-[758px]'
               handleSuccess={handleSuccess}
+              defaultValue={messages[0].text}
             />
           </div>
           {!data.data.is_saved && (
@@ -167,22 +113,50 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
         </div>
         <div className='max-w-[758px] mx-auto w-full pb-6 lg:px-6 px-4'>
           <div className='mt-8'>
-            <MessageList
-              messages={displayMessages}
-              className='space-y-6'
-              showFeedback={true}
+            <InvoiceView
+              title={messages[1]?.title}
+              defaultView={
+                messages &&
+                (messages[1]?.chart_content?.type as VisualizationType)
+              }
+              data={messages[1]}
               chatId={chatId}
-              followUpQuestions={currentFollowupQuestions}
-              onFollowUpQuestionClick={handleFollowupQuestionClick}
-              isLoadingFollowUp={isPending}
             />
-            {/* Show bubble loader when waiting for response */}
-            {isWaitingForResponse && (
-              <div className='space-y-6 py-6'>
-                <BubbleLoader />
-              </div>
+          </div>
+          <div className='flex md:flex-row flex-col gap-4 md:items-center justify-between pt-4 mt-4'>
+            <div className='flex items-center gap-3'>
+              <span className='md:text-sm text-[10px] text-neutral-ct-tertiary'>
+                Was this answer helpful?
+              </span>
+              <PiThumbsUp
+                className='text-neutral-ct-secondary cursor-pointer hover:text-neutral-ct-primary'
+                onClick={() =>
+                  setOpenProvideFeedbackModal({
+                    type: 'POSITIVE',
+                    visible: true,
+                  })
+                }
+              />
+              <PiThumbsUp
+                className='rotate-180 text-neutral-ct-secondary cursor-pointer hover:text-neutral-ct-primary'
+                onClick={() =>
+                  setOpenProvideFeedbackModal({
+                    type: 'NAGETIVE',
+                    visible: true,
+                  })
+                }
+              />
+            </div>
+            {chatId && (
+              <Button
+                variant={'secondary'}
+                onClick={() => router.push(`/conversations/${chatId}`)}
+                className='w-max'
+              >
+                {/* <Message /> Switch to Conversation Mode */}
+                <Message /> Ask follow up question
+              </Button>
             )}
-            <div ref={messagesEndRef} />
           </div>
         </div>
       </div>
@@ -192,6 +166,11 @@ const InvoiceSearchedByCustomer = ({ chatId }: { chatId: number }) => {
           setOpenChatModal({ visible: false, id: 0 });
           refetch();
         }}
+      />
+      <ProvideFeedbackModal
+        open={provideFeedbackModal}
+        onOpenChange={setOpenProvideFeedbackModal}
+        messageId={String(messages[1]?.id)}
       />
     </DashboardLayout>
   );

@@ -498,7 +498,7 @@ const ReportModal = (props: ReportModalProps) => {
                     : 'Creating...'
                   : isEditing
                     ? 'Update Report'
-                    : 'Schedule'}
+                    : 'Create'}
               </Button>
             </div>
           </div>
