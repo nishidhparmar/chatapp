@@ -24,7 +24,7 @@ interface MessageListProps {
   followUpQuestions?: string[];
   onFollowUpQuestionClick?: (question: string) => void;
   isLoadingFollowUp?: boolean;
-  hideBubble: boolean;
+  hideBubble?: boolean;
 }
 
 const MessageList = ({
